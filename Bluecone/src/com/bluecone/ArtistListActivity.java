@@ -2,7 +2,6 @@ package com.bluecone;
 
 
 import com.bluecone.storage.ArtistList.Artist;
-
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -35,7 +34,7 @@ public class ArtistListActivity extends ListActivity{
 	private int max;
 	protected static String MAX = "max";
 	private int progress;
-	public static final  String PROGRESS_ARTIST = "com.bownfield.PROGRESS_ARTIST";
+	public static final  String PROGRESS_ARTIST = "com.bluecone.PROGRESS_ARTIST";
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -44,8 +43,8 @@ public class ArtistListActivity extends ListActivity{
 
 		artistBaseAdapter = new ArtistBaseAdapter();
 		layoutInflater = (LayoutInflater) BlueconeContext.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-		cursor = BlueconeContext.getContext().getContentResolver().query(Artist.CONTENT_URI, new String[] { BaseColumns._ID, Artist.NAME}, null, null, null);
-		 startManagingCursor(cursor);
+		cursor = BlueconeContext.getContext().getContentResolver().query(Artist.CONTENT_URI, new String[] { BaseColumns._ID, Artist.NAME}, null, null, null);		
+		startManagingCursor(cursor);	// Denne er deprecated. CursorLoader kan/skal brukes, men denne virker sannsynligvis ikke på SDK 7. 
 		 dialog = new ProgressDialog(this);
 		 dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		 
@@ -66,6 +65,7 @@ public class ArtistListActivity extends ListActivity{
 
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 
+
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if(D)Log.d(TAG, "onReceive...");
@@ -76,23 +76,28 @@ public class ArtistListActivity extends ListActivity{
 					progress = 0;
 					dialog.show();
 				}
-				dialog.setTitle(intent.getStringExtra(Artist.NAME));
 				dialog.setProgress(++progress);
-				if(progress>max)
+				if(progress>max){
+					Intent updateAlbum = new Intent(MainTabActivity.REFRESH_FILTER);
+					sendBroadcast(updateAlbum);
 					dialog.dismiss();
+				}
 				
 			}
-			else{
-			cursor = BlueconeContext.getContext().getContentResolver().query(Artist.CONTENT_URI, new String[] { BaseColumns._ID, Artist.NAME}, null, null, null);
-			artistBaseAdapter.notifyDataSetChanged();
-			}
+			update();
 			if(D)Log.d(TAG, "...onReceive");
 
 		}
 	};
+	
+	private void update(){
+		cursor = BlueconeContext.getContext().getContentResolver().query(Artist.CONTENT_URI, new String[] { BaseColumns._ID, Artist.NAME}, null, null, null);		
+		artistBaseAdapter.notifyDataSetChanged();
+		
+	}
 
 	private class ArtistBaseAdapter extends BaseAdapter implements OnClickListener{
-
+			
 
 		public int getCount() {
 			// TODO Auto-generated method stub
@@ -133,8 +138,8 @@ public class ArtistListActivity extends ListActivity{
 			Intent intent = new Intent(REFRESH_ALBUM);
 			intent.putExtra(Artist.NAME, ((((ViewHolder) v.getTag()).name)).getText());
 			sendBroadcast(intent);
+		
 			
-			MainTabActivity.tabHost.setCurrentTab(1);
 			
 		}
 
