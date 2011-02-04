@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, BlueconeTabActivity!</string>
+    <string name="app_name">BlueCone</string>
+    <string name="menu_scan">Scan</string>
+    <string name="menu_update">Update</string>
+    <string name="menu_back">Back</string>
+    <string name="menu_search">Search</string>
+    <string name="device_title_paired">Paired device</string>
+    <string name="device_title_new">Unpaired devices</string>
+    <string name="device_button_scan">Search</string>
+    <string name="device_non_paired">No paired devices</string>
+    <string name="device_scanning">Scanning</string>
+    <string name="device_non_found">No devices found</string>
+</resources>
