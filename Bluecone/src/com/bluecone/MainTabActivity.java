@@ -23,8 +23,8 @@ public class MainTabActivity extends TabActivity {
 	
 	
 
-	public static final String REFRESH_FILTER ="com.brownfield.bluecone.REFRESH";
-	public static final String WRITE_FILTER = "com.brownfield.bluecone.WRITE";
+	public static final String REFRESH_FILTER ="com.bluecone.REFRESH";
+	public static final String WRITE_FILTER = "com.bluecone.WRITE";
 	
 	private static final String TAG = "Tabactivity";
 	private static final boolean D = true;

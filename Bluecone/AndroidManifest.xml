@@ -4,6 +4,8 @@
       android:versionCode="1"
       android:versionName="1.0">
     <uses-sdk android:minSdkVersion="7" />
+    <uses-permission android:name="android.permission.BLUETOOTH"></uses-permission>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"></uses-permission>
 
     <application android:icon="@drawable/icon" android:label="@string/app_name">
         <activity android:name=".MainTabActivity"
@@ -12,7 +14,33 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.bluetooth.adapter.action.REQUEST_ENABLE"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+            </intent-filter>
         </activity>
+        <activity android:name="ArtistListActivity"></activity>
+        <activity android:name="AlbumListActivity">
+            <intent-filter>
+                <action android:name="com.bluecone.REFRESH_ALBUM"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+            </intent-filter>
+        </activity>
+        <activity android:name="TrackListActivity">
+            <intent-filter>
+                <action android:name="com.bluecone.REFRESH_TRACK"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+            </intent-filter>
+        </activity>
+        <activity android:name="QueueListActivity"></activity>
+        <activity android:name=".connect.DeviceFinder">
+            <intent-filter>
+                <action android:name="com.bluecone.connect.REQUEST_CONNECT"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+            </intent-filter>
+        </activity>
+        <provider android:authorities="com.bluecone.storage.artistList"
+        android:name=".storage.BlueconeContentProvider"></provider>
 
     </application>
 </manifest>

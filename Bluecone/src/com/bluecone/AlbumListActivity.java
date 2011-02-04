@@ -23,7 +23,7 @@ public class AlbumListActivity extends ListActivity {
 
 	private static final String TAG = "Albumlist";
 	private static final boolean D = true;
-	public static String REFRESH_TRACK = "com.brownfield.REFRESH_TRACK";
+	public static String REFRESH_TRACK = "com.bluecone.REFRESH_TRACK";
 	
 	private Cursor cursor;
 	private LayoutInflater layoutInflater;

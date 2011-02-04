@@ -26,7 +26,7 @@ public class ArtistListActivity extends ListActivity{
 
 	private static final String TAG = "Artistlist";
 	private static final boolean D = true;
-	protected static String REFRESH_ALBUM = "com.brownfield.REFRESH_ALBUM";
+	protected static String REFRESH_ALBUM = "com.bluecone.REFRESH_ALBUM";
 
 	private Cursor cursor;
 	private LayoutInflater layoutInflater;

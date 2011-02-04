@@ -28,7 +28,7 @@ public class DeviceFinder extends Activity implements OnItemClickListener{
     private static final boolean D = true;
     
     public static final String EXTRA_UNIT_ADDRESS = "unit_address";
-    public static final String REQUEST_CONNECT = "com.brownfield.connect.REQUEST_CONNECT";
+    public static final String REQUEST_CONNECT = "com.bluecone.connect.REQUEST_CONNECT";
     
     //Blåtannadapteret som hentes fra systemet
     private BluetoothAdapter bluetoothAdapter;

@@ -5,7 +5,7 @@ import android.provider.BaseColumns;
 
 public class ArtistList {
 
-    public static final String AUTHORITY = "com.brownfield.storage.artistList";
+    public static final String AUTHORITY = "com.bluecone.storage.artistList";
 	
 	public static final class Artist implements BaseColumns {
 
