@@ -34,16 +34,17 @@ public class ArtistListActivity extends ListActivity{
 	private int max;
 	protected static String MAX = "max";
 	private int progress;
+	private static String sortOrder;
 	public static final  String PROGRESS_ARTIST = "com.bluecone.PROGRESS_ARTIST";
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.artist_layout);
-
+		sortOrder = Artist.NAME+" ASC";
 		artistBaseAdapter = new ArtistBaseAdapter();
 		layoutInflater = (LayoutInflater) BlueconeContext.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-		cursor = BlueconeContext.getContext().getContentResolver().query(Artist.CONTENT_URI, new String[] { BaseColumns._ID, Artist.NAME}, null, null, null);		
+		cursor = BlueconeContext.getContext().getContentResolver().query(Artist.CONTENT_URI, new String[] { BaseColumns._ID, Artist.NAME}, null, null, sortOrder);		
 		startManagingCursor(cursor);	// Denne er deprecated. CursorLoader kan/skal brukes, men denne virker sannsynligvis ikke på SDK 7. 
 		 dialog = new ProgressDialog(this);
 		 dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);

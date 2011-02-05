@@ -130,8 +130,6 @@ public class AlbumListActivity extends ListActivity {
 			Intent intent = new Intent(REFRESH_TRACK);
 			intent.putExtra(Album.TITLE,((((ViewHolder) v.getTag()).title)).getText());
 			sendBroadcast(intent);
-
-			MainTabActivity.tabHost.setCurrentTab(2);
 		}
 
 	}
