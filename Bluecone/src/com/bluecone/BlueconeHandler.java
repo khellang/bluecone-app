@@ -74,10 +74,9 @@ public final class BlueconeHandler extends Handler {
 				}
 				break;
 			case FINISHED_INSERT:
-			/*	progress++;
-				dialog.setProgress(progress);
-				if(progress>=max)
-					dialog.dismiss();*/
+				Log.d(TAG, "Waiting : "+waiting+" -->");
+				waiting = true;
+				Log.d(TAG, "--> "+waiting);
 				break;
 			case INPUT_PREP:
 	
@@ -94,10 +93,7 @@ public final class BlueconeHandler extends Handler {
 				switch(map.get(in[0])){
 				case LISTSTART:
 					if(D)Log.d(TAG, "Liststart");
-					//Hent ut alle sanger fra in[1]
-					//Start en progressbar med MAX = antall sanger
 					max = Integer.parseInt(in[1]);
-					Log.d(TAG, "max= "+max);
 					Intent progressIntent = new Intent(ArtistListActivity.PROGRESS_ARTIST);
 					progressIntent.putExtra(ArtistListActivity.MAX, max);
 					MainTabActivity.tabHost.setCurrentTab(3);
@@ -112,54 +108,6 @@ public final class BlueconeHandler extends Handler {
 					break;
 			}
 			}
-				/*Intent refreshIntent = new Intent(BlueconeTabActivity.REFRESH_FILTER);
-				BlueconeContext.getContext().sendBroadcast(refreshIntent);
-				Log.d(TAG, "INPUT.. ");
-				String tmp = new String((byte[]) msg.obj).trim();
-				
-				Log.d(TAG, "FLAG_INPUT in = "+tmp);
-				String [] in = tmp.split("#");
-					switch(map.get(in[0])){
-					case LISTSTART:
-						if(D)Log.d(TAG, "Liststart");
-						//Hent ut alle sanger fra in[1]
-						//Start en progressbar med MAX = antall sanger
-						break;
-					case LIST:
-						if(D)Log.d(TAG, "List");
-						String[] input = in[1].split("\\|");
-						ContentValues artValues = new ContentValues();
-						ContentValues albumValues = new ContentValues();
-						ContentValues trackValues = new ContentValues();
-						artValues.put(Artist.NAME, input[1]);
-						albumValues.put(Album.TITLE, input[2]);
-						albumValues.put(Album.ARTIST_NAME, input[1]);
-						trackValues.put(Track.PATH, input[0]);
-						trackValues.put(Track.TITLE, input[3]);
-						trackValues.put(Track.ALBUM_TITLE, input[2]);
-						trackValues.put(Track.ARTIST_NAME, input[1]);
-						try{
-							contentResolver.insert(Track.CONTENT_URI, trackValues);
-							contentResolver.insert(Album.CONTENT_URI, albumValues);
-							contentResolver.insert(Artist.CONTENT_URI, artValues);
-							
-						}catch(SQLException a){
-							if(D)Log.d(TAG, "SQLException..."+a);
-						}catch(IllegalArgumentException b){
-							if(D)Log.d(TAG, "IllegalArgumentException..."+b);
-							
-						}
-					
-						break;
-					case QUEUESTART:
-						break;
-					case QUEUE:
-						break;
-						default: Log.d(TAG, "Uventet feil");
-						break;
-					}*/
-	
-			
 				break;
 			case OUTPUT:
 				//Brukes ikke foreløpig..... Write track fanges opp i BlueconeTabActivity.class
@@ -187,7 +135,6 @@ public final class BlueconeHandler extends Handler {
 					int track = 3;
 						switch(map.get(in[0])){
 				case LIST:
-					if(D)Log.d(TAG, "List");
 					storage.remove(0);
 					for(int i = 1;i<lenght;i++){
 					String[] input = in[i].split("\\|");
@@ -202,6 +149,7 @@ public final class BlueconeHandler extends Handler {
 					trackValues.put(Track.ALBUM_TITLE, input[album]);
 					trackValues.put(Track.ARTIST_NAME, input[artist]);
 					try{
+						progress = setProgress(++progress)?0:progress;			//Keeps track of progress. When progress >= max; waiting : false-->true
 						contentResolver.insert(Track.CONTENT_URI, trackValues);
 						Intent progressIntent = new Intent(ArtistListActivity.PROGRESS_ARTIST);
 						progressIntent.putExtra(Artist.NAME, input[artist]);
@@ -222,7 +170,7 @@ public final class BlueconeHandler extends Handler {
 					default: Log.d(TAG, "Uventet feil");
 					break;
 				}
-					setProgress(++progress);	
+			
 				}
 				
 					
@@ -230,9 +178,14 @@ public final class BlueconeHandler extends Handler {
 		}
 		};
 		
-		public void setProgress(int progress){
-			if(progress>=max)Log.d(TAG, "FINISHED");
-				
+		public boolean setProgress(int progress){
+			if(progress>=max){
+				max = 0;
+				waiting = true;
+				Log.d(TAG, "FINISHED");
+				return true;
+			}
+			return false;
 		}
 
 }

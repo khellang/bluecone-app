@@ -1,5 +1,7 @@
 package com.bluecone;
 
+import java.util.HashMap;
+
 import com.bluecone.storage.ArtistList.Album;
 import com.bluecone.storage.ArtistList.Track;
 
@@ -141,4 +143,10 @@ public class TrackListActivity extends ListActivity {
 		TextView artist;
 		String path;
 	} 
+	
+	static{
+		HashMap<String, Integer> actionMap = new HashMap<String, Integer>();
+		actionMap.put(MainTabActivity.REFRESH_FILTER, 0);
+		actionMap.put(AlbumListActivity.REFRESH_TRACK, 1);
+	}
 }

@@ -82,6 +82,7 @@ public class ArtistListActivity extends ListActivity{
 					Intent updateAlbum = new Intent(MainTabActivity.REFRESH_FILTER);
 					sendBroadcast(updateAlbum);
 					dialog.dismiss();
+
 				}
 				
 			}
