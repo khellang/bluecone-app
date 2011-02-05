@@ -137,6 +137,7 @@ public class ArtistListActivity extends ListActivity{
 		public void onClick(View v) {
 			Intent intent = new Intent(REFRESH_ALBUM);
 			intent.putExtra(Artist.NAME, ((((ViewHolder) v.getTag()).name)).getText());
+			Log.d(TAG, "Trykker på "+intent.getStringExtra(Artist.NAME));
 			sendBroadcast(intent);
 		
 			

@@ -22,7 +22,7 @@ import android.widget.TextView;
 public class AlbumListActivity extends ListActivity {
 
 	private static final String TAG = "Albumlist";
-	private static final boolean D = false;
+	private static final boolean D = true;
 	public static String REFRESH_TRACK = "com.bluecone.REFRESH_TRACK";
 
 	private Cursor cursor;
@@ -64,6 +64,7 @@ public class AlbumListActivity extends ListActivity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if(intent.getAction().equalsIgnoreCase(MainTabActivity.REFRESH_FILTER)){
+				if(D)Log.d(TAG, "REFRESH_FILTER");
 				selection = null;
 				selectionArgs = null;				 	
 				update();

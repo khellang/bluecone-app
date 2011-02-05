@@ -100,6 +100,9 @@ public final class BlueconeHandler extends Handler {
 					Log.d(TAG, "max= "+max);
 					Intent progressIntent = new Intent(ArtistListActivity.PROGRESS_ARTIST);
 					progressIntent.putExtra(ArtistListActivity.MAX, max);
+					MainTabActivity.tabHost.setCurrentTab(3);
+					MainTabActivity.tabHost.setCurrentTab(2);
+					MainTabActivity.tabHost.setCurrentTab(1);
 					MainTabActivity.tabHost.setCurrentTab(0);
 					BlueconeContext.getContext().sendBroadcast(progressIntent);
 					writerThread.start();
