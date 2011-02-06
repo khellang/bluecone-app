@@ -32,7 +32,12 @@
                 <category android:name="android.intent.category.DEFAULT"></category>
             </intent-filter>
         </activity>
-        <activity android:name="QueueListActivity"></activity>
+        <activity android:name="QueueListActivity">
+            <intent-filter>
+                <action android:name="com.bluecone.UPDATE_QUEUE"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+            </intent-filter>
+        </activity>
         <activity android:name=".connect.DeviceFinder">
             <intent-filter>
                 <action android:name="com.bluecone.connect.REQUEST_CONNECT"></action>

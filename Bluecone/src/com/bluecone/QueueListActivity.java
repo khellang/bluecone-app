@@ -1,14 +1,14 @@
 package com.bluecone;
 
-
+import com.bluecone.storage.ArtistList.Track;
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-
+import android.database.Cursor;
 import android.os.Bundle;
-
+import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,27 +22,30 @@ public class QueueListActivity extends ListActivity {
 	private static final boolean D = true;
 
 	public static final String UPDATE_QUEUE = "com.bluecone.UPDATE_QUEUE";
-	public static final String ADD_QUEUE = "com.bluecone.ADD_QUEUE";	
 	public static final String QUEUE_ELEMENTS="elements";
+	public static final String PATH = "path";
 	private LayoutInflater layoutInflater;
 	private String[] playList=new String[]{"Terje Rocker"};
+	
+	private QueueBaseAdapter queueBaseAdapter;
+	private Cursor cursor;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.queue_layout);
+		queueBaseAdapter = new QueueBaseAdapter();
 		layoutInflater = (LayoutInflater) BlueconeContext.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-		setListAdapter(queueAdapter);
-		if(D)Log.d(TAG, "...onCreate");
+		cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI, new String[] { BaseColumns._ID, Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH }, null, null, null);
+		startManagingCursor(cursor);
+		setListAdapter(queueBaseAdapter);
 	}
 
 	@Override
 	public void onStart(){
 		super.onStart();
 		IntentFilter queueIntent = new IntentFilter(UPDATE_QUEUE);
-		IntentFilter addIntent = new IntentFilter(ADD_QUEUE);
 		this.registerReceiver(receiver, queueIntent);
-		this.registerReceiver(receiver, addIntent);
 	}
 
 
@@ -53,7 +56,17 @@ public class QueueListActivity extends ListActivity {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			playList = intent.getStringArrayExtra(QUEUE_ELEMENTS);
+			if(D)Log.d(TAG, "onReceive");
+			String selection = Track.PATH+"=? ";
+			String[]selectionArgs = new String[]{intent.getStringExtra(PATH)};
+			if(D)Log.d(TAG, "input: "+selectionArgs[0]);
+			synchronized (QueueListActivity.this) {
+				
+				cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH}, selection, selectionArgs, null);
+				if(D)Log.d(TAG, "Antall kolonner: "+cursor.getColumnCount());
+		
+			}
+		//	playList = intent.getStringArrayExtra(QUEUE_ELEMENTS);
 			update();
 
 
@@ -61,22 +74,34 @@ public class QueueListActivity extends ListActivity {
 	};
 
 	private void update(){
-		queueAdapter.notifyDataSetChanged();
+		queueBaseAdapter.notifyDataSetChanged();
 
 	}
 
-	private BaseAdapter queueAdapter = new BaseAdapter() {
+	private class QueueBaseAdapter extends BaseAdapter{
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 
+			cursor.moveToPosition(position);
+			ViewHolder holder;
 			if(convertView==null){
-				convertView =	layoutInflater.inflate(R.layout.queue_entry, null);
-
+				convertView = layoutInflater.inflate(R.layout.track_entry, null);
+				holder = new ViewHolder();
+				holder.title = (TextView) convertView.findViewById(R.id.track_title);
+				holder.album = (TextView) convertView.findViewById(R.id.track_album_title);
+				holder.artist = (TextView) convertView.findViewById(R.id.track_artist_name);
+				convertView.setTag(holder);
 			}
-			((TextView)convertView.findViewById(R.id.queue_artist_name)).setText(playList[position]);
+			else{
+				holder = (ViewHolder) convertView.getTag();
+			}
 
 
+			holder.title.setText(cursor.getString(1));
+			holder.album.setText(cursor.getString(2));
+			holder.artist.setText(cursor.getString(3));
+			holder.path = (cursor.getString(4));
 			return convertView;
 
 		}
@@ -90,13 +115,19 @@ public class QueueListActivity extends ListActivity {
 		@Override
 		public Object getItem(int position) {
 			// TODO Auto-generated method stub
-			return playList[position];
+			return position;
 		}
 
 		@Override
 		public int getCount() {
 			// TODO Auto-generated method stub
-			return playList.length;
+			return cursor.getCount();
 		}
 	};
+	private class ViewHolder{
+		TextView title;
+		TextView album;
+		TextView artist;
+		String path;
+	} 
 }

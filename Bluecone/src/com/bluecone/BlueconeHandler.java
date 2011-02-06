@@ -45,6 +45,9 @@ public final class BlueconeHandler extends Handler {
 	private boolean waiting;
 	private static int max;
 	
+	
+
+	
 	public static BlueconeHandler getHandler(){
 		return handler;
 	}
@@ -101,10 +104,14 @@ public final class BlueconeHandler extends Handler {
 					MainTabActivity.tabHost.setCurrentTab(1);
 					MainTabActivity.tabHost.setCurrentTab(0);
 					BlueconeContext.getContext().sendBroadcast(progressIntent);
-					writerThread.start();
+					WriterThread musicWriterThread = new WriterThread();
+					musicWriterThread.start();
 					break;
 				case QUEUESTART:
 					if(D)Log.d(TAG, "Queuestart");
+					max = Integer.parseInt(in[1]);
+					 WriterThread queueWriterThread = new WriterThread();
+					 queueWriterThread.start();					
 					break;
 			}
 			}
@@ -119,11 +126,17 @@ public final class BlueconeHandler extends Handler {
 			}
 		}
 			
-		private Thread writerThread = new Thread(){
-		private int progress = 0;
+		private class WriterThread extends Thread{
+			private int progress;
+			private final Intent progressIntent = new Intent(ArtistListActivity.PROGRESS_ARTIST); 
+			public WriterThread(){
+				progress = 0;
+			}
 			public void	run(){
+				Log.d("THREAD","running..."+progress);
 			while(progress<max){
 				while(!storage.isEmpty()){
+					Log.d("THREAD","Storage!empty");
 					String tmp = new String((byte[]) storage.get(0)).trim();
 					
 					Log.d(TAG, "FLAG_INPUT in = "+tmp);
@@ -151,8 +164,6 @@ public final class BlueconeHandler extends Handler {
 					try{
 						progress = setProgress(++progress)?0:progress;			//Keeps track of progress. When progress >= max; waiting : false-->true
 						contentResolver.insert(Track.CONTENT_URI, trackValues);
-						Intent progressIntent = new Intent(ArtistListActivity.PROGRESS_ARTIST);
-						progressIntent.putExtra(Artist.NAME, input[artist]);
 						BlueconeContext.getContext().sendBroadcast(progressIntent);
 						contentResolver.insert(Album.CONTENT_URI, albumValues);
 						contentResolver.insert(Artist.CONTENT_URI, artValues);
@@ -166,6 +177,12 @@ public final class BlueconeHandler extends Handler {
 					}
 					break;
 				case QUEUE:
+					storage.remove(0);
+					progress = setProgress(++progress)?0:progress;			//Keeps track of progress. When progress >= max; waiting : false-->true
+					Intent addQueueIntent = new Intent(QueueListActivity.UPDATE_QUEUE);
+					addQueueIntent.putExtra(QueueListActivity.PATH, in[1]);
+					if(D)Log.d(TAG, "QUEUE, in[1]= "+in[1]);
+					BlueconeContext.getContext().sendBroadcast(addQueueIntent);
 					break;
 					default: Log.d(TAG, "Uventet feil");
 					break;
