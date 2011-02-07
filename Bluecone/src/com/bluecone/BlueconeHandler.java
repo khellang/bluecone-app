@@ -163,8 +163,8 @@ public final class BlueconeHandler extends Handler {
 					trackValues.put(Track.ARTIST_NAME, input[artist]);
 					try{
 						progress = setProgress(++progress)?0:progress;			//Keeps track of progress. When progress >= max; waiting : false-->true
-						contentResolver.insert(Track.CONTENT_URI, trackValues);
 						BlueconeContext.getContext().sendBroadcast(progressIntent);
+						contentResolver.insert(Track.CONTENT_URI, trackValues);
 						contentResolver.insert(Album.CONTENT_URI, albumValues);
 						contentResolver.insert(Artist.CONTENT_URI, artValues);
 						
