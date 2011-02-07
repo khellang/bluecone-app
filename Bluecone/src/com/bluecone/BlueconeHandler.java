@@ -125,7 +125,9 @@ public final class BlueconeHandler extends Handler {
 				//Brukes ikke foreløpig..... Write track fanges opp i BlueconeTabActivity.class
 				break;
 			case TOAST:
-				Toast.makeText(BlueconeContext.getContext(),msg.getData().getString(DeviceConnector.KEY_TOAST) , Toast.LENGTH_LONG).show();
+				String tmp = msg.getData().getString(DeviceConnector.KEY_TOAST) ;
+				if(tmp!=null)
+				Toast.makeText(BlueconeContext.getContext(),tmp, Toast.LENGTH_LONG).show();
 				break;
 		
 			}
