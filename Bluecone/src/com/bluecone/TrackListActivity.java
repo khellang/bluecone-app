@@ -31,7 +31,7 @@ public class TrackListActivity extends ListActivity {
 	private LayoutInflater layoutInflater;
 	private TrackBaseAdapter trackBaseAdapter;
 	private static final HashMap<String, Integer> actionMap;
-	private static final int REFRESH_FILTER=0;
+	private static final int REFRESH=0;
 	private static final int REFRESH_TRACK=1;
 	private static String selection;
 	private static String[] selectionArgs;
@@ -55,7 +55,7 @@ public class TrackListActivity extends ListActivity {
 	@Override
 	public void onStart(){
 		super.onStart();
-		IntentFilter refresh_allIntent = new IntentFilter(MainTabActivity.REFRESH_FILTER);
+		IntentFilter refresh_allIntent = new IntentFilter(MainTabActivity.REFRESH);
 		IntentFilter refresh_albumIntent = new IntentFilter(AlbumListActivity.REFRESH_TRACK);
 		this.registerReceiver(receiver, refresh_allIntent);
 		this.registerReceiver(receiver, refresh_albumIntent);
@@ -66,7 +66,7 @@ public class TrackListActivity extends ListActivity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			switch(actionMap.get(intent.getAction())){
-			case REFRESH_FILTER:
+			case REFRESH:
 				selection = null;
 			selectionArgs = null;	
 			update();
@@ -133,7 +133,7 @@ public class TrackListActivity extends ListActivity {
 		public void onClick(View v) {
 			Log.d(TAG, " KLIKK");
 			String path = ((ViewHolder)v.getTag()).path;
-			Intent writeIntent = new Intent(MainTabActivity.WRITE_FILTER);
+			Intent writeIntent = new Intent(MainTabActivity.REQUEST_WRITE);
 			writeIntent.putExtra(MainTabActivity.TRACK_WRITE, path);
 			sendBroadcast(writeIntent);
 
@@ -151,7 +151,7 @@ public class TrackListActivity extends ListActivity {
 	
 	static{
 		actionMap = new HashMap<String, Integer>();
-		actionMap.put(MainTabActivity.REFRESH_FILTER, REFRESH_FILTER);
+		actionMap.put(MainTabActivity.REFRESH, REFRESH);
 		actionMap.put(AlbumListActivity.REFRESH_TRACK, REFRESH_TRACK);
 	}
 }

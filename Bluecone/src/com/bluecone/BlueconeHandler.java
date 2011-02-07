@@ -73,6 +73,8 @@ public final class BlueconeHandler extends Handler {
 				case STATE_CONNECTING:
 					break;
 				case STATE_CONNECTED:
+					Intent intent = new Intent(MainTabActivity.DEVICE_CONNECTED);
+					BlueconeContext.getContext().sendBroadcast(intent);
 					break;	
 				}
 				break;
@@ -97,13 +99,13 @@ public final class BlueconeHandler extends Handler {
 				case LISTSTART:
 					if(D)Log.d(TAG, "Liststart");
 					max = Integer.parseInt(in[1]);
-					Intent progressIntent = new Intent(ArtistListActivity.PROGRESS_ARTIST);
-					progressIntent.putExtra(ArtistListActivity.MAX, max);
+					Intent progressIntent = new Intent(MainTabActivity.REQUEST_TRANSMITT);
+					progressIntent.putExtra(MainTabActivity.PROGRESS, max);
 					MainTabActivity.tabHost.setCurrentTab(3);
 					MainTabActivity.tabHost.setCurrentTab(2);
 					MainTabActivity.tabHost.setCurrentTab(1);
 					MainTabActivity.tabHost.setCurrentTab(0);
-					BlueconeContext.getContext().sendBroadcast(progressIntent);
+				BlueconeContext.getContext().sendBroadcast(progressIntent);
 					WriterThread musicWriterThread = new WriterThread();
 					musicWriterThread.start();
 					break;
@@ -131,7 +133,7 @@ public final class BlueconeHandler extends Handler {
 			
 		private class WriterThread extends Thread{
 			private int progress;
-			private final Intent progressIntent = new Intent(ArtistListActivity.PROGRESS_ARTIST); 
+			private final Intent progressIntent = new Intent(MainTabActivity.START_TRANSMITT); 
 			public WriterThread(){
 				progress = 0;
 			}

@@ -3,7 +3,6 @@ package com.bluecone;
 
 import com.bluecone.storage.ArtistList.Artist;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -26,29 +25,22 @@ public class ArtistListActivity extends ListActivity{
 	private static final String TAG = "Artistlist";
 	private static final boolean D = true;
 	protected static String REFRESH_ALBUM = "com.bluecone.REFRESH_ALBUM";
-
 	private Cursor cursor;
 	private LayoutInflater layoutInflater;
 	private ArtistBaseAdapter artistBaseAdapter;
-	private ProgressDialog dialog;
-	private int max;
-	protected static String MAX = "max";
-	private int progress;
 	private static String sortOrder;
-	public static final  String PROGRESS_ARTIST = "com.bluecone.PROGRESS_ARTIST";
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.artist_layout);
+	
+
 		sortOrder = Artist.NAME+" ASC";
 		artistBaseAdapter = new ArtistBaseAdapter();
 		layoutInflater = (LayoutInflater) BlueconeContext.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		cursor = BlueconeContext.getContext().getContentResolver().query(Artist.CONTENT_URI, new String[] { BaseColumns._ID, Artist.NAME}, null, null, sortOrder);		
-		startManagingCursor(cursor);	// Denne er deprecated. CursorLoader kan/skal brukes, men denne virker sannsynligvis ikke på SDK 7. 
-		 dialog = new ProgressDialog(this);
-		 dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		 
+		startManagingCursor(cursor);	// Denne er deprecated. CursorLoader kan/skal brukes, men denne virker sannsynligvis ikke på SDK 7. 		 
 		 setListAdapter(artistBaseAdapter);
 		if(D)Log.d(TAG, "...onCreate");
 	}
@@ -56,10 +48,8 @@ public class ArtistListActivity extends ListActivity{
 	@Override
 	public void onStart(){
 		super.onStart();
-		IntentFilter filter = new IntentFilter(MainTabActivity.REFRESH_FILTER);
-		IntentFilter progressFilter = new IntentFilter(PROGRESS_ARTIST );
+		IntentFilter filter = new IntentFilter(MainTabActivity.REFRESH);
 		this.registerReceiver(receiver, filter);
-		this.registerReceiver(receiver, progressFilter);
 	}
 
 
@@ -69,25 +59,7 @@ public class ArtistListActivity extends ListActivity{
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if(D)Log.d(TAG, "onReceive...");
-			if(intent.getAction().equalsIgnoreCase(PROGRESS_ARTIST)){
-				if(!dialog.isShowing()){
-					max = intent.getIntExtra(MAX , 100);
-					dialog.setMax(max);
-					progress = 0;
-					dialog.show();
-				}
-				dialog.setProgress(++progress);
-				if(progress>max){
-					Intent updateAlbum = new Intent(MainTabActivity.REFRESH_FILTER);
-					sendBroadcast(updateAlbum);
-					dialog.dismiss();
-
-				}
-				
-			}
 			update();
-			if(D)Log.d(TAG, "...onReceive");
 
 		}
 	};

@@ -29,51 +29,56 @@ public final class R {
         public static final int icon=0x7f02000f;
     }
     public static final class id {
-        public static final int Button_scan=0x7f060008;
-        public static final int Liste_funnede_enheter=0x7f060007;
-        public static final int Liste_parede_enheter=0x7f060005;
-        public static final int Tittel_funn_enheter=0x7f060006;
-        public static final int Tittel_parede_enheter=0x7f060004;
-        public static final int View01=0x7f060003;
+        public static final int Button_scan=0x7f06000a;
+        public static final int Liste_funnede_enheter=0x7f060009;
+        public static final int Liste_parede_enheter=0x7f060007;
+        public static final int Tittel_funn_enheter=0x7f060008;
+        public static final int Tittel_parede_enheter=0x7f060006;
+        public static final int View01=0x7f060005;
         public static final int album_artist_name=0x7f060001;
         public static final int album_title=0x7f060000;
         public static final int artist_name=0x7f060002;
-        public static final int back=0x7f06000e;
-        public static final int queue_track_title=0x7f060009;
-        public static final int scan=0x7f06000d;
-        public static final int search=0x7f06000f;
-        public static final int track_album_title=0x7f06000c;
-        public static final int track_artist_name=0x7f06000b;
-        public static final int track_title=0x7f06000a;
+        public static final int back=0x7f060011;
+        public static final int custom_title_left=0x7f060003;
+        public static final int custom_title_right=0x7f060004;
+        public static final int progress_horizontal=0x7f06000b;
+        public static final int queue_track_title=0x7f06000c;
+        public static final int scan=0x7f060010;
+        public static final int search=0x7f060012;
+        public static final int track_album_title=0x7f06000f;
+        public static final int track_artist_name=0x7f06000e;
+        public static final int track_title=0x7f06000d;
     }
     public static final class layout {
         public static final int album_entry=0x7f030000;
         public static final int album_layout=0x7f030001;
         public static final int artist_entry=0x7f030002;
         public static final int artist_layout=0x7f030003;
-        public static final int device_layout=0x7f030004;
-        public static final int device_name_layout=0x7f030005;
-        public static final int main=0x7f030006;
-        public static final int queue_entry=0x7f030007;
-        public static final int queue_layout=0x7f030008;
-        public static final int track_entry=0x7f030009;
-        public static final int track_layout=0x7f03000a;
+        public static final int custom_title=0x7f030004;
+        public static final int device_layout=0x7f030005;
+        public static final int device_name_layout=0x7f030006;
+        public static final int main=0x7f030007;
+        public static final int queue_entry=0x7f030008;
+        public static final int queue_layout=0x7f030009;
+        public static final int track_entry=0x7f03000a;
+        public static final int track_layout=0x7f03000b;
     }
     public static final class menu {
         public static final int menu=0x7f050000;
     }
     public static final class string {
-        public static final int app_name=0x7f040001;
-        public static final int device_button_scan=0x7f040008;
-        public static final int device_non_found=0x7f04000b;
-        public static final int device_non_paired=0x7f040009;
-        public static final int device_scanning=0x7f04000a;
-        public static final int device_title_new=0x7f040007;
-        public static final int device_title_paired=0x7f040006;
-        public static final int hello=0x7f040000;
-        public static final int menu_back=0x7f040004;
-        public static final int menu_scan=0x7f040002;
-        public static final int menu_search=0x7f040005;
-        public static final int menu_update=0x7f040003;
+        public static final int app_name=0x7f040000;
+        public static final int connected=0x7f04000b;
+        public static final int device_button_scan=0x7f040006;
+        public static final int device_non_found=0x7f040009;
+        public static final int device_non_paired=0x7f040007;
+        public static final int device_scanning=0x7f040008;
+        public static final int device_title_new=0x7f040005;
+        public static final int device_title_paired=0x7f040004;
+        public static final int menu_back=0x7f040002;
+        public static final int menu_scan=0x7f040001;
+        public static final int menu_search=0x7f040003;
+        public static final int not_connected=0x7f04000a;
+        public static final int transfer=0x7f04000c;
     }
 }

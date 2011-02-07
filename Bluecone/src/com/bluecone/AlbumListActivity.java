@@ -1,8 +1,9 @@
 package com.bluecone;
 
+import java.util.HashMap;
+
 import com.bluecone.storage.ArtistList.Album;
 import com.bluecone.storage.ArtistList.Artist;
-
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -28,7 +29,9 @@ public class AlbumListActivity extends ListActivity {
 	private Cursor cursor;
 	private LayoutInflater layoutInflater;
 	private AlbumBaseAdapter albumBaseAdapter;
-
+	private static final int REFRESH = 0;
+	private static final int SHOW_ALBUM = 1;
+	private static final HashMap<String, Integer> actionMap;
 	private static String selection;
 	private static String[] selectionArgs;
 	private static String sortOrder;
@@ -38,7 +41,6 @@ public class AlbumListActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 		if(D)Log.d(TAG, "onCreate...");
 		setContentView(R.layout.album_layout);
-
 		sortOrder = Album.TITLE+" ASC";
 		albumBaseAdapter = new AlbumBaseAdapter();
 		layoutInflater = (LayoutInflater) BlueconeContext.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -51,7 +53,7 @@ public class AlbumListActivity extends ListActivity {
 	@Override
 	public void onStart(){
 		super.onStart();
-		IntentFilter refresh_all = new IntentFilter(MainTabActivity.REFRESH_FILTER);
+		IntentFilter refresh_all = new IntentFilter(MainTabActivity.REFRESH);
 		IntentFilter refresh_artist = new IntentFilter(ArtistListActivity.REFRESH_ALBUM);
 		this.registerReceiver(receiver, refresh_all);
 		this.registerReceiver(receiver, refresh_artist);
@@ -63,27 +65,30 @@ public class AlbumListActivity extends ListActivity {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if(intent.getAction().equalsIgnoreCase(MainTabActivity.REFRESH_FILTER)){
+
+			switch(actionMap.get(intent.getAction())){
+			case REFRESH:
 				if(D)Log.d(TAG, "REFRESH_FILTER");
 				selection = null;
 				selectionArgs = null;				 	
 				update();
-			}
-			else if(intent.getAction().equalsIgnoreCase(ArtistListActivity.REFRESH_ALBUM)){
-				if(D)Log.d(TAG,"REFRESH_ALBUM");
+				break;
+			case SHOW_ALBUM:	
 				selection = Album.ARTIST_NAME+"=? ";
 				selectionArgs = new String[]{intent.getStringExtra(Artist.NAME)};
 				update();
 				MainTabActivity.tabHost.setCurrentTab(1);
-
+				break;
 			}
 		}
 	};	
 
 	private void update(){
-		cursor = BlueconeContext.getContext().getContentResolver().query(Album.CONTENT_URI,new String[]{BaseColumns._ID,Album.TITLE,Album.ARTIST_NAME}, selection, selectionArgs, sortOrder);
+		cursor = BlueconeContext.getContext().getContentResolver().
+		query(Album.CONTENT_URI,new String[]{BaseColumns._ID,Album.TITLE,
+				Album.ARTIST_NAME}, selection, selectionArgs, sortOrder);
 		albumBaseAdapter.notifyDataSetChanged();			
-		
+
 	}
 
 
@@ -138,4 +143,10 @@ public class AlbumListActivity extends ListActivity {
 		TextView title;
 		TextView artist;
 	} 
+
+	static{
+		actionMap = new HashMap<String, Integer>();
+		actionMap.put(MainTabActivity.REFRESH, REFRESH);
+		actionMap.put(ArtistListActivity.REFRESH_ALBUM, SHOW_ALBUM);
+	}
 }

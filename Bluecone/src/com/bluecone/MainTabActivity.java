@@ -1,6 +1,8 @@
 package com.bluecone;
 
 
+import java.util.HashMap;
+
 import com.bluecone.connect.DeviceConnector;
 import com.bluecone.connect.DeviceFinder;
 import android.app.TabActivity;
@@ -15,17 +17,30 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.widget.ProgressBar;
 import android.widget.TabHost;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainTabActivity extends TabActivity {
 	
 	
 
-	public static final String REFRESH_FILTER ="com.bluecone.REFRESH";
-	public static final String WRITE_FILTER = "com.bluecone.WRITE";
+	public static final String REFRESH ="com.bluecone.REFRESH";
+	public static final String REQUEST_WRITE = "com.bluecone.REQUEST_WRITE";
+	public static final String DEVICE_CONNECTED = "com.bluecone.CONNECTED_FILTER";
+	public static final String REQUEST_TRANSMITT  = "com.bluecone.REQUEST_TRANSMITT";
+	public static final String START_TRANSMITT  = "com.bluecone.START_TRANSMITT";
+	private static final int WRITE =0;
+	private static final int CONNECTED = 1;
+	private static final int TRANSMITT = 2;
+	private static final int TRANSMITTING = 3;
 	
+	public static final String PROGRESS = "progress";
+	private int max;
+	private int  progress;
 	private static final String TAG = "Tabactivity";
 	private static final boolean D = true;
 
@@ -35,6 +50,10 @@ public class MainTabActivity extends TabActivity {
 	protected static DeviceConnector deviceConnector;	
 	protected static TabHost tabHost;
 	public static final String TRACK_WRITE="track_write";
+	private static final HashMap<String, Integer> actionMap;
+	private ProgressBar progressHorizontal;
+	private TextView title_right;
+	private TextView title_left;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -42,8 +61,16 @@ public class MainTabActivity extends TabActivity {
 		super.onCreate(savedInstanceState);
 		if(D)Log.d(TAG, "oncreate...");
 
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		setContentView(R.layout.main);
+		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);
+		title_right = (TextView) findViewById(R.id.custom_title_right);
+		title_right.setText(R.string.not_connected);
+		title_left = (TextView) findViewById(R.id.custom_title_left);
+
+		
+		 progressHorizontal = (ProgressBar) findViewById(R.id.progress_horizontal);
+		 progressHorizontal.setVisibility(View.GONE);
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		deviceConnector = new DeviceConnector();
 		BlueconeContext.setBlueconeContext(this);
@@ -80,8 +107,15 @@ public class MainTabActivity extends TabActivity {
 	@Override
 	public void onStart(){
 		super.onStart();
-		IntentFilter writeIntent = new IntentFilter(WRITE_FILTER);
+		IntentFilter writeIntent = new IntentFilter(REQUEST_WRITE);
+		IntentFilter connectedIntent = new IntentFilter(DEVICE_CONNECTED);
+		IntentFilter transmittIntent = new IntentFilter(REQUEST_TRANSMITT);
+		IntentFilter startTransmittIntent = new IntentFilter(START_TRANSMITT);
 		this.registerReceiver(receiver, writeIntent);
+		this.registerReceiver(receiver,connectedIntent);
+		this.registerReceiver(receiver,transmittIntent);
+		this.registerReceiver(receiver,startTransmittIntent);
+		
 		if(!bluetoothAdapter.isEnabled()){
 			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			startActivityForResult(enableIntent, REQUEST_ENABLE);
@@ -123,9 +157,7 @@ public class MainTabActivity extends TabActivity {
 			startActivityForResult(intent, REQUEST_DEVICE);
 			break;
 		case R.id.back:
-			
-			//Intent refreshIntent = new Intent(REFRESH_FILTER);
-			Intent refreshIntent = new Intent(REFRESH_FILTER);
+			Intent refreshIntent = new Intent(REFRESH);
 			sendBroadcast(refreshIntent);
 			break;
 		case R.id.search:
@@ -134,14 +166,49 @@ public class MainTabActivity extends TabActivity {
 		return true;
 	}
 	
+
+	
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			String path = "ADD#"+intent.getStringExtra(TRACK_WRITE);
-			deviceConnector.write(path.getBytes());
+			switch(actionMap.get(intent.getAction())){
+			case WRITE:
+				String path = "ADD#"+intent.getStringExtra(TRACK_WRITE);
+				deviceConnector.write(path.getBytes());
+				break;
+			case CONNECTED:
+				title_right.setText(R.string.connected);
+				break;
+			case TRANSMITT:
+				title_left.setText(R.string.transfer);
+				 max = intent.getIntExtra(PROGRESS , 10000);
+				 progressHorizontal.setMax(max);
+				 progressHorizontal.setVisibility(View.VISIBLE);
+				 
+				 progress = 0;				
+				break;
+			case TRANSMITTING:
+				progressHorizontal.incrementProgressBy(1);
+				Intent update_intent = new Intent(REFRESH);
+				sendBroadcast(update_intent);
+				if((++progress)>=max){
+					title_left.setText("");
+					progressHorizontal.setVisibility(View.GONE);
+				max=0;
+				progress =0;
+				}
+				break;
+			}
 		}
 	};
 
+	static{
+		actionMap = new HashMap<String, Integer>();
+		actionMap.put(REQUEST_WRITE, WRITE);
+		actionMap.put(DEVICE_CONNECTED, CONNECTED);
+		actionMap.put(REQUEST_TRANSMITT, TRANSMITT);
+		actionMap.put(START_TRANSMITT, TRANSMITTING);
+	}
 }
