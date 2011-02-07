@@ -1,5 +1,7 @@
 package com.bluecone;
 
+import java.util.HashMap;
+
 import com.bluecone.storage.ArtistList.Track;
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
@@ -20,13 +22,19 @@ public class QueueListActivity extends ListActivity {
 
 	private static final String TAG = "Queuelist";
 	private static final boolean D = true;
-
+	
+	public static final String START_UPDATE_QUEUE = "com.bluecone.START_UPDATE_QUEUE";
 	public static final String UPDATE_QUEUE = "com.bluecone.UPDATE_QUEUE";
 	public static final String QUEUE_ELEMENTS="elements";
 	public static final String PATH = "path";
+	public static final String MAX = "max";
+	private static final int START = 0;
+	private static final int UPDATE = 1;
+	private int max;
+	private int start;
+	private static final HashMap<String, Integer> actionMap;
 	private LayoutInflater layoutInflater;
-	private String[] playList=new String[]{"Terje Rocker"};
-	
+	private  String[] DATA =new String[]{"Playlist empty"} ;
 	private QueueBaseAdapter queueBaseAdapter;
 	private Cursor cursor;
 
@@ -39,12 +47,15 @@ public class QueueListActivity extends ListActivity {
 		cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI, new String[] { BaseColumns._ID, Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH }, null, null, null);
 		startManagingCursor(cursor);
 		setListAdapter(queueBaseAdapter);
+	
 	}
 
 	@Override
 	public void onStart(){
 		super.onStart();
+		IntentFilter startQueueIntent = new IntentFilter(START_UPDATE_QUEUE);
 		IntentFilter queueIntent = new IntentFilter(UPDATE_QUEUE);
+		this.registerReceiver(receiver, startQueueIntent);
 		this.registerReceiver(receiver, queueIntent);
 	}
 
@@ -56,22 +67,36 @@ public class QueueListActivity extends ListActivity {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if(D)Log.d(TAG, "onReceive");
-			String selection = Track.PATH+"=? ";
-			String[]selectionArgs = new String[]{intent.getStringExtra(PATH)};
-			if(D)Log.d(TAG, "input: "+selectionArgs[0]);
-			synchronized (QueueListActivity.this) {
+				switch(actionMap.get(intent.getAction())){
+				case START:
+					max = intent.getIntExtra(MAX, 1);
+					if(D)Log.d(TAG, "Start "+max);
+					DATA = new String[max];
+					start = 0;
+					break;
+				case UPDATE:
+					String selection = Track.PATH+"=? ";
+					String[]selectionArgs = new String[]{intent.getStringExtra(PATH)};
+					if(D)Log.d(TAG, "input: "+selectionArgs[0]);
 				
-				cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH}, selection, selectionArgs, null);
-				if(D)Log.d(TAG, "Antall kolonner: "+cursor.getColumnCount());
+						cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH}, selection, selectionArgs, null);
+						update();
+						if(start<max){
+							cursor.moveToFirst();
+							DATA[start++] = cursor.getString(1);
+						}
+			
+					break;
+			
 		
 			}
-		//	playList = intent.getStringArrayExtra(QUEUE_ELEMENTS);
-			update();
 
 
 		}
+
 	};
+	
+
 
 	private void update(){
 		queueBaseAdapter.notifyDataSetChanged();
@@ -82,26 +107,22 @@ public class QueueListActivity extends ListActivity {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-
-			cursor.moveToPosition(position);
 			ViewHolder holder;
 			if(convertView==null){
-				convertView = layoutInflater.inflate(R.layout.track_entry, null);
+				convertView = layoutInflater.inflate(R.layout.queue_entry, null);
 				holder = new ViewHolder();
-				holder.title = (TextView) convertView.findViewById(R.id.track_title);
-				holder.album = (TextView) convertView.findViewById(R.id.track_album_title);
-				holder.artist = (TextView) convertView.findViewById(R.id.track_artist_name);
+				holder.playing = (TextView) convertView.findViewById(R.id.queue_track_title);
+			
 				convertView.setTag(holder);
 			}
 			else{
 				holder = (ViewHolder) convertView.getTag();
 			}
+			
+			holder.playing.setText(DATA[position]);
+			Log.d(TAG,"getView: "+DATA[position]);
 
-
-			holder.title.setText(cursor.getString(1));
-			holder.album.setText(cursor.getString(2));
-			holder.artist.setText(cursor.getString(3));
-			holder.path = (cursor.getString(4));
+		
 			return convertView;
 
 		}
@@ -121,13 +142,17 @@ public class QueueListActivity extends ListActivity {
 		@Override
 		public int getCount() {
 			// TODO Auto-generated method stub
-			return cursor.getCount();
+			return DATA.length;
 		}
 	};
 	private class ViewHolder{
-		TextView title;
-		TextView album;
-		TextView artist;
-		String path;
+		TextView playing;
+	
 	} 
+	static{
+		actionMap = new HashMap<String, Integer>();
+		actionMap.put(START_UPDATE_QUEUE, START);
+		actionMap.put(UPDATE_QUEUE, UPDATE);
+	
+	}
 }

@@ -20,14 +20,12 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import android.widget.RemoteViews.ActionException;
 
 public class TrackListActivity extends ListActivity {
 
 	private static final String TAG = "Tracklist";
 	private static final boolean D = true;
 
-	public static final String FIND_QUEUE_PATH = "com.bluecone.FIND_QUEUE_PATH";	
 
 	private Cursor cursor;
 	private LayoutInflater layoutInflater;
@@ -35,7 +33,6 @@ public class TrackListActivity extends ListActivity {
 	private static final HashMap<String, Integer> actionMap;
 	private static final int REFRESH_FILTER=0;
 	private static final int REFRESH_TRACK=1;
-	private static final int SET_QUEUE=2;
 	private static String selection;
 	private static String[] selectionArgs;
 	private static String sortOrder;
@@ -44,7 +41,7 @@ public class TrackListActivity extends ListActivity {
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.track_layout);
-
+		if(D)Log.d(TAG, "onCreate");
 		sortOrder = Track.TITLE+" ASC";
 
 		trackBaseAdapter = new TrackBaseAdapter();
@@ -60,10 +57,8 @@ public class TrackListActivity extends ListActivity {
 		super.onStart();
 		IntentFilter refresh_allIntent = new IntentFilter(MainTabActivity.REFRESH_FILTER);
 		IntentFilter refresh_albumIntent = new IntentFilter(AlbumListActivity.REFRESH_TRACK);
-		IntentFilter set_queueIntent = new IntentFilter(FIND_QUEUE_PATH);
 		this.registerReceiver(receiver, refresh_allIntent);
 		this.registerReceiver(receiver, refresh_albumIntent);
-		this.registerReceiver(receiver, set_queueIntent);
 	}
 
 
@@ -82,17 +77,12 @@ public class TrackListActivity extends ListActivity {
 				update();
 				MainTabActivity.tabHost.setCurrentTab(2);
 				break;
-			case SET_QUEUE:
-				Intent addQueueItemIntent = new Intent(QueueListActivity.UPDATE_QUEUE);
-				addQueueItemIntent.putExtra(QueueListActivity.QUEUE_ELEMENTS, intent.getStringExtra(QueueListActivity.PATH));
-				sendBroadcast(addQueueItemIntent);
-				break;
 			}
 
 		}
 	};
 
-	private synchronized void update(){
+	private void update(){
 		cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] { BaseColumns._ID, Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH }, selection, selectionArgs, sortOrder);
 		trackBaseAdapter.notifyDataSetChanged();
 
@@ -163,6 +153,5 @@ public class TrackListActivity extends ListActivity {
 		actionMap = new HashMap<String, Integer>();
 		actionMap.put(MainTabActivity.REFRESH_FILTER, REFRESH_FILTER);
 		actionMap.put(AlbumListActivity.REFRESH_TRACK, REFRESH_TRACK);
-		actionMap.put(FIND_QUEUE_PATH, SET_QUEUE);
 	}
 }

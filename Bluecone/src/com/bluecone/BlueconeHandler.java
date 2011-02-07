@@ -110,6 +110,9 @@ public final class BlueconeHandler extends Handler {
 				case QUEUESTART:
 					if(D)Log.d(TAG, "Queuestart");
 					max = Integer.parseInt(in[1]);
+					Intent startUpdateIntent = new Intent(QueueListActivity.START_UPDATE_QUEUE);
+					startUpdateIntent.putExtra(QueueListActivity.MAX, max);
+					BlueconeContext.getContext().sendBroadcast(startUpdateIntent);
 					 WriterThread queueWriterThread = new WriterThread();
 					 queueWriterThread.start();					
 					break;
@@ -178,11 +181,13 @@ public final class BlueconeHandler extends Handler {
 					break;
 				case QUEUE:
 					storage.remove(0);
+					for(int i = 1;i<lenght;i++){
+						String[] input = in[i].split("\\|");
 					progress = setProgress(++progress)?0:progress;			//Keeps track of progress. When progress >= max; waiting : false-->true
 					Intent addQueueIntent = new Intent(QueueListActivity.UPDATE_QUEUE);
-					addQueueIntent.putExtra(QueueListActivity.PATH, in[1]);
-					if(D)Log.d(TAG, "QUEUE, in[1]= "+in[1]);
+					addQueueIntent.putExtra(QueueListActivity.PATH, input[0]);
 					BlueconeContext.getContext().sendBroadcast(addQueueIntent);
+					}
 					break;
 					default: Log.d(TAG, "Uventet feil");
 					break;

@@ -38,15 +38,13 @@ public final class R {
         public static final int album_artist_name=0x7f060001;
         public static final int album_title=0x7f060000;
         public static final int artist_name=0x7f060002;
-        public static final int back=0x7f060010;
-        public static final int queue_album_title=0x7f06000b;
-        public static final int queue_artist_name=0x7f06000a;
+        public static final int back=0x7f06000e;
         public static final int queue_track_title=0x7f060009;
-        public static final int scan=0x7f06000f;
-        public static final int search=0x7f060011;
-        public static final int track_album_title=0x7f06000e;
-        public static final int track_artist_name=0x7f06000d;
-        public static final int track_title=0x7f06000c;
+        public static final int scan=0x7f06000d;
+        public static final int search=0x7f06000f;
+        public static final int track_album_title=0x7f06000c;
+        public static final int track_artist_name=0x7f06000b;
+        public static final int track_title=0x7f06000a;
     }
     public static final class layout {
         public static final int album_entry=0x7f030000;
