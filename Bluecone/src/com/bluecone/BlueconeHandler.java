@@ -21,7 +21,7 @@ public final class BlueconeHandler extends Handler {
 	private static final boolean D = true;
 	private static BlueconeHandler handler = new BlueconeHandler();
 	private ContentResolver contentResolver;
-	HashMap<String, Integer> map;
+	private static final HashMap<String, Integer> map;
 	
 	public static final int STATE_CHANGED=0;
 	//******************************
@@ -53,11 +53,7 @@ public final class BlueconeHandler extends Handler {
 	}
 	
 	public BlueconeHandler(){
-		map = new HashMap<String, Integer>();
-		map.put("LISTSTART", LISTSTART);
-		map.put("LIST", LIST);
-		map.put("QUEUESTART", QUEUESTART);
-		map.put("QUEUE", QUEUE);
+
 		contentResolver = BlueconeContext.getContext().getContentResolver();
 		storage=new ArrayList<byte[]>();
 		waiting = true;
@@ -79,12 +75,10 @@ public final class BlueconeHandler extends Handler {
 				}
 				break;
 			case FINISHED_INSERT:
-				Log.d(TAG, "Waiting : "+waiting+" -->");
 				waiting = true;
-				Log.d(TAG, "--> "+waiting);
 				break;
 			case INPUT_PREP:
-	
+					//Brukes ikke, kandidat for fjerning...
 				break;
 				
 			case INPUT:
@@ -101,10 +95,6 @@ public final class BlueconeHandler extends Handler {
 					max = Integer.parseInt(in[1]);
 					Intent progressIntent = new Intent(MainTabActivity.REQUEST_TRANSMITT);
 					progressIntent.putExtra(MainTabActivity.PROGRESS, max);
-					MainTabActivity.tabHost.setCurrentTab(3);
-					MainTabActivity.tabHost.setCurrentTab(2);
-					MainTabActivity.tabHost.setCurrentTab(1);
-					MainTabActivity.tabHost.setCurrentTab(0);
 				BlueconeContext.getContext().sendBroadcast(progressIntent);
 					WriterThread musicWriterThread = new WriterThread();
 					musicWriterThread.start();
@@ -114,7 +104,10 @@ public final class BlueconeHandler extends Handler {
 					max = Integer.parseInt(in[1]);
 					Intent startUpdateIntent = new Intent(QueueListActivity.START_UPDATE_QUEUE);
 					startUpdateIntent.putExtra(QueueListActivity.MAX, max);
+					Intent queueProgressIntent = new Intent(MainTabActivity.REQUEST_TRANSMITT);
+					queueProgressIntent.putExtra(MainTabActivity.PROGRESS, max);
 					BlueconeContext.getContext().sendBroadcast(startUpdateIntent);
+					BlueconeContext.getContext().sendBroadcast(queueProgressIntent);
 					 WriterThread queueWriterThread = new WriterThread();
 					 queueWriterThread.start();					
 					break;
@@ -191,6 +184,7 @@ public final class BlueconeHandler extends Handler {
 					Intent addQueueIntent = new Intent(QueueListActivity.UPDATE_QUEUE);
 					addQueueIntent.putExtra(QueueListActivity.PATH, input[0]);
 					BlueconeContext.getContext().sendBroadcast(addQueueIntent);
+					BlueconeContext.getContext().sendBroadcast(progressIntent);
 					}
 					break;
 					default: Log.d(TAG, "Uventet feil");
@@ -212,6 +206,14 @@ public final class BlueconeHandler extends Handler {
 				return true;
 			}
 			return false;
+		}
+		
+		static{
+			map = new HashMap<String, Integer>();
+			map.put("LISTSTART", LISTSTART);
+			map.put("LIST", LIST);
+			map.put("QUEUESTART", QUEUESTART);
+			map.put("QUEUE", QUEUE);
 		}
 
 }

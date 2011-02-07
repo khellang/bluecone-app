@@ -101,6 +101,9 @@ public class MainTabActivity extends TabActivity {
 		tabSpec = tabHost.newTabSpec("queue").setIndicator("Queue",resources.getDrawable(R.drawable.ic_queue)).setContent(tabIntent);
 		tabHost.addTab(tabSpec);
 
+		tabHost.setCurrentTab(3);
+		tabHost.setCurrentTab(2);
+		tabHost.setCurrentTab(1);
 		tabHost.setCurrentTab(0);
 	}
 
@@ -185,8 +188,7 @@ public class MainTabActivity extends TabActivity {
 				title_left.setText(R.string.transfer);
 				 max = intent.getIntExtra(PROGRESS , 10000);
 				 progressHorizontal.setMax(max);
-				 progressHorizontal.setVisibility(View.VISIBLE);
-				 
+				 progressHorizontal.setVisibility(View.VISIBLE);			 
 				 progress = 0;				
 				break;
 			case TRANSMITTING:
