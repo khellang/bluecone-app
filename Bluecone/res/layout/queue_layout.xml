@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="fill_parent"
-  android:layout_height="fill_parent">
-	    <ListView android:id="@android:id/list" 
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:stackFromBottom="false"
-        android:transcriptMode="alwaysScroll"
-        android:layout_weight="1"
-    /> 
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+	<ListView android:layout_height="wrap_content" android:id="@+id/queue_list"
+		android:layout_width="fill_parent" android:layout_weight="1.0"></ListView>
+	<TableLayout android:id="@+id/tableLayout1"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:layout_gravity="center|center_horizontal|bottom" android:gravity="center_horizontal">
+		<TableRow android:id="@+id/tableRow1" 
+			 android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:layout_gravity="center|bottom" android:gravity="center_horizontal">
+			<ImageButton android:layout_width="wrap_content" 
+				android:layout_height="wrap_content" android:id="@+id/imageButton1"
+				android:src="@drawable/ic_prev"
+				android:clickable="true"></ImageButton>
+			<ImageButton android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/imageButton2"
+				android:src="@drawable/ic_stop"
+				android:clickable="true"></ImageButton>
+			<ImageButton android:layout_width="wrap_content"
+				android:clickable="true"
+				android:layout_height="wrap_content" android:id="@+id/imageButton3"
+				android:src="@drawable/ic_play"></ImageButton>
+			<ImageButton android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/imageButton4"
+				android:src="@drawable/ic_next"
+				android:clickable="true"></ImageButton>
+		</TableRow>
+	</TableLayout>
 </LinearLayout>

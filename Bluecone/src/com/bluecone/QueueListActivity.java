@@ -3,7 +3,8 @@ package com.bluecone;
 import java.util.HashMap;
 
 import com.bluecone.storage.ArtistList.Track;
-import android.app.ListActivity;
+
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,9 +17,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 
-public class QueueListActivity extends ListActivity {
+public class QueueListActivity extends Activity {
 
 	private static final String TAG = "Queuelist";
 	private static final boolean D = true;
@@ -37,16 +40,21 @@ public class QueueListActivity extends ListActivity {
 	private  String[] DATA =new String[]{"Playlist empty"} ;
 	private QueueBaseAdapter queueBaseAdapter;
 	private Cursor cursor;
+	private ListView listView;
+	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.queue_layout);
+		ImageButton b = (ImageButton) findViewById(R.id.imageButton1);
+		b.setEnabled(false);
+		listView = (ListView) findViewById(R.id.queue_list);
 		queueBaseAdapter = new QueueBaseAdapter();
 		layoutInflater = (LayoutInflater) BlueconeContext.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI, new String[] { BaseColumns._ID, Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH }, null, null, null);
 		startManagingCursor(cursor);
-		setListAdapter(queueBaseAdapter);
+		listView.setAdapter(queueBaseAdapter);
 	
 	}
 
