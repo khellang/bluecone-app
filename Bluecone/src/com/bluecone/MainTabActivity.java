@@ -67,8 +67,6 @@ public class MainTabActivity extends TabActivity {
 		title_right = (TextView) findViewById(R.id.custom_title_right);
 		title_right.setText(R.string.not_connected);
 		title_left = (TextView) findViewById(R.id.custom_title_left);
-
-		
 		 progressHorizontal = (ProgressBar) findViewById(R.id.progress_horizontal);
 		 progressHorizontal.setVisibility(View.GONE);
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -164,6 +162,10 @@ public class MainTabActivity extends TabActivity {
 			sendBroadcast(refreshIntent);
 			break;
 		case R.id.search:
+			Intent masterIntent = new Intent(QueueListActivity.MASTER_MODE);
+			masterIntent.putExtra(QueueListActivity.IS_MASTER, true);
+			Log.d(TAG, "SEARCH");
+			sendBroadcast(masterIntent);
 			break;
 		}
 		return true;

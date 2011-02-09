@@ -37,6 +37,7 @@
                 <action android:name="com.bluecone.START_UPDATE_QUEUE"></action>
                 <category android:name="android.intent.category.DEFAULT"></category>
                 <action android:name="com.bluecone.UPDATE_QUEUE"></action>
+                <action android:name="com.bluecone.MASTER_MODE"></action>
             </intent-filter>
         </activity>
         <activity android:name=".connect.DeviceFinder">
