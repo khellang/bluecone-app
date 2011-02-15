@@ -102,8 +102,8 @@ public final class BlueconeHandler extends Handler {
 				case QUEUESTART:
 					if(D)Log.d(TAG, "Queuestart");
 					max = Integer.parseInt(in[1]);
-					Intent startUpdateIntent = new Intent(QueueListActivity.START_UPDATE_QUEUE);
-					startUpdateIntent.putExtra(QueueListActivity.MAX, max);
+					Intent startUpdateIntent = new Intent(QueueActivity.START_UPDATE_QUEUE);
+					startUpdateIntent.putExtra(QueueActivity.MAX, max);
 					Intent queueProgressIntent = new Intent(MainTabActivity.REQUEST_TRANSMITT);
 					queueProgressIntent.putExtra(MainTabActivity.PROGRESS, max);
 					BlueconeContext.getContext().sendBroadcast(startUpdateIntent);
@@ -181,8 +181,8 @@ public final class BlueconeHandler extends Handler {
 					for(int i = 1;i<lenght;i++){
 						String[] input = in[i].split("\\|");
 					progress = setProgress(++progress)?0:progress;			//Keeps track of progress. When progress >= max; waiting : false-->true
-					Intent addQueueIntent = new Intent(QueueListActivity.UPDATE_QUEUE);
-					addQueueIntent.putExtra(QueueListActivity.PATH, input[0]);
+					Intent addQueueIntent = new Intent(QueueActivity.UPDATE_QUEUE);
+					addQueueIntent.putExtra(QueueActivity.PATH, input[0]);
 					BlueconeContext.getContext().sendBroadcast(addQueueIntent);
 					BlueconeContext.getContext().sendBroadcast(progressIntent);
 					}

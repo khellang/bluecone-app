@@ -32,7 +32,7 @@
                 <category android:name="android.intent.category.DEFAULT"></category>
             </intent-filter>
         </activity>
-        <activity android:name="QueueListActivity">
+        <activity android:name="QueueActivity">
             <intent-filter>
                 <action android:name="com.bluecone.START_UPDATE_QUEUE"></action>
                 <category android:name="android.intent.category.DEFAULT"></category>

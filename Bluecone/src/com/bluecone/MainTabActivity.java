@@ -95,7 +95,7 @@ public class MainTabActivity extends TabActivity {
 		tabSpec = tabHost.newTabSpec("track").setIndicator("Track",resources.getDrawable(R.drawable.ic_track)).setContent(tabIntent);
 		tabHost.addTab(tabSpec);
 
-		tabIntent = new Intent().setClass(this, QueueListActivity.class);
+		tabIntent = new Intent().setClass(this, QueueActivity.class);
 		tabSpec = tabHost.newTabSpec("queue").setIndicator("Queue",resources.getDrawable(R.drawable.ic_queue)).setContent(tabIntent);
 		tabHost.addTab(tabSpec);
 
@@ -162,8 +162,8 @@ public class MainTabActivity extends TabActivity {
 			sendBroadcast(refreshIntent);
 			break;
 		case R.id.search:
-			Intent masterIntent = new Intent(QueueListActivity.MASTER_MODE);
-			masterIntent.putExtra(QueueListActivity.IS_MASTER, true);
+			Intent masterIntent = new Intent(QueueActivity.MASTER_MODE);
+			masterIntent.putExtra(QueueActivity.IS_MASTER, true);
 			Log.d(TAG, "SEARCH");
 			sendBroadcast(masterIntent);
 			break;

@@ -22,7 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class QueueListActivity extends Activity {
+public class QueueActivity extends Activity {
 
 	
 	private static final String TAG = "Queuelist";

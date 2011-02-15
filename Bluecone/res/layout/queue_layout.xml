@@ -1,37 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
+	<LinearLayout android:orientation="horizontal"
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent"
+		android:layout_weight="1.0"
+		>
+		<ListView android:layout_width="fill_parent" 
+		android:layout_height="fill_parent"		
+			android:id="@+id/queue_list"></ListView>
+	</LinearLayout>
+		<TableLayout android:id="@+id/tableLayout1"
+			android:layout_height="wrap_content" android:layout_width="fill_parent">
+			<TableRow 
+				android:layout_width="fill_parent" android:id="@+id/tableRow1"
+				
+				 android:layout_height="wrap_content">
+				<ImageButton android:layout_height="wrap_content"
+				android:src="@drawable/ic_volume_up" android:layout_width="wrap_content"
+				android:id="@+id/volume_up" android:clickable="true"
+				></ImageButton> 
+				<ImageButton android:onClick="prev" android:src="@drawable/ic_prev"
+					android:layout_height="wrap_content" android:id="@+id/imageButton1"
+					android:layout_width="wrap_content" android:clickable="true"></ImageButton>
+				<ImageButton android:onClick="stop" android:src="@drawable/ic_stop"
+					android:layout_height="wrap_content" android:id="@+id/imageButton2"
+					android:layout_width="wrap_content" android:clickable="true"></ImageButton>
+				<ImageButton android:onClick="play" android:src="@drawable/ic_play"
+					android:layout_height="wrap_content" android:id="@+id/imageButton3"
+					android:layout_width="wrap_content" android:clickable="true"></ImageButton>
+				<ImageButton android:onClick="next" android:src="@drawable/ic_next"
+					android:layout_height="wrap_content" android:id="@+id/imageButton4"
+					android:layout_width="wrap_content" android:clickable="true"></ImageButton>
+			</TableRow>
+			<TableRow android:layout_width="fill_parent" android:id="@+id/tableRow2"
+				android:layout_height="fill_parent" >
+				<ImageButton android:layout_height="wrap_content"
+				android:src="@drawable/ic_volume_down" android:layout_width="wrap_content"
+				 android:id="@+id/volume_down"
+				android:clickable="true"></ImageButton>
+				<ProgressBar style="?android:attr/progressBarStyleHorizontal"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_vertical" android:id="@+id/track_progress"
+					android:layout_width="fill_parent"
+					android:padding="15dp"
+					
+					android:layout_weight="1.0"
+					android:progress="100"></ProgressBar>
+			</TableRow>
+		</TableLayout>
+	</LinearLayout>
 
-	<ListView android:layout_height="wrap_content" android:id="@+id/queue_list"
-		android:layout_width="fill_parent" android:layout_weight="1.0"></ListView>
-	<TableLayout android:id="@+id/tableLayout1"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:layout_gravity="center|center_horizontal|bottom" android:gravity="center_horizontal">
-		<TableRow android:id="@+id/tableRow1" 
-			 android:layout_width="fill_parent"
-			android:layout_height="wrap_content" android:layout_gravity="center|bottom" android:gravity="center_horizontal">
-			<ImageButton android:layout_width="wrap_content" 
-				android:layout_height="wrap_content" android:id="@+id/imageButton1"
-				android:src="@drawable/ic_prev"
-				android:clickable="true"
-				android:onClick="prev"></ImageButton>
-			<ImageButton android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:id="@+id/imageButton2"
-				android:src="@drawable/ic_stop"
-				android:clickable="true"
-				android:onClick="stop"></ImageButton>
-			<ImageButton android:layout_width="wrap_content"
-				android:clickable="true"
-				android:layout_height="wrap_content" android:id="@+id/imageButton3"
-				android:src="@drawable/ic_play"
-				android:onClick="play"></ImageButton>
-			<ImageButton android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:id="@+id/imageButton4"
-				android:src="@drawable/ic_next"
-				android:clickable="true"
-				android:onClick="next"></ImageButton>
-		</TableRow>
-	</TableLayout>
-</LinearLayout>
