@@ -216,7 +216,9 @@ public class MainTabActivity extends TabActivity {
 				}
 				break;
 			case DISCONNECTED:
+				if(D)Log.d(TAG, "Disconnected");
 				title_right.setText(R.string.not_connected);
+				break;
 			case MASTER:
 				String masterCommand = intent.getStringExtra(MASTER_COMMAND);
 				deviceConnector.write(masterCommand.getBytes());

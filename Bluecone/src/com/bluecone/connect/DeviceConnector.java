@@ -61,7 +61,7 @@ public class DeviceConnector {
         setState(STATE_NONE);
     }
 
-	private void setState(int newState) {
+	private  void setState(int newState) {
 		Log.d(TAG, "setState: "+state +" --> "+newState);
 		state = newState;
 		BlueconeHandler.getHandler().obtainMessage(STATE_CHANGED, state, -1).sendToTarget();
@@ -109,20 +109,20 @@ public class DeviceConnector {
 	
 	private void connectionFailed(){
 		if(D)Log.d(TAG, "connection failed....");
-		setState(STATE_NONE);		
 		Message msg = BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.TOAST);
 		Bundle bundle = new Bundle();
 		bundle.putString(KEY_TOAST, "kunne ikke koble til enheten");
 		msg.setData(bundle);
 		BlueconeHandler.getHandler().sendMessage(msg);
+		setState(STATE_NONE);		
 	}
 	private void connectionLost(){
-		setState(STATE_NONE);
 		Message msg = BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.TOAST);
 		Bundle bundle = new Bundle();
 		bundle.putString(KEY_TOAST, "tilkobling avbrutt");
 		msg.setData(bundle);
 		BlueconeHandler.getHandler().sendMessage(msg);
+		setState(STATE_NONE);
 	}
 	
 	

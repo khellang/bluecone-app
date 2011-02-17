@@ -65,6 +65,7 @@ public final class BlueconeHandler extends Handler {
 			case STATE_CHANGED:
 				switch(msg.arg1){
 				case STATE_NONE:
+					if(D)Log.d(TAG, "STATE_NONE");
 					Intent disconnectedIntent = new Intent(MainTabActivity.CONNECTION_LOST);
 					BlueconeContext.getContext().sendBroadcast(disconnectedIntent);
 					break;
@@ -120,6 +121,7 @@ public final class BlueconeHandler extends Handler {
 				//Brukes ikke foreløpig..... Write track fanges opp i BlueconeTabActivity.class
 				break;
 			case TOAST:
+				if(D)Log.d(TAG, "Toast");
 				String tmp = msg.getData().getString(DeviceConnector.KEY_TOAST) ;
 				if(tmp!=null)
 				Toast.makeText(BlueconeContext.getContext(),tmp, Toast.LENGTH_LONG).show();
