@@ -33,10 +33,14 @@ public class MainTabActivity extends TabActivity {
 	public static final String DEVICE_CONNECTED = "com.bluecone.CONNECTED_FILTER";
 	public static final String REQUEST_TRANSMITT  = "com.bluecone.REQUEST_TRANSMITT";
 	public static final String START_TRANSMITT  = "com.bluecone.START_TRANSMITT";
+	public static final String REQUEST_MASTER = "com.bluecone.REQUEST_MASTER";
 	private static final int WRITE =0;
 	private static final int CONNECTED = 1;
 	private static final int TRANSMITT = 2;
 	private static final int TRANSMITTING = 3;
+	private static final int DISCONNECTED = 4;
+	private static final int MASTER= 5;
+	public static final  String MASTER_COMMAND ="com.bluecone.MASTER_COMAND";
 	
 	public static final String PROGRESS = "progress";
 	private int max;
@@ -49,6 +53,7 @@ public class MainTabActivity extends TabActivity {
 	private BluetoothAdapter bluetoothAdapter;
 	protected static DeviceConnector deviceConnector;	
 	protected static TabHost tabHost;
+	public static final String CONNECTION_LOST= "com.bluecone.CONNECTION_LOST";
 	public static final String TRACK_WRITE="track_write";
 	private static final HashMap<String, Integer> actionMap;
 	private ProgressBar progressHorizontal;
@@ -112,10 +117,14 @@ public class MainTabActivity extends TabActivity {
 		IntentFilter connectedIntent = new IntentFilter(DEVICE_CONNECTED);
 		IntentFilter transmittIntent = new IntentFilter(REQUEST_TRANSMITT);
 		IntentFilter startTransmittIntent = new IntentFilter(START_TRANSMITT);
+		IntentFilter disconnectedIntent = new IntentFilter(CONNECTION_LOST);
+		IntentFilter masterIntent = new IntentFilter(REQUEST_MASTER);
 		this.registerReceiver(receiver, writeIntent);
 		this.registerReceiver(receiver,connectedIntent);
 		this.registerReceiver(receiver,transmittIntent);
 		this.registerReceiver(receiver,startTransmittIntent);
+		this.registerReceiver(receiver,disconnectedIntent);
+		this.registerReceiver(receiver,masterIntent);
 		
 		if(!bluetoothAdapter.isEnabled()){
 			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -176,6 +185,8 @@ public class MainTabActivity extends TabActivity {
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		
 
+	
+
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			switch(actionMap.get(intent.getAction())){
@@ -204,6 +215,12 @@ public class MainTabActivity extends TabActivity {
 				progress =0;
 				}
 				break;
+			case DISCONNECTED:
+				title_right.setText(R.string.not_connected);
+			case MASTER:
+				String masterCommand = intent.getStringExtra(MASTER_COMMAND);
+				deviceConnector.write(masterCommand.getBytes());
+				break;
 			}
 		}
 	};
@@ -214,5 +231,7 @@ public class MainTabActivity extends TabActivity {
 		actionMap.put(DEVICE_CONNECTED, CONNECTED);
 		actionMap.put(REQUEST_TRANSMITT, TRANSMITT);
 		actionMap.put(START_TRANSMITT, TRANSMITTING);
+		actionMap.put(CONNECTION_LOST, DISCONNECTED);
+		actionMap.put(REQUEST_MASTER, MASTER);
 	}
 }

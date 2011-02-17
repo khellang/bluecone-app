@@ -20,6 +20,7 @@
 				<ImageButton android:layout_height="wrap_content"
 				android:src="@drawable/ic_volume_up" android:layout_width="wrap_content"
 				android:id="@+id/volume_up" android:clickable="true"
+				android:onClick="adjustVolumeUp"
 				></ImageButton> 
 				<ImageButton android:onClick="prev" android:src="@drawable/ic_prev"
 					android:layout_height="wrap_content" android:id="@+id/imageButton1"
@@ -39,7 +40,8 @@
 				<ImageButton android:layout_height="wrap_content"
 				android:src="@drawable/ic_volume_down" android:layout_width="wrap_content"
 				 android:id="@+id/volume_down"
-				android:clickable="true"></ImageButton>
+				android:clickable="true"
+				android:onClick="adjustVolumeDown"></ImageButton>
 				<ProgressBar style="?android:attr/progressBarStyleHorizontal"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_vertical" android:id="@+id/track_progress"
@@ -47,7 +49,7 @@
 					android:padding="15dp"
 					
 					android:layout_weight="1.0"
-					android:progress="100"></ProgressBar>
+					></ProgressBar>
 			</TableRow>
 		</TableLayout>
 	</LinearLayout>

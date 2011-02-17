@@ -65,6 +65,8 @@ public final class BlueconeHandler extends Handler {
 			case STATE_CHANGED:
 				switch(msg.arg1){
 				case STATE_NONE:
+					Intent disconnectedIntent = new Intent(MainTabActivity.CONNECTION_LOST);
+					BlueconeContext.getContext().sendBroadcast(disconnectedIntent);
 					break;
 				case STATE_CONNECTING:
 					break;

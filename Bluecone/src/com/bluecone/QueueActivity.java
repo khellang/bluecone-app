@@ -49,6 +49,9 @@ public class QueueActivity extends Activity {
 	private ImageButton stop;
 	private ImageButton play;
 	private ImageButton next;
+	private ImageButton volume_up;
+	private ImageButton volume_down;
+	
 	
 	
 
@@ -61,6 +64,8 @@ public class QueueActivity extends Activity {
 		stop = (ImageButton)findViewById(R.id.imageButton2);
 		play = (ImageButton)findViewById(R.id.imageButton3);
 		next = (ImageButton)findViewById(R.id.imageButton4);
+		volume_up = (ImageButton) findViewById(R.id.volume_up);
+		volume_down = (ImageButton) findViewById(R.id.volume_down);
 		listView = (ListView) findViewById(R.id.queue_list);
 		queueBaseAdapter = new QueueBaseAdapter();
 		layoutInflater = (LayoutInflater) BlueconeContext.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -134,6 +139,9 @@ public class QueueActivity extends Activity {
 		stop.setEnabled(master);
 		play.setEnabled(master);
 		next.setEnabled(master);
+		volume_up.setEnabled(master);
+		volume_down.setEnabled(master);
+	
 	
 		
 	}
@@ -191,18 +199,38 @@ public class QueueActivity extends Activity {
 	}
 	
 	public void play(View view){
-		Toast.makeText(this, "Play", Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
+		intent.putExtra(MainTabActivity.MASTER_COMMAND, "PLAY");
+		sendBroadcast(intent);
 	}
 	public void stop(View view){
-		Toast.makeText(this, "Stop", Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
+		intent.putExtra(MainTabActivity.MASTER_COMMAND, "STOP");
+		sendBroadcast(intent);
 		
 	}
 	public void next(View view){
-		Toast.makeText(this, "Next", Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
+		intent.putExtra(MainTabActivity.MASTER_COMMAND, "NEXT");
+		sendBroadcast(intent);
 		
 	}
 	public void prev(View view){
-		Toast.makeText(this, "Prev", Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
+		intent.putExtra(MainTabActivity.MASTER_COMMAND, "PREV");
+		sendBroadcast(intent);
+		
+	}
+	public void adjustVolumeUp(View view){
+		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
+		intent.putExtra(MainTabActivity.MASTER_COMMAND, "VOLUP");
+		sendBroadcast(intent);
+		
+	}
+	public void adjustVolumeDown(View view){
+		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
+		intent.putExtra(MainTabActivity.MASTER_COMMAND, "VOLDOWN");
+		sendBroadcast(intent);
 		
 	}
 	
