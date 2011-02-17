@@ -113,6 +113,7 @@ public class MainTabActivity extends TabActivity {
 	@Override
 	public void onStart(){
 		super.onStart();
+		Log.d(TAG, "onStart");
 		IntentFilter writeIntent = new IntentFilter(REQUEST_WRITE);
 		IntentFilter connectedIntent = new IntentFilter(DEVICE_CONNECTED);
 		IntentFilter transmittIntent = new IntentFilter(REQUEST_TRANSMITT);
@@ -134,16 +135,19 @@ public class MainTabActivity extends TabActivity {
 	@Override
 	public void onDestroy(){
 		super.onDestroy();
+		Log.d(TAG, "onDestroy");
 		//finish();
 	}
 	@Override	
 	public void onActivityResult(int requestCode,int resultCode,Intent data){
 		switch(requestCode){
 		case REQUEST_ENABLE:
+			Log.d(TAG, "onActivityResult: REQUEST_ENABLE");
 			if(resultCode!=RESULT_OK)
 				finish();
 			break;
 		case REQUEST_DEVICE:
+			Log.d(TAG, "onActivityResult: REQUEST_DEVICE");
 			if(resultCode==RESULT_OK){
 				String mac = data.getExtras().getString(DeviceFinder.EXTRA_UNIT_ADDRESS);
 				deviceConnector.connect(mac);
@@ -154,6 +158,7 @@ public class MainTabActivity extends TabActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu){
+		Log.d(TAG, "onCreateOptionsMenu");
 		MenuInflater menuInflater = getMenuInflater();
 		menuInflater.inflate(R.menu.menu, menu);
 		return true;
@@ -163,17 +168,19 @@ public class MainTabActivity extends TabActivity {
 	public boolean onOptionsItemSelected(MenuItem item){
 		switch(item.getItemId()){
 		case R.id.scan:
+			Log.d(TAG, "MenueSelected: scan");
 			Intent intent = new Intent(DeviceFinder.REQUEST_CONNECT);
 			startActivityForResult(intent, REQUEST_DEVICE);
 			break;
 		case R.id.back:
+			Log.d(TAG, "MenueSelected: back");
 			Intent refreshIntent = new Intent(REFRESH);
 			sendBroadcast(refreshIntent);
 			break;
 		case R.id.search:
+			Log.d(TAG, "MenueSelected: SEARCH");
 			Intent masterIntent = new Intent(QueueActivity.MASTER_MODE);
 			masterIntent.putExtra(QueueActivity.IS_MASTER, true);
-			Log.d(TAG, "SEARCH");
 			sendBroadcast(masterIntent);
 			break;
 		}
@@ -191,13 +198,16 @@ public class MainTabActivity extends TabActivity {
 		public void onReceive(Context context, Intent intent) {
 			switch(actionMap.get(intent.getAction())){
 			case WRITE:
+				if(D)Log.d(TAG, "BroadcastReceiver: WRITE");
 				String path = "ADD#"+intent.getStringExtra(TRACK_WRITE);
 				deviceConnector.write(path.getBytes());
 				break;
 			case CONNECTED:
+				if(D)Log.d(TAG, "BroadcastReceiver: CONNECTED");
 				title_right.setText(R.string.connected);
 				break;
 			case TRANSMITT:
+				if(D)Log.d(TAG, "BroadcastReceiver: Transmitt");
 				title_left.setText(R.string.transfer);
 				 max = intent.getIntExtra(PROGRESS , 10000);
 				 progressHorizontal.setMax(max);
@@ -205,6 +215,7 @@ public class MainTabActivity extends TabActivity {
 				 progress = 0;				
 				break;
 			case TRANSMITTING:
+				if(D)Log.d(TAG, "BroadcastReceiver: Transmitting");
 				progressHorizontal.incrementProgressBy(1);
 				Intent update_intent = new Intent(REFRESH);
 				sendBroadcast(update_intent);
@@ -216,10 +227,11 @@ public class MainTabActivity extends TabActivity {
 				}
 				break;
 			case DISCONNECTED:
-				if(D)Log.d(TAG, "Disconnected");
+				if(D)Log.d(TAG, "BroadcastReceiver: Disconnected");
 				title_right.setText(R.string.not_connected);
 				break;
 			case MASTER:
+				if(D)Log.d(TAG, "BroadcastReceiver: MASTER");
 				String masterCommand = intent.getStringExtra(MASTER_COMMAND);
 				deviceConnector.write(masterCommand.getBytes());
 				break;
