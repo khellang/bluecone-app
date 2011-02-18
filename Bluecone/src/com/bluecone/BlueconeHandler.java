@@ -86,9 +86,8 @@ public final class BlueconeHandler extends Handler {
 				
 			case INPUT:
 			if(!waiting)	
-			storage.add((byte[]) msg.obj);
-			else{
-
+				storage.add((byte[]) msg.obj);
+			else {
 				String tmp = new String((byte[]) msg.obj).trim();
 				String [] in = tmp.split("#");
 				waiting = false;
@@ -113,8 +112,13 @@ public final class BlueconeHandler extends Handler {
 					BlueconeContext.getContext().sendBroadcast(queueProgressIntent);
 					 WriterThread queueWriterThread = new WriterThread();
 					 queueWriterThread.start();					
+					 break;
+				case QUEUE:
+					Intent addQueueIntent = new Intent(QueueActivity.UPDATE_QUEUE);
+					addQueueIntent.putExtra(QueueActivity.PATH, in[1]);
+					BlueconeContext.getContext().sendBroadcast(addQueueIntent);
+					}
 					break;
-			}
 			}
 				break;
 			case OUTPUT:
@@ -195,9 +199,7 @@ public final class BlueconeHandler extends Handler {
 					break;
 				}
 			
-				}
-				
-					
+				}	
 			}
 		}
 		};
