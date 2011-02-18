@@ -3,6 +3,8 @@ package com.bluecone.connect;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 import com.bluecone.BlueconeHandler;
@@ -218,11 +220,30 @@ public class DeviceConnector {
 			device = d;
 			BluetoothSocket tmp = null;
 			
-			try{
-				tmp = device.createRfcommSocketToServiceRecord(mUUID);
-			}catch(IOException e){
-				Log.d(TAG, "create Rfcomm feilet");
+			// Dette er den originale setningen.
+//			try{
+//				tmp = device.createRfcommSocketToServiceRecord(mUUID);
+//			}catch(IOException e){
+//				Log.d(TAG, "create Rfcomm feilet");
+//			}
+			
+			// Prøver med denne for HTC-kompabilitet.
+			Method m;
+			try {
+				m = device.getClass().getMethod("createRfcommSocket", new Class[] { int.class });
+				tmp = (BluetoothSocket)m.invoke(device, Integer.valueOf(1));
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
 			}
+			
 			socket = tmp;
 		}
 		@Override
