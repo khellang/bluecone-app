@@ -114,6 +114,7 @@ public final class BlueconeHandler extends Handler {
 					 queueWriterThread.start();					
 					 break;
 				case QUEUE:
+					if(D)Log.d(TAG, "Plain QUEUE");
 					Intent addQueueIntent = new Intent(QueueActivity.UPDATE_QUEUE);
 					addQueueIntent.putExtra(QueueActivity.PATH, in[1]);
 					BlueconeContext.getContext().sendBroadcast(addQueueIntent);

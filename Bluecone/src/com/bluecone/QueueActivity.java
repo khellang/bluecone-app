@@ -1,6 +1,8 @@
 package com.bluecone;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.bluecone.storage.ArtistList.Track;
 
@@ -36,11 +38,12 @@ public class QueueActivity extends Activity {
 	private static final int START = 0;
 	private static final int UPDATE = 1;
 	private static final int MASTER = 2;
+	private static boolean queuestart_initiated ;
 	private int max;
 	private int start;
 	private static final HashMap<String, Integer> actionMap;
 	private LayoutInflater layoutInflater;
-	private  String[] DATA =new String[]{"Playlist empty"} ;
+	private List< String> DATA = new ArrayList<String>();
 	private QueueBaseAdapter queueBaseAdapter;
 	private Cursor cursor;
 	private ListView listView;
@@ -58,7 +61,8 @@ public class QueueActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.queue_layout);
-
+		queuestart_initiated = false;
+		DATA.add("PLAYLIST EMPTY");
 		prev = (ImageButton)findViewById(R.id.imageButton1);
 		stop = (ImageButton)findViewById(R.id.imageButton2);
 		play = (ImageButton)findViewById(R.id.imageButton3);
@@ -105,22 +109,38 @@ public class QueueActivity extends Activity {
 		public void onReceive(Context context, Intent intent) {
 				switch(actionMap.get(intent.getAction())){
 				case START:
+					queuestart_initiated = true;
 					max = intent.getIntExtra(MAX, 1);
 					if(D)Log.d(TAG, "Start "+max);
-					DATA = new String[max];
+					DATA.clear();
 					start = 0;
 					break;
 				case UPDATE:
+					if(D)Log.d(TAG, "queuestart_initiated = "+queuestart_initiated);
 					String selection = Track.PATH+"=? ";
 					String[]selectionArgs = new String[]{intent.getStringExtra(PATH)};
 					if(D)Log.d(TAG, "input: "+selectionArgs[0]);
 				
 						cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH}, selection, selectionArgs, null);
-						update();
-						if(start<max){
+					//if(queuestart_initiated){	
+						//if(start<=max){
 							cursor.moveToFirst();
-							DATA[start++] = cursor.getString(1);
-						}		
+							DATA.add(cursor.getString(1));
+							
+						//}
+					//	else{
+						//	queuestart_initiated = false;
+						//}
+					//}
+					//else{
+						//if(D)Log.d(TAG, "Data to add: "+cursor.getString(1));
+						//cursor.moveToFirst();
+					//	DATA.add(cursor.getString(1));
+						
+					//}
+						
+					update();
+					
 					break;
 				case MASTER:
 					Log.d(TAG, "IS_MASTER= "+intent.getBooleanExtra(IS_MASTER, false));
@@ -166,8 +186,8 @@ public class QueueActivity extends Activity {
 				holder = (ViewHolder) convertView.getTag();
 			}
 			
-			holder.playing.setText(DATA[position]);
-			Log.d(TAG,"getView: "+DATA[position]);
+			holder.playing.setText((CharSequence) DATA.toArray()[position]);
+			Log.d(TAG,"getView: "+DATA.toArray()[position]);
 
 		
 			return convertView;
@@ -189,7 +209,7 @@ public class QueueActivity extends Activity {
 		@Override
 		public int getCount() {
 			// TODO Auto-generated method stub
-			return DATA.length;
+			return DATA.toArray().length;
 		}
 	};
 	private class ViewHolder{

@@ -221,14 +221,14 @@ public class DeviceConnector {
 			BluetoothSocket tmp = null;
 			
 			// Dette er den originale setningen.
-//			try{
-//				tmp = device.createRfcommSocketToServiceRecord(mUUID);
-//			}catch(IOException e){
-//				Log.d(TAG, "create Rfcomm feilet");
-//			}
+			try{
+			tmp = device.createRfcommSocketToServiceRecord(mUUID);
+			}catch(IOException e){
+				Log.d(TAG, "create Rfcomm feilet");
+			}
 			
 			// Prøver med denne for HTC-kompabilitet.
-			Method m;
+		/*	Method m;
 			try {
 				m = device.getClass().getMethod("createRfcommSocket", new Class[] { int.class });
 				tmp = (BluetoothSocket)m.invoke(device, Integer.valueOf(1));
@@ -242,7 +242,7 @@ public class DeviceConnector {
 				e.printStackTrace();
 			} catch (InvocationTargetException e) {
 				e.printStackTrace();
-			}
+			}*/
 			
 			socket = tmp;
 		}
