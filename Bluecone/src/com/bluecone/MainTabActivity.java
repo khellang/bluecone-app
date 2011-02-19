@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.TabHost;
@@ -103,11 +104,11 @@ public class MainTabActivity extends TabActivity {
 		tabIntent = new Intent().setClass(this, QueueActivity.class);
 		tabSpec = tabHost.newTabSpec("queue").setIndicator("Queue",resources.getDrawable(R.drawable.ic_queue)).setContent(tabIntent);
 		tabHost.addTab(tabSpec);
-
 		tabHost.setCurrentTab(3);
 		tabHost.setCurrentTab(2);
 		tabHost.setCurrentTab(1);
 		tabHost.setCurrentTab(0);
+	
 	}
 
 	@Override

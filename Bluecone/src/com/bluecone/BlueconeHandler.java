@@ -1,6 +1,8 @@
 package com.bluecone;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
 import com.bluecone.connect.DeviceConnector;
 import com.bluecone.storage.ArtistList.Album;
 import com.bluecone.storage.ArtistList.Artist;
@@ -176,7 +178,6 @@ public final class BlueconeHandler extends Handler {
 						contentResolver.insert(Track.CONTENT_URI, trackValues);
 						contentResolver.insert(Album.CONTENT_URI, albumValues);
 						contentResolver.insert(Artist.CONTENT_URI, artValues);
-						
 					}catch(SQLException a){
 						if(D)Log.d(TAG, "SQLException..."+a);
 					}catch(IllegalArgumentException b){

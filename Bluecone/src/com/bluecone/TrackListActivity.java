@@ -10,6 +10,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.BaseColumns;
@@ -17,11 +18,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
-public class TrackListActivity extends ListActivity {
+public class TrackListActivity extends ListActivity  {
 
 	private static final String TAG = "Tracklist";
 	private static final boolean D = true;
@@ -43,7 +46,6 @@ public class TrackListActivity extends ListActivity {
 		setContentView(R.layout.track_layout);
 		if(D)Log.d(TAG, "onCreate");
 		sortOrder = Track.TITLE+" ASC";
-
 		trackBaseAdapter = new TrackBaseAdapter();
 		layoutInflater = (LayoutInflater) BlueconeContext.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI, new String[] { BaseColumns._ID, Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH }, null, null, null);
@@ -88,7 +90,7 @@ public class TrackListActivity extends ListActivity {
 
 	}
 
-	private class TrackBaseAdapter extends BaseAdapter implements OnClickListener{
+	private class TrackBaseAdapter extends BaseAdapter implements OnClickListener, OnLongClickListener{
 
 
 		public int getCount() {
@@ -117,13 +119,16 @@ public class TrackListActivity extends ListActivity {
 				holder.artist = (TextView) convertView.findViewById(R.id.track_artist_name);
 				convertView.setTag(holder);
 				convertView.setOnClickListener(TrackBaseAdapter.this);
+				convertView.setOnLongClickListener(TrackBaseAdapter.this);
+				
 			}
 			else{
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-
+			
 			holder.title.setText(cursor.getString(1));
+			holder.title.setEnabled(false);
 			holder.album.setText(cursor.getString(2));
 			holder.artist.setText(cursor.getString(3));
 			holder.path = (cursor.getString(4));
@@ -132,12 +137,19 @@ public class TrackListActivity extends ListActivity {
 
 		public void onClick(View v) {
 			Log.d(TAG, " KLIKK");
+			((ViewHolder)v.getTag()).title.setEnabled(true);
 			String path = ((ViewHolder)v.getTag()).path;
 			Intent writeIntent = new Intent(MainTabActivity.REQUEST_WRITE);
 			writeIntent.putExtra(MainTabActivity.TRACK_WRITE, path);
 			sendBroadcast(writeIntent);
 
 
+		}
+
+		@Override
+		public boolean onLongClick(View v) {
+			Toast.makeText(BlueconeContext.getContext(), "Long click not implemented", Toast.LENGTH_LONG).show();
+			return false;
 		}
 
 	}
@@ -153,5 +165,7 @@ public class TrackListActivity extends ListActivity {
 		actionMap = new HashMap<String, Integer>();
 		actionMap.put(MainTabActivity.REFRESH, REFRESH);
 		actionMap.put(AlbumListActivity.REFRESH_TRACK, REFRESH_TRACK);
+		
 	}
+
 }

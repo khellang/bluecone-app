@@ -13,4 +13,6 @@
     <string name="not_connected">Not connected</string>
     <string name="connected">Connected</string>
     <string name="transfer">Updating...</string>
+    <color name="click">#FF0000</color>
+    <color name="list_color">#FFFFFF</color>
 </resources>
