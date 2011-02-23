@@ -8,5 +8,5 @@
   android:maxLines="1"
 		android:ellipsize="end"
   android:textSize="28sp"
-  android:textStyle="italic">
+  >
 </TextView>

@@ -243,34 +243,34 @@ public class DeviceConnector {
 			BluetoothSocket tmp = null;
 			
 			// Dette er den originale setningen.
-			try{
-			tmp = device.createRfcommSocketToServiceRecord(mUUID);
-			}catch(IOException e){
-				Log.d(TAG, "create Rfcomm feilet");
-			}
+//			try{
+//			tmp = device.createRfcommSocketToServiceRecord(mUUID);
+//			}catch(IOException e){
+//				Log.d(TAG, "create Rfcomm feilet");
+//			}
 			
 			// Prøver med denne for HTC-kompabilitet.
-//			Method m;
-//			try {
-//				Log.d(TAG, "CreateRfcommSocket");
-//				m = device.getClass().getMethod("createRfcommSocket", new Class[] { int.class });
-//				tmp = (BluetoothSocket)m.invoke(device, Integer.valueOf(1));
-//			} catch (SecurityException e) {
-//				Log.d(TAG, "SecurityException");
-//				e.printStackTrace();
-//			} catch (NoSuchMethodException e) {
-//				Log.d(TAG, "NoSuchMethodException");
-//				e.printStackTrace();
-//			} catch (IllegalArgumentException e) {
-//				Log.d(TAG, "IllegalArgumentException");
-//				e.printStackTrace();
-//			} catch (IllegalAccessException e) {
-//				Log.d(TAG, "IllegalAccessException");
-//				e.printStackTrace();
-//			} catch (InvocationTargetException e) {
-//				Log.d(TAG, "InvocationTargetException");
-//				e.printStackTrace();
-//			}
+			Method m;
+			try {
+				Log.d(TAG, "CreateRfcommSocket");
+				m = device.getClass().getMethod("createRfcommSocket", new Class[] { int.class });
+				tmp = (BluetoothSocket)m.invoke(device, Integer.valueOf(1));
+			} catch (SecurityException e) {
+				Log.d(TAG, "SecurityException");
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				Log.d(TAG, "NoSuchMethodException");
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				Log.d(TAG, "IllegalArgumentException");
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				Log.d(TAG, "IllegalAccessException");
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				Log.d(TAG, "InvocationTargetException");
+				e.printStackTrace();
+			}
 			
 			socket = tmp;
 		}

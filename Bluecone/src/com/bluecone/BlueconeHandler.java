@@ -93,10 +93,11 @@ public final class BlueconeHandler extends Handler {
 			else {
 				String tmp = new String((String) msg.obj).trim();
 				String [] in = tmp.split("#");
-				waiting = false;
+				
 				switch(map.get(in[0])){
 				case LISTSTART:
 					if(D)Log.d(TAG, "Liststart");
+					waiting = false;
 					max = Integer.parseInt(in[1]);
 					Intent progressIntent = new Intent(MainTabActivity.REQUEST_TRANSMITT);
 					progressIntent.putExtra(MainTabActivity.PROGRESS, max);
@@ -106,6 +107,7 @@ public final class BlueconeHandler extends Handler {
 					break;
 				case QUEUESTART:
 					if(D)Log.d(TAG, "Queuestart");
+					waiting = false;
 					max = Integer.parseInt(in[1]);
 					Intent startUpdateIntent = new Intent(QueueActivity.START_UPDATE_QUEUE);
 					startUpdateIntent.putExtra(QueueActivity.MAX, max);

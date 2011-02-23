@@ -63,7 +63,6 @@ public class QueueActivity extends Activity {
 		setContentView(R.layout.queue_layout);
 
 		queuestart_initiated = false;
-		DATA.add("PLAYLIST EMPTY");
 		prev = (ImageButton)findViewById(R.id.imageButton1);
 		stop = (ImageButton)findViewById(R.id.imageButton2);
 		play = (ImageButton)findViewById(R.id.imageButton3);
@@ -124,7 +123,8 @@ public class QueueActivity extends Activity {
 						cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH}, selection, selectionArgs, null);
 					//if(queuestart_initiated){	
 						//if(start<=max){
-							cursor.moveToFirst();
+									cursor.moveToFirst();
+									Log.d(TAG,"cursor.getString(1)"+ cursor.getString(1)); 
 							DATA.add(cursor.getString(1));
 							
 						//}
