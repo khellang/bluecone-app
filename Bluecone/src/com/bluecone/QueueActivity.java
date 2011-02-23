@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.util.Log;
@@ -19,13 +20,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
 public class QueueActivity extends Activity {
 
-	
+
 	private static final String TAG = "Queuelist";
 	private static final boolean D = true;	
 	public static final  String MASTER_MODE = "com.bluecone.MASTER_MODE";
@@ -53,9 +55,9 @@ public class QueueActivity extends Activity {
 	private ImageButton volume_up;
 	private ImageButton volume_down;
 
-	
-	
-	
+
+
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -76,7 +78,7 @@ public class QueueActivity extends Activity {
 		startManagingCursor(cursor);
 		listView.setAdapter(queueBaseAdapter);
 		setMaster(false);
-	
+
 	}
 
 	@Override
@@ -91,14 +93,14 @@ public class QueueActivity extends Activity {
 	}
 
 	@Override
-		public void onResume(){
+	public void onResume(){
 		super.onResume();
 
 	}
 	@Override
-		public void onPause(){
+	public void onPause(){
 		super.onPause();
-	
+
 	}
 
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -107,62 +109,77 @@ public class QueueActivity extends Activity {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-				switch(actionMap.get(intent.getAction())){
-				case START:
-					queuestart_initiated = true;
-					max = intent.getIntExtra(MAX, 1);
-					if(D)Log.d(TAG, "Start "+max);
-					DATA.clear();
-					break;
-				case UPDATE:
-					if(D)Log.d(TAG, "queuestart_initiated = "+queuestart_initiated);
-					String selection = Track.PATH+"=? ";
-					String[]selectionArgs = new String[]{intent.getStringExtra(PATH)};
-					if(D)Log.d(TAG, "input: "+selectionArgs[0]);
-				
-						cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH}, selection, selectionArgs, null);
-					//if(queuestart_initiated){	
-						//if(start<=max){
-									cursor.moveToFirst();
-									Log.d(TAG,"cursor.getString(1)"+ cursor.getString(1)); 
-							DATA.add(cursor.getString(1));
-							
-						//}
-					//	else{
-						//	queuestart_initiated = false;
-						//}
-					//}
-					//else{
-						//if(D)Log.d(TAG, "Data to add: "+cursor.getString(1));
-						//cursor.moveToFirst();
-					//	DATA.add(cursor.getString(1));
-						
-					//}
-						
-					update();
-					
-					break;
-				case MASTER:
-					Log.d(TAG, "IS_MASTER= "+intent.getBooleanExtra(IS_MASTER, false));
-					setMaster(intent.getBooleanExtra(IS_MASTER, false));
-					break;
+			switch(actionMap.get(intent.getAction())){
+			case START:
+				queuestart_initiated = true;
+				max = intent.getIntExtra(MAX, 1);
+				if(D)Log.d(TAG, "Start "+max);
+				DATA.clear();
+				break;
+			case UPDATE:
+				if(D)Log.d(TAG, "queuestart_initiated = "+queuestart_initiated);
+				String selection = Track.PATH+"=? ";
+				String[]selectionArgs = new String[]{intent.getStringExtra(PATH)};
+				if(D)Log.d(TAG, "input: "+selectionArgs[0]);
+
+				cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH}, selection, selectionArgs, null);
+				//if(queuestart_initiated){	
+				//if(start<=max){
+				cursor.moveToFirst();
+				Log.d(TAG,"cursor.getString(1)"+ cursor.getString(1)); 
+				DATA.add(cursor.getString(1));
+
+				//}
+				//	else{
+				//	queuestart_initiated = false;
+				//}
+				//}
+				//else{
+				//if(D)Log.d(TAG, "Data to add: "+cursor.getString(1));
+				//cursor.moveToFirst();
+				//	DATA.add(cursor.getString(1));
+
+				//}
+
+				update();
+
+				break;
+			case MASTER:
+				Log.d(TAG, "IS_MASTER= "+intent.getBooleanExtra(IS_MASTER, false));
+				setMaster(intent.getBooleanExtra(IS_MASTER, false));
+				break;
 			}
 
 
 		}
 
 	};
-	
+
+	//	private void setMaster(boolean master){
+	//		prev.setEnabled(master);
+	//		stop.setEnabled(master);
+	//		play.setEnabled(master);
+	//		next.setEnabled(master);
+	//		volume_up.setEnabled(master);
+	//		volume_down.setEnabled(master);
+	//	}
+
 	private void setMaster(boolean master){
-		prev.setEnabled(master);
-		stop.setEnabled(master);
-		play.setEnabled(master);
-		next.setEnabled(master);
-		volume_up.setEnabled(master);
-		volume_down.setEnabled(master);
-	
-	
-		
+		if (!master) {
+			prev.setVisibility(Button.GONE);
+			stop.setVisibility(Button.GONE);
+			play.setVisibility(Button.GONE);
+			next.setVisibility(Button.GONE);
+			volume_up.setVisibility(Button.GONE);
+			volume_down.setVisibility(Button.GONE);
+		} else {
+			prev.setVisibility(Button.VISIBLE);
+			stop.setVisibility(Button.VISIBLE);
+			play.setVisibility(Button.VISIBLE);
+			next.setVisibility(Button.VISIBLE);
+			volume_up.setVisibility(Button.VISIBLE);
+			volume_down.setVisibility(Button.VISIBLE);
+		}
 	}
 
 	private void update(){
@@ -179,17 +196,17 @@ public class QueueActivity extends Activity {
 				convertView = layoutInflater.inflate(R.layout.queue_entry, null);
 				holder = new ViewHolder();
 				holder.playing = (TextView) convertView.findViewById(R.id.queue_track_title);
-			
+
 				convertView.setTag(holder);
 			}
 			else{
 				holder = (ViewHolder) convertView.getTag();
 			}
-			
+
 			holder.playing.setText((CharSequence) DATA.toArray()[position]);
 			Log.d(TAG,"getView: "+DATA.toArray()[position]);
 
-		
+
 			return convertView;
 
 		}
@@ -214,9 +231,9 @@ public class QueueActivity extends Activity {
 	};
 	private class ViewHolder{
 		TextView playing;
-	
+
 	}
-	
+
 	public void play(View view){
 		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
 		intent.putExtra(MainTabActivity.MASTER_COMMAND, "PLAY");
@@ -226,39 +243,39 @@ public class QueueActivity extends Activity {
 		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
 		intent.putExtra(MainTabActivity.MASTER_COMMAND, "STOP");
 		sendBroadcast(intent);
-		
+
 	}
 	public void next(View view){
 		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
 		intent.putExtra(MainTabActivity.MASTER_COMMAND, "NEXT");
 		sendBroadcast(intent);
-		
+
 	}
 	public void prev(View view){
 		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
 		intent.putExtra(MainTabActivity.MASTER_COMMAND, "PREV");
 		sendBroadcast(intent);
-		
+
 	}
 	public void adjustVolumeUp(View view){
 		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
 		intent.putExtra(MainTabActivity.MASTER_COMMAND, "VOLUP");
 		sendBroadcast(intent);
-		
+
 	}
 	public void adjustVolumeDown(View view){
 		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
 		intent.putExtra(MainTabActivity.MASTER_COMMAND, "VOLDOWN");
 		sendBroadcast(intent);
-		
+
 	}
-	
+
 	static{
 		actionMap = new HashMap<String, Integer>();
 		actionMap.put(START_UPDATE_QUEUE, START);
 		actionMap.put(UPDATE_QUEUE, UPDATE);
 		actionMap.put(MASTER_MODE, MASTER);
-	
+
 	}
 
 }
