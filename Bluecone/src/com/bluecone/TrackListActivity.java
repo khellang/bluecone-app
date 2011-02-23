@@ -10,7 +10,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.BaseColumns;
@@ -24,7 +23,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class TrackListActivity extends ListActivity  {
+public class TrackListActivity extends ListActivity {
 
 	private static final String TAG = "Tracklist";
 	private static final boolean D = true;
@@ -45,6 +44,7 @@ public class TrackListActivity extends ListActivity  {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.track_layout);
 		if(D)Log.d(TAG, "onCreate");
+
 		sortOrder = Track.TITLE+" ASC";
 		trackBaseAdapter = new TrackBaseAdapter();
 		layoutInflater = (LayoutInflater) BlueconeContext.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -137,6 +137,7 @@ public class TrackListActivity extends ListActivity  {
 
 		public void onClick(View v) {
 			Log.d(TAG, " KLIKK");
+		
 			((ViewHolder)v.getTag()).title.setEnabled(true);
 			String path = ((ViewHolder)v.getTag()).path;
 			Intent writeIntent = new Intent(MainTabActivity.REQUEST_WRITE);
@@ -167,5 +168,6 @@ public class TrackListActivity extends ListActivity  {
 		actionMap.put(AlbumListActivity.REFRESH_TRACK, REFRESH_TRACK);
 		
 	}
+
 
 }

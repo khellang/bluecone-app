@@ -1,8 +1,12 @@
 package com.bluecone.connect;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
@@ -147,8 +151,10 @@ public class DeviceConnector {
 	private class ConnectedThread extends Thread{
 
 		private final BluetoothSocket socket;
-		private final InputStream input;
+		private final InputStreamReader input;
+		private final BufferedReader reader;
 		private final OutputStream output;
+		private Object String;
 		
 		public ConnectedThread(BluetoothSocket s) {
 			Log.d(TAG, "ConnectedThread");
@@ -162,34 +168,50 @@ public class DeviceConnector {
 			}catch(IOException e){
 				Log.d(TAG, "Strømmer feilet");
 			}
-			input = tmp_in;
+			input = new InputStreamReader(tmp_in);
+			reader = new BufferedReader(input);
 			output = tmp_out;
 		}
 		
 		@Override
 		public void run(){
 			Log.d(TAG, "ConnectedThread har startet");
-			 byte[] buffer = new byte[2048];
-	            int bytes;
-	            
+//			 byte[] buffer = new byte[2048];
+//			
+//			BufferedReader buf = new BufferedReader
+//	            int bytes;
+				
 	            while(true){
-	            	try {
+	//            	try {
+						String msg = null;
+	            		try {
+	            		
+	            			if((msg = reader.readLine())!=null){
+	            				
+	            			Log.d(TAG, "msg: "+msg);
+	            		
+	            			BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.INPUT, -1, -1,msg).sendToTarget();	
+	            			}
+	            		} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}	
+	            		/** Gammel kode ved bruk av kun inputstream*/
+//						bytes = input.read(buffer);
+//						String tmp = new String(buffer).trim();
+//						Log.d(TAG, " "+tmp);
+//						BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.INPUT, bytes, -1,buffer).sendToTarget();	
+//						
+//						
+//						buffer = new byte[2048];
 						
-						bytes = input.read(buffer);
-						String tmp = new String(buffer).trim();
-						Log.d(TAG, " "+tmp);
-						BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.INPUT, bytes, -1,buffer).sendToTarget();	
-						
-						
-						buffer = new byte[2048];
-						
-	            	} catch (IOException e) {
-						Log.d(TAG, "tilkobling tapt");
-						connectionLost();
-						break;
-					}
+//	            	} catch (IOException e) {
+//						Log.d(TAG, "tilkobling tapt");
+//						connectionLost();
+//						break;
+//					}
 					
-	            }
+	           }
 		}
 
 		public void write(byte[] out) {
@@ -221,34 +243,34 @@ public class DeviceConnector {
 			BluetoothSocket tmp = null;
 			
 			// Dette er den originale setningen.
-//			try{
-//			tmp = device.createRfcommSocketToServiceRecord(mUUID);
-//			}catch(IOException e){
-//				Log.d(TAG, "create Rfcomm feilet");
-//			}
+			try{
+			tmp = device.createRfcommSocketToServiceRecord(mUUID);
+			}catch(IOException e){
+				Log.d(TAG, "create Rfcomm feilet");
+			}
 			
 			// Prøver med denne for HTC-kompabilitet.
-			Method m;
-			try {
-				Log.d(TAG, "CreateRfcommSocket");
-				m = device.getClass().getMethod("createRfcommSocket", new Class[] { int.class });
-				tmp = (BluetoothSocket)m.invoke(device, Integer.valueOf(1));
-			} catch (SecurityException e) {
-				Log.d(TAG, "SecurityException");
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				Log.d(TAG, "NoSuchMethodException");
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				Log.d(TAG, "IllegalArgumentException");
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				Log.d(TAG, "IllegalAccessException");
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				Log.d(TAG, "InvocationTargetException");
-				e.printStackTrace();
-			}
+//			Method m;
+//			try {
+//				Log.d(TAG, "CreateRfcommSocket");
+//				m = device.getClass().getMethod("createRfcommSocket", new Class[] { int.class });
+//				tmp = (BluetoothSocket)m.invoke(device, Integer.valueOf(1));
+//			} catch (SecurityException e) {
+//				Log.d(TAG, "SecurityException");
+//				e.printStackTrace();
+//			} catch (NoSuchMethodException e) {
+//				Log.d(TAG, "NoSuchMethodException");
+//				e.printStackTrace();
+//			} catch (IllegalArgumentException e) {
+//				Log.d(TAG, "IllegalArgumentException");
+//				e.printStackTrace();
+//			} catch (IllegalAccessException e) {
+//				Log.d(TAG, "IllegalAccessException");
+//				e.printStackTrace();
+//			} catch (InvocationTargetException e) {
+//				Log.d(TAG, "InvocationTargetException");
+//				e.printStackTrace();
+//			}
 			
 			socket = tmp;
 		}

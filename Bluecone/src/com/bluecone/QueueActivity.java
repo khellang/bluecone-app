@@ -40,7 +40,6 @@ public class QueueActivity extends Activity {
 	private static final int MASTER = 2;
 	private static boolean queuestart_initiated ;
 	private int max;
-	private int start;
 	private static final HashMap<String, Integer> actionMap;
 	private LayoutInflater layoutInflater;
 	private List< String> DATA = new ArrayList<String>();
@@ -53,6 +52,7 @@ public class QueueActivity extends Activity {
 	private ImageButton next;
 	private ImageButton volume_up;
 	private ImageButton volume_down;
+
 	
 	
 	
@@ -61,6 +61,7 @@ public class QueueActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.queue_layout);
+
 		queuestart_initiated = false;
 		DATA.add("PLAYLIST EMPTY");
 		prev = (ImageButton)findViewById(R.id.imageButton1);
@@ -113,7 +114,6 @@ public class QueueActivity extends Activity {
 					max = intent.getIntExtra(MAX, 1);
 					if(D)Log.d(TAG, "Start "+max);
 					DATA.clear();
-					start = 0;
 					break;
 				case UPDATE:
 					if(D)Log.d(TAG, "queuestart_initiated = "+queuestart_initiated);
@@ -260,4 +260,5 @@ public class QueueActivity extends Activity {
 		actionMap.put(MASTER_MODE, MASTER);
 	
 	}
+
 }

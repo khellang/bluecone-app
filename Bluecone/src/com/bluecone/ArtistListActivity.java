@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.TextView;
 
 
@@ -30,7 +29,7 @@ public class ArtistListActivity extends ListActivity{
 	private LayoutInflater layoutInflater;
 	private ArtistBaseAdapter artistBaseAdapter;
 	private static String sortOrder;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -40,7 +39,7 @@ public class ArtistListActivity extends ListActivity{
 		layoutInflater = (LayoutInflater) BlueconeContext.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		cursor = BlueconeContext.getContext().getContentResolver().query(Artist.CONTENT_URI, new String[] { BaseColumns._ID, Artist.NAME}, null, null, sortOrder);		
 		startManagingCursor(cursor);	// Denne er deprecated. CursorLoader kan/skal brukes, men denne virker sannsynligvis ikke på SDK 7. 		 
-		 setListAdapter(artistBaseAdapter);
+		setListAdapter(artistBaseAdapter);
 		if(D)Log.d(TAG, "...onCreate");
 	}
 
@@ -62,15 +61,15 @@ public class ArtistListActivity extends ListActivity{
 
 		}
 	};
-	
+
 	private void update(){
 		cursor = BlueconeContext.getContext().getContentResolver().query(Artist.CONTENT_URI, new String[] { BaseColumns._ID, Artist.NAME}, null, null, null);		
 		artistBaseAdapter.notifyDataSetChanged();
-		
+
 	}
 
 	private class ArtistBaseAdapter extends BaseAdapter implements OnClickListener{
-			
+
 
 		public int getCount() {
 			// TODO Auto-generated method stub
@@ -112,9 +111,9 @@ public class ArtistListActivity extends ListActivity{
 			intent.putExtra(Artist.NAME, ((((ViewHolder) v.getTag()).name)).getText());
 			Log.d(TAG, "Trykker på "+intent.getStringExtra(Artist.NAME));
 			sendBroadcast(intent);
-		
-			
-			
+
+
+
 		}
 
 	}
@@ -122,5 +121,6 @@ public class ArtistListActivity extends ListActivity{
 	private class ViewHolder{
 		TextView name;
 	}
+
 
 }

@@ -40,6 +40,7 @@ public class AlbumListActivity extends ListActivity {
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		if(D)Log.d(TAG, "onCreate...");
+		
 		setContentView(R.layout.album_layout);
 		sortOrder = Album.TITLE+" ASC";
 		albumBaseAdapter = new AlbumBaseAdapter();
@@ -149,4 +150,5 @@ public class AlbumListActivity extends ListActivity {
 		actionMap.put(MainTabActivity.REFRESH, REFRESH);
 		actionMap.put(ArtistListActivity.REFRESH_ALBUM, SHOW_ALBUM);
 	}
+
 }

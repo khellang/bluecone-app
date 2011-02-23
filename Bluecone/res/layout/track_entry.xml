@@ -8,6 +8,8 @@
 		android:id="@+id/track_title"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:maxLines="1"
+		android:ellipsize="end"
 		android:text="Track"
 		 android:textColor="@color/ic_track_entry"
 		android:textSize="28sp" />
@@ -19,7 +21,9 @@
 			android:id="@+id/track_artist_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="Artist"
+			android:maxLength="15"
+		android:ellipsize="end"
+			android:text="Artist som har et enooormt langt navn"
 			android:textSize="22sp" />
 		<TextView
 			android:layout_width="wrap_content"
@@ -28,9 +32,11 @@
 			android:textSize="22sp"/>
 		<TextView
 			android:id="@+id/track_album_title"
+			android:maxLines="1"
+		android:ellipsize="end"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="Album"
+			android:text="Album med like langt navn"
 			android:textSize="22sp"/>
 	</LinearLayout>
 </LinearLayout>

@@ -5,6 +5,8 @@
   android:id="@+id/artist_name"
   android:layout_width="fill_parent"
   android:layout_height="fill_parent"
+  android:maxLines="1"
+		android:ellipsize="end"
   android:textSize="28sp"
   android:textStyle="italic">
 </TextView>

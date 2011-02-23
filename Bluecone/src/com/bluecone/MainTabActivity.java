@@ -17,8 +17,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnLongClickListener;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.TabHost;
@@ -82,7 +83,6 @@ public class MainTabActivity extends TabActivity {
 			Toast.makeText(this, "Bluetooth not supported", Toast.LENGTH_LONG).show();
 			finish();
 		}
-
 		tabHost = getTabHost();
 		TabHost.TabSpec tabSpec;
 		Resources resources = getResources();

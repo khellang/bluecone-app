@@ -8,7 +8,8 @@
 		android:layout_weight="1.0"
 		>
 		<ListView android:layout_width="fill_parent" 
-		android:layout_height="fill_parent"		
+		android:layout_height="fill_parent"	
+		android:cacheColorHint="#0000"	
 			android:id="@+id/queue_list"></ListView>
 	</LinearLayout>
 		<TableLayout android:id="@+id/tableLayout1"
