@@ -35,6 +35,7 @@ public class QueueActivity extends Activity {
 	public static final String UPDATE_QUEUE = "com.bluecone.UPDATE_QUEUE";
 	public static final String QUEUE_ELEMENTS="elements";
 	public static final String PATH = "path";
+	public static final String POS = "position";
 	public static final String MAX = "max";
 	public static final String IS_MASTER = "is_master";
 	private static final int START = 0;
@@ -126,22 +127,19 @@ public class QueueActivity extends Activity {
 				//if(queuestart_initiated){	
 				//if(start<=max){
 				cursor.moveToFirst();
-				Log.d(TAG,"cursor.getString(1)"+ cursor.getString(1)); 
-				DATA.add(cursor.getString(1));
-
-				//}
-				//	else{
-				//	queuestart_initiated = false;
-				//}
-				//}
-				//else{
-				//if(D)Log.d(TAG, "Data to add: "+cursor.getString(1));
-				//cursor.moveToFirst();
-				//	DATA.add(cursor.getString(1));
-
-				//}
+				Log.d(TAG,"cursor.getString(1)"+ cursor.getString(1));
+				
+				// Gammel måte å sette inn ny sang i kø
+				// DATA.add(cursor.getString(1));
+				
+				// Ny måte
+				int pos = Integer.parseInt(intent.getStringExtra(POS));
+				Log.d(TAG, "Pos: " + pos);
+				DATA.add(pos, cursor.getString(1));
 
 				update();
+				
+				cursor.close();
 
 				break;
 			case MASTER:
