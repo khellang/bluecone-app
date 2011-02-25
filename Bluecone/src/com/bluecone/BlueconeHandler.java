@@ -145,15 +145,23 @@ public final class BlueconeHandler extends Handler {
 		}
 	}
 
+	private ContentValues[] artistContent;
+	private ContentValues[] albumContent;
+	private ContentValues[] trackContent;
+	private final Intent progressIntent = new Intent(MainTabActivity.START_TRANSMITT); 
+	
 	private class WriterThread extends Thread{
 		private final	int PATH =0;
 		private final	int ARTIST = 1;
 		private final	int ALBUM = 2;
 		private final	int TRACK = 3;
 		private int progress;
-		private final Intent progressIntent = new Intent(MainTabActivity.START_TRANSMITT); 
+	
 		public WriterThread(){
 			progress = 0;
+			artistContent = new ContentValues[max];
+			albumContent = new ContentValues[max];
+			trackContent = new ContentValues[max];
 		}
 		public void	run(){
 			Log.d("THREAD","running..."+progress);
@@ -186,22 +194,12 @@ public final class BlueconeHandler extends Handler {
 							trackValues.put(Track.TITLE, input[TRACK]);
 							trackValues.put(Track.ALBUM_TITLE, input[ALBUM]);
 							trackValues.put(Track.ARTIST_NAME, input[ARTIST]);
-							try{
-								BlueconeContentProvider.startTransaction();
-								progress = setProgress(++progress)?0:progress;			//Keeps track of progress. When progress >= max; waiting : false-->true
-								BlueconeContext.getContext().sendBroadcast(progressIntent);
-								contentResolver.insert(Track.CONTENT_URI, trackValues);
-								contentResolver.insert(Artist.CONTENT_URI, artValues);
-								contentResolver.insert(Album.CONTENT_URI, albumValues);
-								BlueconeContentProvider.setTransactionSucsssfull();
-							}catch(SQLException a){
-								if(D)Log.d(TAG, "SQLException..."+a);
-							}catch(IllegalArgumentException b){
-								if(D)Log.d(TAG, "IllegalArgumentException..."+b);
-									
-							}finally{
-								BlueconeContentProvider.endTransaction();
-							}
+							artistContent[progress] = artValues;
+							albumContent[progress] = albumValues;
+							trackContent[progress] = trackValues;
+							BlueconeContext.getContext().sendBroadcast(progressIntent);
+							progress = setProgress(++progress)?0:progress;			//Keeps track of progress. When progress >= max; waiting : false-->true
+						
 						}
 						break;
 					case QUEUE:
@@ -223,12 +221,17 @@ public final class BlueconeHandler extends Handler {
 			}
 		}
 	};
+	
+	private void addToDatabase(){
+		if(D)Log.d(TAG, "addToDatabase");
+	BlueconeContentProvider.insertThis(artistContent, albumContent, trackContent);
+	}
 
 	public boolean setProgress(int progress){
 		if(progress>=max){
 			max = 0;
 			waiting = true;
-			BlueconeContentProvider.endTransaction();
+			addToDatabase();
 			Log.d(TAG, "FINISHED");
 			return true;
 		}

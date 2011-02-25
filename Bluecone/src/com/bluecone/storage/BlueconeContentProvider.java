@@ -2,7 +2,9 @@ package com.bluecone.storage;
 
 import java.util.HashMap;
 
+import com.bluecone.BlueconeContext;
 import com.bluecone.BlueconeHandler;
+import com.bluecone.MainTabActivity;
 import com.bluecone.storage.ArtistList.Album;
 import com.bluecone.storage.ArtistList.Artist;
 import com.bluecone.storage.ArtistList.Track;
@@ -11,6 +13,7 @@ import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -96,6 +99,32 @@ public class BlueconeContentProvider extends ContentProvider {
     }
     public static void endTransaction(){
     	dbHelper.getWritableDatabase().endTransaction();
+    }
+    
+    public static void insertThis(ContentValues [] artist,ContentValues[] album,ContentValues [] track){
+    	Intent requestTransmitt = new Intent(MainTabActivity.REQUEST_TRANSMITT);
+		requestTransmitt.putExtra(MainTabActivity.PROGRESS, artist.length);
+		BlueconeContext.getContext().sendBroadcast(requestTransmitt);
+		Intent progressIntent = new Intent(MainTabActivity.START_TRANSMITT);
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		try{
+			db.beginTransaction();
+			for(int i = 0;i<artist.length;i++){		
+				db.insert(TRACK_TABLE_NAME,Track.TITLE, track[i]);
+				db.insert(ARTIST_TABLE_NAME,Artist.NAME, artist[i]);
+				db.insert(ALBUM_TABLE_NAME,Album.TITLE, album[i]);
+				BlueconeContext.getContext().sendBroadcast(progressIntent);
+				
+			}
+			BlueconeContentProvider.setTransactionSucsssfull();
+		}catch(SQLException a){
+			if(D)Log.d(TAG, "SQLException..."+a);
+		}catch(IllegalArgumentException b){
+			if(D)Log.d(TAG, "IllegalArgumentException..."+b);
+				
+		}finally{
+			BlueconeContentProvider.endTransaction();
+		}
     }
  
 
