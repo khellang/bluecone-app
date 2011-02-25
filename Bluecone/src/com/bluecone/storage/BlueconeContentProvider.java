@@ -24,6 +24,7 @@ import android.util.Log;
 public class BlueconeContentProvider extends ContentProvider {
 	
     private static final String TAG = "BlueConeContentProvider";
+    private static final boolean D = false;
     private static final String DATABASE_NAME = "bluecone.db";
     private static final int DATABASE_VERSION = 1;
     private static final String ARTIST_TABLE_NAME = "artist";
@@ -85,8 +86,18 @@ public class BlueconeContentProvider extends ContentProvider {
     	
     }
     
-    private DatabaseHelper dbHelper;
+    private static DatabaseHelper dbHelper;
 	
+    public static void startTransaction(){
+    	dbHelper.getWritableDatabase().beginTransaction();
+    }
+    public static void setTransactionSucsssfull(){
+    	dbHelper.getWritableDatabase().setTransactionSuccessful();
+    }
+    public static void endTransaction(){
+    	dbHelper.getWritableDatabase().endTransaction();
+    }
+ 
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
@@ -163,8 +174,8 @@ public class BlueconeContentProvider extends ContentProvider {
             Uri testDataUri = ContentUris.withAppendedId(contentUri, rowId);
             getContext().getContentResolver().notifyChange(testDataUri, null);
             return testDataUri;
-        }
-
+       }
+   
         throw new SQLException("Failed to insert row into " + uri);
 	}
 

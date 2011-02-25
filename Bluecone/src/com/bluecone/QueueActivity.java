@@ -153,14 +153,6 @@ public class QueueActivity extends Activity {
 
 	};
 
-	//	private void setMaster(boolean master){
-	//		prev.setEnabled(master);
-	//		stop.setEnabled(master);
-	//		play.setEnabled(master);
-	//		next.setEnabled(master);
-	//		volume_up.setEnabled(master);
-	//		volume_down.setEnabled(master);
-	//	}
 
 	private void setMaster(boolean master){
 		if (!master) {

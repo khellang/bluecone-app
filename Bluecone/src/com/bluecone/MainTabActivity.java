@@ -221,6 +221,7 @@ public class MainTabActivity extends TabActivity {
 				progressHorizontal.incrementProgressBy(1);
 				Intent update_intent = new Intent(REFRESH);
 				sendBroadcast(update_intent);
+				
 				if((++progress)>=max){
 					title_left.setText("");
 					progressHorizontal.setVisibility(View.GONE);

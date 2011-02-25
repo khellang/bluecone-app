@@ -49,6 +49,29 @@ public class ArtistListActivity extends ListActivity{
 		IntentFilter filter = new IntentFilter(MainTabActivity.REFRESH);
 		this.registerReceiver(receiver, filter);
 	}
+	@Override 
+	public void onResume(){
+		super.onResume();
+	//	update();
+	}
+	@Override
+	public void onPause(){
+		super.onPause();
+		//cursor.close();
+	}
+	@Override
+	public void onStop(){
+		super.onStop();
+	}
+	@Override 
+	public void onRestart(){
+		super.onRestart();
+	}
+	@Override
+	public void onDestroy(){
+		super.onDestroy();
+	}
+
 
 
 

@@ -193,8 +193,7 @@ public class DeviceConnector {
 	            			BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.INPUT, -1, -1,msg).sendToTarget();	
 	            			}
 	            		} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+	            			e.printStackTrace();
 						}	
 	            		/** Gammel kode ved bruk av kun inputstream*/
 //						bytes = input.read(buffer);
