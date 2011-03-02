@@ -1,14 +1,16 @@
 package com.bluecone;
 
-
 import java.util.HashMap;
 
 import com.bluecone.connect.DeviceConnector;
 import com.bluecone.connect.DeviceFinder;
+
+import android.app.AlertDialog;
 import android.app.TabActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
@@ -17,46 +19,43 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.Window;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainTabActivity extends TabActivity {
-	
-	
 
-	public static final String REFRESH ="com.bluecone.REFRESH";
+	public static final String REFRESH = "com.bluecone.REFRESH";
 	public static final String REQUEST_WRITE = "com.bluecone.REQUEST_WRITE";
 	public static final String DEVICE_CONNECTED = "com.bluecone.CONNECTED_FILTER";
-	public static final String REQUEST_TRANSMITT  = "com.bluecone.REQUEST_TRANSMITT";
-	public static final String START_TRANSMITT  = "com.bluecone.START_TRANSMITT";
+	public static final String REQUEST_TRANSMITT = "com.bluecone.REQUEST_TRANSMITT";
+	public static final String START_TRANSMITT = "com.bluecone.START_TRANSMITT";
 	public static final String REQUEST_MASTER = "com.bluecone.REQUEST_MASTER";
-	private static final int WRITE =0;
+	private static final int WRITE = 0;
 	private static final int CONNECTED = 1;
 	private static final int TRANSMITT = 2;
 	private static final int TRANSMITTING = 3;
 	private static final int DISCONNECTED = 4;
-	private static final int MASTER= 5;
-	public static final  String MASTER_COMMAND ="com.bluecone.MASTER_COMAND";
-	
+	private static final int MASTER = 5;
+	public static final String MASTER_COMMAND = "com.bluecone.MASTER_COMAND";
+
 	public static final String PROGRESS = "progress";
 	private int max;
-	private int  progress;
+	private int progress;
 	private static final String TAG = "Tabactivity";
 	private static final boolean D = true;
 
 	private static final int REQUEST_ENABLE = 1;
 	private static final int REQUEST_DEVICE = 2;
 	private BluetoothAdapter bluetoothAdapter;
-	protected static DeviceConnector deviceConnector;	
+	protected static DeviceConnector deviceConnector;
 	protected static TabHost tabHost;
-	public static final String CONNECTION_LOST= "com.bluecone.CONNECTION_LOST";
-	public static final String TRACK_WRITE="track_write";
+	public static final String CONNECTION_LOST = "com.bluecone.CONNECTION_LOST";
+	public static final String TRACK_WRITE = "track_write";
 	private static final HashMap<String, Integer> actionMap;
 	private ProgressBar progressHorizontal;
 	private TextView title_right;
@@ -66,21 +65,24 @@ public class MainTabActivity extends TabActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if(D)Log.d(TAG, "oncreate...");
+		if (D)
+			Log.d(TAG, "oncreate...");
 
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		setContentView(R.layout.main);
-		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);
+		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
+				R.layout.custom_title);
 		title_right = (TextView) findViewById(R.id.custom_title_right);
 		title_right.setText(R.string.not_connected);
 		title_left = (TextView) findViewById(R.id.custom_title_left);
-		 progressHorizontal = (ProgressBar) findViewById(R.id.progress_horizontal);
-		 progressHorizontal.setVisibility(View.GONE);
+		progressHorizontal = (ProgressBar) findViewById(R.id.progress_horizontal);
+		progressHorizontal.setVisibility(View.GONE);
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		deviceConnector = new DeviceConnector();
 		BlueconeContext.setBlueconeContext(this);
-		if(bluetoothAdapter==null){
-			Toast.makeText(this, "Bluetooth not supported", Toast.LENGTH_LONG).show();
+		if (bluetoothAdapter == null) {
+			Toast.makeText(this, "Bluetooth not supported", Toast.LENGTH_LONG)
+					.show();
 			finish();
 		}
 		tabHost = getTabHost();
@@ -88,31 +90,47 @@ public class MainTabActivity extends TabActivity {
 		Resources resources = getResources();
 
 		Intent tabIntent;
-		tabIntent = new Intent().setClass(this,ArtistListActivity.class);
+		tabIntent = new Intent().setClass(this, ArtistListActivity.class);
 
-		tabSpec = tabHost.newTabSpec("artist").setIndicator("Artist",resources.getDrawable(R.drawable.ic_artist)).setContent(tabIntent);
+		tabSpec = tabHost
+				.newTabSpec("artist")
+				.setIndicator("Artist",
+						resources.getDrawable(R.drawable.ic_artist))
+				.setContent(tabIntent);
 		tabHost.addTab(tabSpec);
 
 		tabIntent = new Intent().setClass(this, AlbumListActivity.class);
-		tabSpec = tabHost.newTabSpec("album").setIndicator("Album",resources.getDrawable(R.drawable.ic_album)).setContent(tabIntent);
+		tabSpec = tabHost
+				.newTabSpec("album")
+				.setIndicator("Album",
+						resources.getDrawable(R.drawable.ic_album))
+				.setContent(tabIntent);
 		tabHost.addTab(tabSpec);
 
 		tabIntent = new Intent().setClass(this, TrackListActivity.class);
-		tabSpec = tabHost.newTabSpec("track").setIndicator("Track",resources.getDrawable(R.drawable.ic_track)).setContent(tabIntent);
+		tabSpec = tabHost
+				.newTabSpec("track")
+				.setIndicator("Track",
+						resources.getDrawable(R.drawable.ic_track))
+				.setContent(tabIntent);
 		tabHost.addTab(tabSpec);
 
 		tabIntent = new Intent().setClass(this, QueueActivity.class);
-		tabSpec = tabHost.newTabSpec("queue").setIndicator("Queue",resources.getDrawable(R.drawable.ic_queue)).setContent(tabIntent);
+		tabSpec = tabHost
+				.newTabSpec("queue")
+				.setIndicator("Queue",
+						resources.getDrawable(R.drawable.ic_queue))
+				.setContent(tabIntent);
 		tabHost.addTab(tabSpec);
 		tabHost.setCurrentTab(3);
 		tabHost.setCurrentTab(2);
 		tabHost.setCurrentTab(1);
 		tabHost.setCurrentTab(0);
-	
+
 	}
 
 	@Override
-	public void onStart(){
+	public void onStart() {
 		super.onStart();
 		Log.d(TAG, "onStart");
 		IntentFilter writeIntent = new IntentFilter(REQUEST_WRITE);
@@ -122,36 +140,40 @@ public class MainTabActivity extends TabActivity {
 		IntentFilter disconnectedIntent = new IntentFilter(CONNECTION_LOST);
 		IntentFilter masterIntent = new IntentFilter(REQUEST_MASTER);
 		this.registerReceiver(receiver, writeIntent);
-		this.registerReceiver(receiver,connectedIntent);
-		this.registerReceiver(receiver,transmittIntent);
-		this.registerReceiver(receiver,startTransmittIntent);
-		this.registerReceiver(receiver,disconnectedIntent);
-		this.registerReceiver(receiver,masterIntent);
-		
-		if(!bluetoothAdapter.isEnabled()){
-			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+		this.registerReceiver(receiver, connectedIntent);
+		this.registerReceiver(receiver, transmittIntent);
+		this.registerReceiver(receiver, startTransmittIntent);
+		this.registerReceiver(receiver, disconnectedIntent);
+		this.registerReceiver(receiver, masterIntent);
+
+		if (!bluetoothAdapter.isEnabled()) {
+			Intent enableIntent = new Intent(
+					BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			startActivityForResult(enableIntent, REQUEST_ENABLE);
 		}
 	}
+
 	@Override
-	public void onDestroy(){
+	public void onDestroy() {
 		super.onDestroy();
 		this.unregisterReceiver(receiver);
 		Log.d(TAG, "onDestroy");
-		//finish();
+		// finish();
 	}
-	@Override	
-	public void onActivityResult(int requestCode,int resultCode,Intent data){
-		switch(requestCode){
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
 		case REQUEST_ENABLE:
 			Log.d(TAG, "onActivityResult: REQUEST_ENABLE");
-			if(resultCode!=RESULT_OK)
+			if (resultCode != RESULT_OK)
 				finish();
 			break;
 		case REQUEST_DEVICE:
 			Log.d(TAG, "onActivityResult: REQUEST_DEVICE");
-			if(resultCode==RESULT_OK){
-				String mac = data.getExtras().getString(DeviceFinder.EXTRA_UNIT_ADDRESS);
+			if (resultCode == RESULT_OK) {
+				String mac = data.getExtras().getString(
+						DeviceFinder.EXTRA_UNIT_ADDRESS);
 				deviceConnector.connect(mac);
 			}
 			break;
@@ -159,7 +181,7 @@ public class MainTabActivity extends TabActivity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu){
+	public boolean onCreateOptionsMenu(Menu menu) {
 		Log.d(TAG, "onCreateOptionsMenu");
 		MenuInflater menuInflater = getMenuInflater();
 		menuInflater.inflate(R.menu.menu, menu);
@@ -167,8 +189,8 @@ public class MainTabActivity extends TabActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item){
-		switch(item.getItemId()){
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
 		case R.id.scan:
 			Log.d(TAG, "MenueSelected: scan");
 			Intent intent = new Intent(DeviceFinder.REQUEST_CONNECT);
@@ -179,62 +201,94 @@ public class MainTabActivity extends TabActivity {
 			Intent refreshIntent = new Intent(REFRESH);
 			sendBroadcast(refreshIntent);
 			break;
-		case R.id.search:
-			Log.d(TAG, "MenueSelected: SEARCH");
-			Intent masterIntent = new Intent(QueueActivity.MASTER_MODE);
-			masterIntent.putExtra(QueueActivity.IS_MASTER, true);
-			sendBroadcast(masterIntent);
+		case R.id.master:
+			Log.d(TAG, "MenueSelected: master");
+			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+			alert.setTitle("Master Mode");
+			alert.setMessage("Password:");
+
+			// Set an EditText view to get user input
+			final EditText input = new EditText(this);
+			alert.setView(input);
+
+			alert.setPositiveButton("Log in",
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+							String value = input.getText().toString();
+							Intent writeIntent = new Intent(
+									MainTabActivity.REQUEST_MASTER);
+							writeIntent.putExtra(
+									MainTabActivity.MASTER_COMMAND, "MASTER#"
+											+ value);
+							sendBroadcast(writeIntent);
+						}
+					});
+
+			alert.setNegativeButton("Cancel",
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+							// Canceled.
+						}
+					});
+
+			alert.show();
 			break;
 		}
 		return true;
 	}
-	
 
-	
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
-		
-
-	
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			switch(actionMap.get(intent.getAction())){
+			switch (actionMap.get(intent.getAction())) {
 			case WRITE:
-				if(D)Log.d(TAG, "BroadcastReceiver: WRITE");
-				String path = "ADD#"+intent.getStringExtra(TRACK_WRITE);
+				if (D)
+					Log.d(TAG, "BroadcastReceiver: WRITE");
+				String path = "ADD#" + intent.getStringExtra(TRACK_WRITE);
 				deviceConnector.write(path.getBytes());
 				break;
 			case CONNECTED:
-				if(D)Log.d(TAG, "BroadcastReceiver: CONNECTED");
+				if (D)
+					Log.d(TAG, "BroadcastReceiver: CONNECTED");
 				title_right.setText(R.string.connected);
 				break;
 			case TRANSMITT:
-				if(D)Log.d(TAG, "BroadcastReceiver: Transmitt");
+				if (D)
+					Log.d(TAG, "BroadcastReceiver: Transmitt");
 				title_left.setText(R.string.transfer);
-				 max = intent.getIntExtra(PROGRESS , 10000);
-				 progressHorizontal.setMax(max);
-				 progressHorizontal.setVisibility(View.VISIBLE);			 
-				 progress = 0;				
+				max = intent.getIntExtra(PROGRESS, 10000);
+				progressHorizontal.setMax(max);
+				progressHorizontal.setVisibility(View.VISIBLE);
+				progress = 0;
 				break;
 			case TRANSMITTING:
-				if(D)Log.d(TAG, "BroadcastReceiver: Transmitting");
+				if (D)
+					Log.d(TAG, "BroadcastReceiver: Transmitting");
 				progressHorizontal.incrementProgressBy(1);
 				Intent update_intent = new Intent(REFRESH);
 				sendBroadcast(update_intent);
-				
-				if((++progress)>=max){
+
+				if ((++progress) >= max) {
 					title_left.setText("");
 					progressHorizontal.setVisibility(View.GONE);
-				max=0;
-				progress =0;
+					max = 0;
+					progress = 0;
 				}
 				break;
 			case DISCONNECTED:
-				if(D)Log.d(TAG, "BroadcastReceiver: Disconnected");
+				if (D)
+					Log.d(TAG, "BroadcastReceiver: Disconnected");
 				title_right.setText(R.string.not_connected);
 				break;
 			case MASTER:
-				if(D)Log.d(TAG, "BroadcastReceiver: MASTER");
+				if (D)
+					Log.d(TAG, "BroadcastReceiver: MASTER");
 				String masterCommand = intent.getStringExtra(MASTER_COMMAND);
 				deviceConnector.write(masterCommand.getBytes());
 				break;
@@ -242,7 +296,7 @@ public class MainTabActivity extends TabActivity {
 		}
 	};
 
-	static{
+	static {
 		actionMap = new HashMap<String, Integer>();
 		actionMap.put(REQUEST_WRITE, WRITE);
 		actionMap.put(DEVICE_CONNECTED, CONNECTED);

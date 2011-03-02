@@ -75,11 +75,11 @@ public final class R {
         public static final int imageButton2=0x7f070013;
         public static final int imageButton3=0x7f070014;
         public static final int imageButton4=0x7f070015;
+        public static final int master=0x7f07001e;
         public static final int progress_horizontal=0x7f07000b;
         public static final int queue_list=0x7f07000d;
         public static final int queue_track_title=0x7f07000c;
         public static final int scan=0x7f07001c;
-        public static final int search=0x7f07001e;
         public static final int tableLayout1=0x7f07000e;
         public static final int tableRow0=0x7f07000f;
         public static final int tableRow1=0x7f070011;
@@ -118,8 +118,8 @@ public final class R {
         public static final int device_title_new=0x7f040005;
         public static final int device_title_paired=0x7f040004;
         public static final int menu_back=0x7f040002;
+        public static final int menu_master=0x7f040003;
         public static final int menu_scan=0x7f040001;
-        public static final int menu_search=0x7f040003;
         public static final int not_connected=0x7f04000a;
         public static final int transfer=0x7f04000c;
     }

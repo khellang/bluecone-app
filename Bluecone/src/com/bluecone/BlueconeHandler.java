@@ -41,6 +41,7 @@ public final class BlueconeHandler extends Handler {
 	private static final int LIST = 1;
 	private static final int QUEUESTART = 2;
 	private static final int QUEUE = 3;
+	private static final int MASTER = 4;
 	//*************************************
 	public static final int OUTPUT=4;
 	public static final int TOAST=5;
@@ -128,6 +129,18 @@ public final class BlueconeHandler extends Handler {
 					addQueueIntent.putExtra(QueueActivity.PATH, temp[1]);
 					addQueueIntent.putExtra(QueueActivity.POS, temp[0]);
 					BlueconeContext.getContext().sendBroadcast(addQueueIntent);
+					break;
+				case MASTER:
+					if(D)Log.d(TAG, "Master Mode");
+					if (in[1].equals("OK")) {
+						Intent masterIntent = new Intent(QueueActivity.MASTER_MODE);
+						masterIntent.putExtra(QueueActivity.IS_MASTER, true);
+						BlueconeContext.getContext().sendBroadcast(masterIntent);
+						Toast.makeText(BlueconeContext.getContext(), "Master Mode Enabled", Toast.LENGTH_LONG).show();
+					} else if (in[1].equals("ERR")) {
+						Toast.makeText(BlueconeContext.getContext(), "Wrong Password", Toast.LENGTH_LONG).show();
+					}
+					break;
 				}
 				break;
 			}
@@ -149,14 +162,14 @@ public final class BlueconeHandler extends Handler {
 	private ContentValues[] albumContent;
 	private ContentValues[] trackContent;
 	private final Intent progressIntent = new Intent(MainTabActivity.START_TRANSMITT); 
-	
+
 	private class WriterThread extends Thread{
 		private final	int PATH =0;
 		private final	int ARTIST = 1;
 		private final	int ALBUM = 2;
 		private final	int TRACK = 3;
 		private int progress;
-	
+
 		public WriterThread(){
 			progress = 0;
 			artistContent = new ContentValues[max];
@@ -165,7 +178,7 @@ public final class BlueconeHandler extends Handler {
 		}
 		public void	run(){
 			Log.d("THREAD","running..."+progress);
-			
+
 			while(progress<max){
 				while(!storage.isEmpty()){
 					Log.d("THREAD","Storage!empty");
@@ -199,7 +212,7 @@ public final class BlueconeHandler extends Handler {
 							trackContent[progress] = trackValues;
 							BlueconeContext.getContext().sendBroadcast(progressIntent);
 							progress = setProgress(++progress)?0:progress;			//Keeps track of progress. When progress >= max; waiting : false-->true
-						
+
 						}
 						break;
 					case QUEUE:
@@ -221,10 +234,10 @@ public final class BlueconeHandler extends Handler {
 			}
 		}
 	};
-	
+
 	private void addToDatabase(){
 		if(D)Log.d(TAG, "addToDatabase");
-	BlueconeContentProvider.insertThis(artistContent, albumContent, trackContent);
+		BlueconeContentProvider.insertThis(artistContent, albumContent, trackContent);
 	}
 
 	public boolean setProgress(int progress){
@@ -244,6 +257,7 @@ public final class BlueconeHandler extends Handler {
 		map.put("LIST", LIST);
 		map.put("QUEUESTART", QUEUESTART);
 		map.put("QUEUE", QUEUE);
+		map.put("MASTER", MASTER);
 	}
 
 }

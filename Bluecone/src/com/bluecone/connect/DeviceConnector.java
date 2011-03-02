@@ -117,7 +117,7 @@ public class DeviceConnector {
 		if(D)Log.d(TAG, "connection failed....");
 		Message msg = BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.TOAST);
 		Bundle bundle = new Bundle();
-		bundle.putString(KEY_TOAST, "kunne ikke koble til enheten");
+		bundle.putString(KEY_TOAST, "Kunne ikke koble til.");
 		msg.setData(bundle);
 		BlueconeHandler.getHandler().sendMessage(msg);
 		setState(STATE_NONE);		
@@ -125,7 +125,7 @@ public class DeviceConnector {
 	private void connectionLost(){
 		Message msg = BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.TOAST);
 		Bundle bundle = new Bundle();
-		bundle.putString(KEY_TOAST, "tilkobling avbrutt");
+		bundle.putString(KEY_TOAST, "Tilkobling avbrutt.");
 		msg.setData(bundle);
 		BlueconeHandler.getHandler().sendMessage(msg);
 		setState(STATE_NONE);
