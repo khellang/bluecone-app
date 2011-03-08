@@ -67,6 +67,7 @@ public class TrackListActivity extends ListActivity {
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			cursor.close();
 			switch(actionMap.get(intent.getAction())){
 			case REFRESH:
 				selection = null;

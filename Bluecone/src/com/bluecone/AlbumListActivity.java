@@ -66,7 +66,7 @@ public class AlbumListActivity extends ListActivity {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-
+				cursor.close();
 			switch(actionMap.get(intent.getAction())){
 			case REFRESH:
 				if(D)Log.d(TAG, "REFRESH_FILTER");
