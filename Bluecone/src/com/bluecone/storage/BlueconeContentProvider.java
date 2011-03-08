@@ -27,7 +27,7 @@ import android.util.Log;
 public class BlueconeContentProvider extends ContentProvider {
 	
     private static final String TAG = "BlueConeContentProvider";
-    private static final boolean D = false;
+    private static final boolean D = true;
     private static final String DATABASE_NAME = "bluecone.db";
     private static final int DATABASE_VERSION = 1;
     private static final String ARTIST_TABLE_NAME = "artist";
@@ -123,7 +123,11 @@ public class BlueconeContentProvider extends ContentProvider {
 			if(D)Log.d(TAG, "IllegalArgumentException..."+b);
 				
 		}finally{
+			try{
 			BlueconeContentProvider.endTransaction();
+			}catch(Exception e){
+				if(D)Log.d(TAG, e.toString());
+			}
 		}
     }
  

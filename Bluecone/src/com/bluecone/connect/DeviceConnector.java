@@ -194,6 +194,8 @@ public class DeviceConnector {
 	            			}
 	            		} catch (IOException e) {
 	            			e.printStackTrace();
+	            			connectionLost();
+	            			break;
 						}	
 	            		/** Gammel kode ved bruk av kun inputstream*/
 //						bytes = input.read(buffer);

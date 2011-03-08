@@ -80,6 +80,7 @@ public class ArtistListActivity extends ListActivity{
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			cursor.close();
 			update();
 
 		}
