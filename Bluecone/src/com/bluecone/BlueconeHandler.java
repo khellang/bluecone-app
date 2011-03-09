@@ -42,6 +42,8 @@ public final class BlueconeHandler extends Handler {
 	private static final int QUEUESTART = 2;
 	private static final int QUEUE = 3;
 	private static final int MASTER = 4;
+	private static final int REMOVE = 5;
+	
 	//*************************************
 	public static final int OUTPUT=4;
 	public static final int TOAST=5;
@@ -141,6 +143,11 @@ public final class BlueconeHandler extends Handler {
 						Toast.makeText(BlueconeContext.getContext(), "Wrong Password", Toast.LENGTH_LONG).show();
 					}
 					break;
+				case REMOVE:
+					if(D)Log.d(TAG, "REMOVE");
+					Intent removeIntent = new Intent(QueueActivity.REMOVE_FIRST_IN_QUEUE);
+					BlueconeContext.getContext().sendBroadcast(removeIntent);
+					
 				}
 				break;
 			}
@@ -245,6 +252,8 @@ public final class BlueconeHandler extends Handler {
 			max = 0;
 			waiting = true;
 			addToDatabase();
+			Intent update_intent = new Intent(MainTabActivity.REFRESH);
+			BlueconeContext.getContext().sendBroadcast(update_intent);
 			Log.d(TAG, "FINISHED");
 			return true;
 		}
@@ -258,6 +267,7 @@ public final class BlueconeHandler extends Handler {
 		map.put("QUEUESTART", QUEUESTART);
 		map.put("QUEUE", QUEUE);
 		map.put("MASTER", MASTER);
+		map.put("REMOVE", REMOVE);
 	}
 
 }

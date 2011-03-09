@@ -11,13 +11,8 @@
 	</LinearLayout>
 	<TableLayout android:id="@+id/tableLayout1"
 		android:layout_height="wrap_content" android:layout_width="fill_parent">
-		<TableRow android:layout_width="fill_parent" android:id="@+id/tableRow0"
-			android:layout_weight="1" android:layout_height="fill_parent">
-			<ProgressBar style="?android:attr/progressBarStyleHorizontal"
-				android:layout_height="fill_parent" android:layout_gravity="center_vertical"
-				android:id="@+id/track_progress" android:layout_width="fill_parent"
-				android:padding="15dp" android:layout_weight="1" />
-		</TableRow>
+			<SeekBar android:id="@+id/seekBar1" android:layout_width="fill_parent" android:layout_height="wrap_content"></SeekBar>
+	
 		<TableRow android:layout_width="fill_parent" android:id="@+id/tableRow1"
 			android:layout_weight="1" android:layout_height="wrap_content">
 			<ImageButton android:onClick="prev" android:src="@drawable/ic_prev"

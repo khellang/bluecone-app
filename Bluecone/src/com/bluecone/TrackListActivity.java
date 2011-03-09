@@ -67,7 +67,6 @@ public class TrackListActivity extends ListActivity {
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			cursor.close();
 			switch(actionMap.get(intent.getAction())){
 			case REFRESH:
 				selection = null;
@@ -86,6 +85,7 @@ public class TrackListActivity extends ListActivity {
 	};
 
 	private void update(){
+		cursor.close();
 		cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] { BaseColumns._ID, Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH }, selection, selectionArgs, sortOrder);
 		trackBaseAdapter.notifyDataSetChanged();
 

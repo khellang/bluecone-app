@@ -80,13 +80,13 @@ public class ArtistListActivity extends ListActivity{
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			cursor.close();
 			update();
 
 		}
 	};
 
 	private void update(){
+		cursor.close();
 		cursor = BlueconeContext.getContext().getContentResolver().query(Artist.CONTENT_URI, new String[] { BaseColumns._ID, Artist.NAME}, null, null, null);		
 		artistBaseAdapter.notifyDataSetChanged();
 

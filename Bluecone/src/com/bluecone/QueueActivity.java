@@ -23,6 +23,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 public class QueueActivity extends Activity {
@@ -31,6 +32,7 @@ public class QueueActivity extends Activity {
 	private static final String TAG = "Queuelist";
 	private static final boolean D = true;	
 	public static final  String MASTER_MODE = "com.bluecone.MASTER_MODE";
+	public static final String REMOVE_FIRST_IN_QUEUE = "com.bluecone.REMOVE_FIRST_IN_QUEUE";
 	public static final String START_UPDATE_QUEUE = "com.bluecone.START_UPDATE_QUEUE";
 	public static final String UPDATE_QUEUE = "com.bluecone.UPDATE_QUEUE";
 	public static final String QUEUE_ELEMENTS="elements";
@@ -41,7 +43,9 @@ public class QueueActivity extends Activity {
 	private static final int START = 0;
 	private static final int UPDATE = 1;
 	private static final int MASTER = 2;
+	private static final int REMOVE = 3;
 	private static boolean queuestart_initiated ;
+	protected static String NOW_PLAYING;
 	private int max;
 	private static final HashMap<String, Integer> actionMap;
 	private LayoutInflater layoutInflater;
@@ -55,6 +59,8 @@ public class QueueActivity extends Activity {
 	private ImageButton next;
 	private ImageButton volume_up;
 	private ImageButton volume_down;
+	private SeekBar seekbar;
+	private String nowPlaying;
 
 
 
@@ -73,6 +79,8 @@ public class QueueActivity extends Activity {
 		volume_up = (ImageButton) findViewById(R.id.volume_up);
 		volume_down = (ImageButton) findViewById(R.id.volume_down);
 		listView = (ListView) findViewById(R.id.queue_list);
+		seekbar = (SeekBar) findViewById(R.id.seekBar1);
+		seekbar.setEnabled(false);
 		queueBaseAdapter = new QueueBaseAdapter();
 		layoutInflater = (LayoutInflater) BlueconeContext.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI, new String[] { BaseColumns._ID, Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH }, null, null, null);
@@ -88,9 +96,12 @@ public class QueueActivity extends Activity {
 		IntentFilter startQueueIntent = new IntentFilter(START_UPDATE_QUEUE);
 		IntentFilter queueIntent = new IntentFilter(UPDATE_QUEUE);
 		IntentFilter masterIntent = new IntentFilter(MASTER_MODE);
+		IntentFilter removeIntent = new IntentFilter(REMOVE_FIRST_IN_QUEUE);
 		this.registerReceiver(receiver, startQueueIntent);
 		this.registerReceiver(receiver, queueIntent);
 		this.registerReceiver(receiver, masterIntent);
+		this.registerReceiver(receiver, removeIntent);
+		
 	}
 
 	@Override
@@ -127,7 +138,7 @@ public class QueueActivity extends Activity {
 				//if(queuestart_initiated){	
 				//if(start<=max){
 				cursor.moveToFirst();
-				Log.d(TAG,"cursor.getString(1)"+ cursor.getString(1));
+				
 				
 				// Gammel måte å sette inn ny sang i kø
 				// DATA.add(cursor.getString(1));
@@ -145,6 +156,14 @@ public class QueueActivity extends Activity {
 			case MASTER:
 				Log.d(TAG, "IS_MASTER= "+intent.getBooleanExtra(IS_MASTER, false));
 				setMaster(intent.getBooleanExtra(IS_MASTER, false));
+				break;
+			case REMOVE:
+				Log.d(TAG, "REMOVE");
+				nowPlaying = DATA.remove(0);
+				Intent currentTrackIntent = new Intent(MainTabActivity.SET_NOW_PLAYING);
+				currentTrackIntent.putExtra(NOW_PLAYING, nowPlaying);
+				sendBroadcast(currentTrackIntent);
+				update();
 				break;
 			}
 
@@ -265,6 +284,8 @@ public class QueueActivity extends Activity {
 		actionMap.put(START_UPDATE_QUEUE, START);
 		actionMap.put(UPDATE_QUEUE, UPDATE);
 		actionMap.put(MASTER_MODE, MASTER);
+		actionMap.put(MASTER_MODE, MASTER);
+		actionMap.put(REMOVE_FIRST_IN_QUEUE, REMOVE);
 
 	}
 

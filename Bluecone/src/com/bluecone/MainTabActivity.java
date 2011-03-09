@@ -35,12 +35,14 @@ public class MainTabActivity extends TabActivity {
 	public static final String REQUEST_TRANSMITT = "com.bluecone.REQUEST_TRANSMITT";
 	public static final String START_TRANSMITT = "com.bluecone.START_TRANSMITT";
 	public static final String REQUEST_MASTER = "com.bluecone.REQUEST_MASTER";
+	public static final String SET_NOW_PLAYING = "com.bluecone.SET_NOW_PLAYING";
 	private static final int WRITE = 0;
 	private static final int CONNECTED = 1;
 	private static final int TRANSMITT = 2;
 	private static final int TRANSMITTING = 3;
 	private static final int DISCONNECTED = 4;
 	private static final int MASTER = 5;
+	private static final int NOW_PLAYING = 6;
 	public static final String MASTER_COMMAND = "com.bluecone.MASTER_COMAND";
 
 	public static final String PROGRESS = "progress";
@@ -60,6 +62,7 @@ public class MainTabActivity extends TabActivity {
 	private ProgressBar progressHorizontal;
 	private TextView title_right;
 	private TextView title_left;
+	private TextView title_center;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -72,9 +75,11 @@ public class MainTabActivity extends TabActivity {
 		setContentView(R.layout.main);
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
 				R.layout.custom_title);
+		title_left = (TextView) findViewById(R.id.custom_title_left);
+		title_left.setText(R.string.app_name);
 		title_right = (TextView) findViewById(R.id.custom_title_right);
 		title_right.setText(R.string.not_connected);
-		title_left = (TextView) findViewById(R.id.custom_title_left);
+		title_center = (TextView) findViewById(R.id.custom_title_center);
 		progressHorizontal = (ProgressBar) findViewById(R.id.progress_horizontal);
 		progressHorizontal.setVisibility(View.GONE);
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -139,12 +144,14 @@ public class MainTabActivity extends TabActivity {
 		IntentFilter startTransmittIntent = new IntentFilter(START_TRANSMITT);
 		IntentFilter disconnectedIntent = new IntentFilter(CONNECTION_LOST);
 		IntentFilter masterIntent = new IntentFilter(REQUEST_MASTER);
+		IntentFilter currentTrackIntent = new IntentFilter(SET_NOW_PLAYING);
 		this.registerReceiver(receiver, writeIntent);
 		this.registerReceiver(receiver, connectedIntent);
 		this.registerReceiver(receiver, transmittIntent);
 		this.registerReceiver(receiver, startTransmittIntent);
 		this.registerReceiver(receiver, disconnectedIntent);
 		this.registerReceiver(receiver, masterIntent);
+		this.registerReceiver(receiver, currentTrackIntent);
 
 		if (!bluetoothAdapter.isEnabled()) {
 			Intent enableIntent = new Intent(
@@ -271,11 +278,10 @@ public class MainTabActivity extends TabActivity {
 				if (D)
 					Log.d(TAG, "BroadcastReceiver: Transmitting");
 				progressHorizontal.incrementProgressBy(1);
-				Intent update_intent = new Intent(REFRESH);
-				sendBroadcast(update_intent);
+			
 
 				if ((++progress) >= max) {
-					title_left.setText("");
+					title_left.setText(R.string.app_name);
 					progressHorizontal.setVisibility(View.GONE);
 					max = 0;
 					progress = 0;
@@ -292,6 +298,8 @@ public class MainTabActivity extends TabActivity {
 				String masterCommand = intent.getStringExtra(MASTER_COMMAND);
 				deviceConnector.write(masterCommand.getBytes());
 				break;
+			case NOW_PLAYING:
+				title_center.setText(intent.getStringExtra(QueueActivity.NOW_PLAYING));
 			}
 		}
 	};
@@ -304,5 +312,6 @@ public class MainTabActivity extends TabActivity {
 		actionMap.put(START_TRANSMITT, TRANSMITTING);
 		actionMap.put(CONNECTION_LOST, DISCONNECTED);
 		actionMap.put(REQUEST_MASTER, MASTER);
+		actionMap.put(SET_NOW_PLAYING, NOW_PLAYING);
 	}
 }

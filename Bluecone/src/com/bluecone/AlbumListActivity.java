@@ -66,7 +66,6 @@ public class AlbumListActivity extends ListActivity {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-				cursor.close();
 			switch(actionMap.get(intent.getAction())){
 			case REFRESH:
 				if(D)Log.d(TAG, "REFRESH_FILTER");
@@ -85,6 +84,7 @@ public class AlbumListActivity extends ListActivity {
 	};	
 
 	private void update(){
+		cursor.close();
 		cursor = BlueconeContext.getContext().getContentResolver().
 		query(Album.CONTENT_URI,new String[]{BaseColumns._ID,Album.TITLE,
 				Album.ARTIST_NAME}, selection, selectionArgs, sortOrder);

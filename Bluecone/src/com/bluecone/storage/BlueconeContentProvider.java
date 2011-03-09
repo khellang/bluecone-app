@@ -123,11 +123,8 @@ public class BlueconeContentProvider extends ContentProvider {
 			if(D)Log.d(TAG, "IllegalArgumentException..."+b);
 				
 		}finally{
-			try{
 			BlueconeContentProvider.endTransaction();
-			}catch(Exception e){
-				if(D)Log.d(TAG, e.toString());
-			}
+			
 		}
     }
  
