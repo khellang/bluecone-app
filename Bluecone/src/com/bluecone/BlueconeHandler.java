@@ -228,7 +228,8 @@ public final class BlueconeHandler extends Handler {
 							String[] input = in[i].split("\\|");
 							progress = setProgress(++progress)?0:progress;			//Keeps track of progress. When progress >= max; waiting : false-->true
 							Intent addQueueIntent = new Intent(QueueActivity.UPDATE_QUEUE);
-							addQueueIntent.putExtra(QueueActivity.PATH, input[0]);
+							addQueueIntent.putExtra(QueueActivity.POS, input[0]);
+							addQueueIntent.putExtra(QueueActivity.PATH, input[1]);
 							BlueconeContext.getContext().sendBroadcast(addQueueIntent);
 							BlueconeContext.getContext().sendBroadcast(progressIntent);
 						}
