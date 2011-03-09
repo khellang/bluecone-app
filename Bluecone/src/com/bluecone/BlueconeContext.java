@@ -4,7 +4,6 @@ import android.content.Context;
 
 public final class BlueconeContext {
 	private static Context blueconeContext;
-	public static final String CMD_GET_ALL = "GA";
 	
 	private static BlueconeContext b = new BlueconeContext();
 	

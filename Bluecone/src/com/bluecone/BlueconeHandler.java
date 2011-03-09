@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.bluecone.connect.DeviceConnector;
+import com.bluecone.storage.ArtistList;
 import com.bluecone.storage.ArtistList.Album;
 import com.bluecone.storage.ArtistList.Artist;
 import com.bluecone.storage.ArtistList.Track;
@@ -12,9 +13,11 @@ import com.bluecone.storage.BlueconeContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.BaseColumns;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -43,6 +46,8 @@ public final class BlueconeHandler extends Handler {
 	private static final int QUEUE = 3;
 	private static final int MASTER = 4;
 	private static final int REMOVE = 5;
+	private static final int PLAYING = 6;
+	
 	
 	//*************************************
 	public static final int OUTPUT=4;
@@ -147,7 +152,18 @@ public final class BlueconeHandler extends Handler {
 					if(D)Log.d(TAG, "REMOVE");
 					Intent removeIntent = new Intent(QueueActivity.REMOVE_FIRST_IN_QUEUE);
 					BlueconeContext.getContext().sendBroadcast(removeIntent);
-					
+					break;
+				case PLAYING:
+					if(D)Log.d(TAG, "Playing , path:" +in[1]);
+					String selection = Track.PATH+"=? ";
+					String[]selectionArgs = new String[]{in[1]};
+					Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE}, selection, selectionArgs, null);
+					cur.moveToFirst();
+					String nowPlaying = cur.getString(1);
+					Intent currentTrackIntent = new Intent(MainTabActivity.SET_NOW_PLAYING);
+					currentTrackIntent.putExtra(QueueActivity.NOW_PLAYING, nowPlaying);
+					BlueconeContext.getContext().sendBroadcast(currentTrackIntent);
+					break;
 				}
 				break;
 			}
@@ -234,6 +250,7 @@ public final class BlueconeHandler extends Handler {
 							BlueconeContext.getContext().sendBroadcast(progressIntent);
 						}
 						break;
+				
 					default: Log.d(TAG, "Uventet feil");
 					break;
 					}
@@ -269,6 +286,7 @@ public final class BlueconeHandler extends Handler {
 		map.put("QUEUE", QUEUE);
 		map.put("MASTER", MASTER);
 		map.put("REMOVE", REMOVE);
+		map.put("PLAYING", PLAYING);
 	}
 
 }
