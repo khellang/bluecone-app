@@ -36,6 +36,8 @@ public class QueueActivity extends Activity {
 	public static final String START_UPDATE_QUEUE = "com.bluecone.START_UPDATE_QUEUE";
 	public static final String UPDATE_QUEUE = "com.bluecone.UPDATE_QUEUE";
 	public static final String QUEUE_ELEMENTS="elements";
+	//public static final String PROGRESS="com.bluecone.PROGRESS";
+	//public static final String PROGRESS_INTENT="com.bluecone.PROGRESS_INTENT";
 	public static final String PATH = "path";
 	public static final String POS = "position";
 	public static final String MAX = "max";
@@ -44,6 +46,7 @@ public class QueueActivity extends Activity {
 	private static final int UPDATE = 1;
 	private static final int MASTER = 2;
 	private static final int REMOVE = 3;
+//	private static final int SET_PROGRESS = 4;
 	private static boolean queuestart_initiated ;
 	protected static String NOW_PLAYING;
 	private int max;
@@ -97,10 +100,12 @@ public class QueueActivity extends Activity {
 		IntentFilter queueIntent = new IntentFilter(UPDATE_QUEUE);
 		IntentFilter masterIntent = new IntentFilter(MASTER_MODE);
 		IntentFilter removeIntent = new IntentFilter(REMOVE_FIRST_IN_QUEUE);
+		//IntentFilter progressIntent = new IntentFilter(PROGRESS);
 		this.registerReceiver(receiver, startQueueIntent);
 		this.registerReceiver(receiver, queueIntent);
 		this.registerReceiver(receiver, masterIntent);
 		this.registerReceiver(receiver, removeIntent);
+		//this.registerReceiver(receiver, progressIntent);
 		
 	}
 
@@ -165,6 +170,10 @@ public class QueueActivity extends Activity {
 				sendBroadcast(currentTrackIntent);
 				update();
 				break;
+			//case SET_PROGRESS:
+			//	seekbar.setProgress(intent.getIntExtra(PROGRESS_INTENT, 0));
+				
+				//break;
 			}
 
 
@@ -286,6 +295,7 @@ public class QueueActivity extends Activity {
 		actionMap.put(MASTER_MODE, MASTER);
 		actionMap.put(MASTER_MODE, MASTER);
 		actionMap.put(REMOVE_FIRST_IN_QUEUE, REMOVE);
+		//actionMap.put(PROGRESS, SET_PROGRESS);
 
 	}
 

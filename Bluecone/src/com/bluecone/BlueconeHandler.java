@@ -154,6 +154,10 @@ public final class BlueconeHandler extends Handler {
 					BlueconeContext.getContext().sendBroadcast(removeIntent);
 					break;
 				case PLAYING:
+					
+					/** Her kan det legges til progress for den sangen som spilles
+					 * Denne progressen sendes så til QueueActivity */
+					
 					if(D)Log.d(TAG, "Playing , path:" +in[1]);
 					String selection = Track.PATH+"=? ";
 					String[]selectionArgs = new String[]{in[1]};
