@@ -13,11 +13,10 @@
 		<TextView android:id="@+id/custom_title_center"
 		android:layout_centerInParent="true" android:singleLine="true"
 		android:ellipsize="end"
-		android:paddingRight="1dp"
-		android:paddingLeft="1dp"
 		android:textStyle="italic"
+		android:maxLength="15"
 		android:layout_width="wrap_content" android:layout_height="fill_parent"
-		 />		
+	 />		
 	<TextView android:id="@+id/custom_title_right"
 		android:layout_alignParentRight="true" android:singleLine="true"
 		android:ellipsize="marquee"
