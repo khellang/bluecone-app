@@ -56,7 +56,7 @@ public class BlueconeContentProvider extends ContentProvider {
 					BaseColumns._ID + " INTEGER, " + Artist.NAME + " VARCHAR(30) UNIQUE, " +
 					"PRIMARY KEY (" + BaseColumns._ID + ", " + Artist.NAME + "))");
 			db.execSQL("CREATE TABLE IF NOT EXISTS " + ALBUM_TABLE_NAME + " (" +
-					BaseColumns._ID + " INTEGER, " + Album.TITLE + " VARCHAR(30) , " +
+					BaseColumns._ID + " INTEGER, " + Album.TITLE + " VARCHAR(30) UNIQUE , " +
 					Album.ARTIST_NAME + " VARCHAR(30), PRIMARY KEY (" +
 					BaseColumns._ID + ", " + Album.TITLE + "), " +
 					"FOREIGN KEY (" + Album.ARTIST_NAME + ") " +
