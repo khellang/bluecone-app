@@ -13,6 +13,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
 import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,7 +38,7 @@ public class QueueActivity extends Activity {
 	public static final String START_UPDATE_QUEUE = "com.bluecone.START_UPDATE_QUEUE";
 	public static final String UPDATE_QUEUE = "com.bluecone.UPDATE_QUEUE";
 	public static final String QUEUE_ELEMENTS="elements";
-	//public static final String PROGRESS="com.bluecone.PROGRESS";
+	public static final String PROGRESS="com.bluecone.queueactivity.PROGRESS";
 	//public static final String PROGRESS_INTENT="com.bluecone.PROGRESS_INTENT";
 	//public static final String PATH = "path";
 	public static final String POS = "position";
@@ -45,9 +48,9 @@ public class QueueActivity extends Activity {
 	private static final int UPDATE = 1;
 	private static final int MASTER = 2;
 	private static final int REMOVE = 3;
-//	private static final int SET_PROGRESS = 4;
+	private static final int SET_PROGRESS = 4;
 	private static boolean queuestart_initiated ;
-	protected static String NOW_PLAYING;
+	protected static String NOW_PLAYING  ="com.bluecone.NOW_PLAYING";
 	private int max;
 	private static final HashMap<String, Integer> actionMap;
 	private LayoutInflater layoutInflater;
@@ -63,6 +66,7 @@ public class QueueActivity extends Activity {
 	private ImageButton volume_down;
 	private SeekBar seekbar;
 	private String nowPlaying;
+	private int currentProgress;
 
 
 
@@ -99,12 +103,12 @@ public class QueueActivity extends Activity {
 		IntentFilter queueIntent = new IntentFilter(UPDATE_QUEUE);
 		IntentFilter masterIntent = new IntentFilter(MASTER_MODE);
 		IntentFilter removeIntent = new IntentFilter(REMOVE_FIRST_IN_QUEUE);
-		//IntentFilter progressIntent = new IntentFilter(PROGRESS);
+		IntentFilter progressIntent = new IntentFilter(MainTabActivity.SET_NOW_PLAYING);
 		this.registerReceiver(receiver, startQueueIntent);
 		this.registerReceiver(receiver, queueIntent);
 		this.registerReceiver(receiver, masterIntent);
 		this.registerReceiver(receiver, removeIntent);
-		//this.registerReceiver(receiver, progressIntent);
+		this.registerReceiver(receiver, progressIntent);
 		
 	}
 
@@ -163,24 +167,54 @@ public class QueueActivity extends Activity {
 				break;
 			case REMOVE:
 				Log.d(TAG, "REMOVE");
+				try{
 				nowPlaying = DATA.remove(0);
+				}catch(ArrayIndexOutOfBoundsException e){
+					Log.d(TAG, "Arraylist is empty");
+				}
 				Intent currentTrackIntent = new Intent(MainTabActivity.SET_NOW_PLAYING);
 				currentTrackIntent.putExtra(NOW_PLAYING, nowPlaying);
 				sendBroadcast(currentTrackIntent);
 				update();
 				break;
-			//case SET_PROGRESS:
-			//	seekbar.setProgress(intent.getIntExtra(PROGRESS_INTENT, 0));
+			case SET_PROGRESS:
+				if(D)Log.d(TAG, "SET_PROGRESS");
+				currentProgress = 0;
+				startSeekBar(intent.getIntExtra(PROGRESS, 500));
+			
 				
-				//break;
+			break;
 			}
 
 
 		}
 
+		
+	
+		
+		private void startSeekBar(int max) {
+			seekbar.setMax(max);
+			if(D)Log.d(TAG, "Seekbar.setMax");
+			ProgressThread seekbarProgressThread = new ProgressThread();
+			seekbarProgressThread.start();
+			
+		}
+
 	};
 
 
+	private Handler seekBarHandler = new Handler(){
+		@Override
+		public void handleMessage(Message msg){
+			switch(msg.what){
+			case SET_PROGRESS:
+				Log.d(TAG, "seekbarhandler");
+			seekbar.setProgress(msg.arg1);
+			break;
+			}
+		}
+	};
+	
 	private void setMaster(boolean master){
 		if (!master) {
 			prev.setVisibility(Button.GONE);
@@ -294,8 +328,28 @@ public class QueueActivity extends Activity {
 		actionMap.put(MASTER_MODE, MASTER);
 		actionMap.put(MASTER_MODE, MASTER);
 		actionMap.put(REMOVE_FIRST_IN_QUEUE, REMOVE);
-		//actionMap.put(PROGRESS, SET_PROGRESS);
+		actionMap.put(MainTabActivity.SET_NOW_PLAYING, SET_PROGRESS);
 
 	}
+	
+	private  class ProgressThread extends Thread{
+		
+		
+		@Override
+		public void run() {
+			while(currentProgress<seekbar.getMax()){
+			Log.d(TAG, "PROGRESSTHREAD "+ currentProgress);	
+			seekBarHandler.sendMessage(seekBarHandler.obtainMessage(SET_PROGRESS, ++currentProgress, 0));
+			
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		}
+}
 
 }

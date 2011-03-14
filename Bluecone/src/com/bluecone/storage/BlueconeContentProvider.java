@@ -288,5 +288,6 @@ public class BlueconeContentProvider extends ContentProvider {
         trackProjectionMap.put(Track.TITLE, Track.TITLE);
         trackProjectionMap.put(Track.ALBUM_TITLE, Track.ALBUM_TITLE);
         trackProjectionMap.put(Track.ARTIST_NAME, Track.ARTIST_NAME);
+        trackProjectionMap.put(Track.TRACK_LENGHT, Track.TRACK_LENGHT);
     }
 }

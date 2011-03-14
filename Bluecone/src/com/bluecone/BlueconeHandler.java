@@ -43,8 +43,8 @@ public final class BlueconeHandler extends Handler {
 	private static final int MASTER = 4;
 	private static final int REMOVE = 5;
 	private static final int PLAYING = 6;
-	
-	
+
+
 	//*************************************
 	public static final int OUTPUT=4;
 	public static final int TOAST=5;
@@ -94,89 +94,92 @@ public final class BlueconeHandler extends Handler {
 
 		case INPUT:
 			Log.d(TAG, "INPUT: "+msg.obj);
-			if(!waiting)	
-				storage.add((String) msg.obj);
-			else {
-				String tmp = new String((String) msg.obj).trim();
-				String [] in = tmp.split("#");
-
-				switch(map.get(in[0])){
-				case LISTSTART:
-					if(D)Log.d(TAG, "Liststart");
-					waiting = false;
-					max = Integer.parseInt(in[1]);
-					Intent progressIntent = new Intent(MainTabActivity.REQUEST_TRANSMITT);
-					progressIntent.putExtra(MainTabActivity.PROGRESS, max);
-					BlueconeContext.getContext().sendBroadcast(progressIntent);
-					WriterThread musicWriterThread = new WriterThread();
-					musicWriterThread.start();
-					break;
-				case QUEUESTART:
-					if(D)Log.d(TAG, "Queuestart");
-					waiting = false;
-					max = Integer.parseInt(in[1]);
-					Intent startUpdateIntent = new Intent(QueueActivity.START_UPDATE_QUEUE);
-					startUpdateIntent.putExtra(QueueActivity.MAX, max);
-					Intent queueProgressIntent = new Intent(MainTabActivity.REQUEST_TRANSMITT);
-					queueProgressIntent.putExtra(MainTabActivity.PROGRESS, max);
-					BlueconeContext.getContext().sendBroadcast(startUpdateIntent);
-					BlueconeContext.getContext().sendBroadcast(queueProgressIntent);
-					WriterThread queueWriterThread = new WriterThread();
-					queueWriterThread.start();					
-					break;
-				case QUEUE:
-					if(D)Log.d(TAG, "Plain QUEUE");
+			String tmp = new String((String) msg.obj).trim();
+			String [] in = tmp.split("#");
+			switch(map.get(in[0])){
+			case LISTSTART:
+				if(D)Log.d(TAG, "Liststart");
+				waiting = false;
+				max = Integer.parseInt(in[1]);
+				Intent progressIntent = new Intent(MainTabActivity.REQUEST_TRANSMITT);
+				progressIntent.putExtra(MainTabActivity.PROGRESS, max);
+				BlueconeContext.getContext().sendBroadcast(progressIntent);
+				WriterThread musicWriterThread = new WriterThread();
+				musicWriterThread.start();
+				break;
+			case QUEUESTART:
+				if(D)Log.d(TAG, "Queuestart");
+				waiting = false;
+				max = Integer.parseInt(in[1]);
+				Intent startUpdateIntent = new Intent(QueueActivity.START_UPDATE_QUEUE);
+				startUpdateIntent.putExtra(QueueActivity.MAX, max);
+				Intent queueProgressIntent = new Intent(MainTabActivity.REQUEST_TRANSMITT);
+				queueProgressIntent.putExtra(MainTabActivity.PROGRESS, max);
+				BlueconeContext.getContext().sendBroadcast(startUpdateIntent);
+				BlueconeContext.getContext().sendBroadcast(queueProgressIntent);
+				WriterThread queueWriterThread = new WriterThread();
+				queueWriterThread.start();					
+				break;
+			case QUEUE:
+				if(D)Log.d(TAG, "Plain QUEUE");
+				if(!waiting)	
+					storage.add((String) msg.obj);
+				else{
 					Intent addQueueIntent = new Intent(QueueActivity.UPDATE_QUEUE);
 					String[] temp = in[1].split("\\|");
 					Log.d(TAG, "QUEUE Pos: " + temp[0] + ", Path: " + temp[1]);
 					addQueueIntent.putExtra(Track.PATH, temp[1]);
 					addQueueIntent.putExtra(QueueActivity.POS, temp[0]);
 					BlueconeContext.getContext().sendBroadcast(addQueueIntent);
-					break;
-				case MASTER:
-					if(D)Log.d(TAG, "Master Mode");
-					if (in[1].equals("OK")) {
-						Intent masterIntent = new Intent(QueueActivity.MASTER_MODE);
-						masterIntent.putExtra(QueueActivity.IS_MASTER, true);
-						BlueconeContext.getContext().sendBroadcast(masterIntent);
-						Toast.makeText(BlueconeContext.getContext(), "Master Mode Enabled", Toast.LENGTH_LONG).show();
-					} else if (in[1].equals("ERR")) {
-						Toast.makeText(BlueconeContext.getContext(), "Wrong Password", Toast.LENGTH_LONG).show();
-					}
-					break;
-				case REMOVE:
-					if(D)Log.d(TAG, "REMOVE");
-					Intent removeIntent = new Intent(QueueActivity.REMOVE_FIRST_IN_QUEUE);
-					BlueconeContext.getContext().sendBroadcast(removeIntent);
-					break;
-				case PLAYING:
-					
-					/** Her kan det legges til progress for den sangen som spilles
-					 * Denne progressen sendes så til QueueActivity */
-					
-					if(D)Log.d(TAG, "Playing , path:" +in[1]);
-					String selection = Track.PATH+"=? ";
-					String[]selectionArgs = new String[]{in[1]};
-					Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE,Track.TRACK_LENGHT}, selection, selectionArgs, null);
-					cur.moveToFirst();
-					String nowPlaying = cur.getString(1);
-					Log.d(TAG, "Lengden på sangen: "+cur.getInt(2));
-					Intent currentTrackIntent = new Intent(MainTabActivity.SET_NOW_PLAYING);
-					currentTrackIntent.putExtra(QueueActivity.NOW_PLAYING, nowPlaying);
-					BlueconeContext.getContext().sendBroadcast(currentTrackIntent);
-					break;
 				}
+				break;
+			case LIST:
+				storage.add((String) msg.obj);
+				break;
+			case MASTER:
+				if(D)Log.d(TAG, "Master Mode");
+				if (in[1].equals("OK")) {
+					Intent masterIntent = new Intent(QueueActivity.MASTER_MODE);
+					masterIntent.putExtra(QueueActivity.IS_MASTER, true);
+					BlueconeContext.getContext().sendBroadcast(masterIntent);
+					Toast.makeText(BlueconeContext.getContext(), "Master Mode Enabled", Toast.LENGTH_LONG).show();
+				} else if (in[1].equals("ERR")) {
+					Toast.makeText(BlueconeContext.getContext(), "Wrong Password", Toast.LENGTH_LONG).show();
+				}
+				break;
+			case REMOVE:
+				if(D)Log.d(TAG, "REMOVE");
+				Intent removeIntent = new Intent(QueueActivity.REMOVE_FIRST_IN_QUEUE);
+				BlueconeContext.getContext().sendBroadcast(removeIntent);
+				break;
+			case PLAYING:
+
+				/** Her kan det legges til progress for den sangen som spilles
+				 * Denne progressen sendes så til QueueActivity */
+
+				if(D)Log.d(TAG, "Playing , path:" +in[1]);
+				String selection = Track.PATH+"=? ";
+				String[]selectionArgs = new String[]{in[1]};
+				Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE,Track.TRACK_LENGHT}, selection, selectionArgs, null);
+				cur.moveToFirst();
+				String nowPlaying = cur.getString(1);
+				int lenght = cur.getInt(2);
+				Intent currentTrackIntent = new Intent(MainTabActivity.SET_NOW_PLAYING);
+				currentTrackIntent.putExtra(QueueActivity.NOW_PLAYING, nowPlaying);
+				currentTrackIntent.putExtra(QueueActivity.PROGRESS, lenght);
+				BlueconeContext.getContext().sendBroadcast(currentTrackIntent);
 				break;
 			}
 			break;
+
 		case OUTPUT:
 			//Brukes ikke foreløpig..... Write track fanges opp i BlueconeTabActivity.class
 			break;
 		case TOAST:
 			if(D)Log.d(TAG, "Toast");
-			String tmp = msg.getData().getString(DeviceConnector.KEY_TOAST) ;
-			if(tmp!=null)
-				Toast.makeText(BlueconeContext.getContext(),tmp, Toast.LENGTH_LONG).show();
+			String tmp_2 = msg.getData().getString(DeviceConnector.KEY_TOAST) ;
+			if(tmp_2!=null)
+				Toast.makeText(BlueconeContext.getContext(),tmp_2, Toast.LENGTH_LONG).show();
 			break;
 
 		}
@@ -236,7 +239,7 @@ public final class BlueconeHandler extends Handler {
 							albumContent[progress] = albumValues;
 							trackContent[progress] = trackValues;
 							BlueconeContext.getContext().sendBroadcast(progressIntent);
-							progress = setProgress(++progress)?0:progress;			//Keeps track of progress. When progress >= max; waiting : false-->true
+							progress = setListProgress(++progress)?0:progress;			//Keeps track of progress. When progress >= max; waiting : false-->true
 
 						}
 						break;
@@ -244,7 +247,7 @@ public final class BlueconeHandler extends Handler {
 						storage.remove(0);
 						for(int i = 1;i<lenght;i++){
 							String[] input = in[i].split("\\|");
-							progress = setProgress(++progress)?0:progress;			//Keeps track of progress. When progress >= max; waiting : false-->true
+							progress = setQueueProgress(++progress)?0:progress;			//Keeps track of progress. When progress >= max; waiting : false-->true
 							Intent addQueueIntent = new Intent(QueueActivity.UPDATE_QUEUE);
 							addQueueIntent.putExtra(QueueActivity.POS, input[0]);
 							addQueueIntent.putExtra(Track.PATH, input[1]);
@@ -252,7 +255,7 @@ public final class BlueconeHandler extends Handler {
 							BlueconeContext.getContext().sendBroadcast(progressIntent);
 						}
 						break;
-				
+
 					default: Log.d(TAG, "Uventet feil");
 					break;
 					}
@@ -262,12 +265,23 @@ public final class BlueconeHandler extends Handler {
 		}
 	};
 
+	private boolean setQueueProgress(int progress) {
+		if(progress>=max){
+			max = 0;
+			waiting = true;
+			Intent update_intent = new Intent(MainTabActivity.REFRESH);
+			BlueconeContext.getContext().sendBroadcast(update_intent);
+			Log.d(TAG, "FINISHED");
+			return true;
+		}
+		return false;
+	}
 	private void addToDatabase(){
 		if(D)Log.d(TAG, "addToDatabase");
 		BlueconeContentProvider.insertThis(artistContent, albumContent, trackContent);
 	}
 
-	public boolean setProgress(int progress){
+	public boolean setListProgress(int progress){
 		if(progress>=max){
 			max = 0;
 			waiting = true;
