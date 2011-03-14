@@ -135,6 +135,7 @@ public class AlbumListActivity extends ListActivity {
 		public void onClick(View v) {
 			Intent intent = new Intent(REFRESH_TRACK);
 			intent.putExtra(Album.TITLE,((((ViewHolder) v.getTag()).title)).getText());
+			intent.putExtra(Album.ARTIST_NAME,((((ViewHolder) v.getTag()).artist)).getText());
 			sendBroadcast(intent);
 		}
 

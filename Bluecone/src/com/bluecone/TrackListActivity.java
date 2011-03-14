@@ -74,8 +74,8 @@ public class TrackListActivity extends ListActivity {
 			update();
 			break;
 			case REFRESH_TRACK:
-				selection = Track.ALBUM_TITLE+"=? ";
-				selectionArgs = new String[]{intent.getStringExtra(Album.TITLE)};
+				selection = Track.ALBUM_TITLE+"=? AND "+ Track.ARTIST_NAME+"=?";
+				selectionArgs = new String[]{intent.getStringExtra(Album.TITLE),intent.getStringExtra(Album.ARTIST_NAME)};
 				update();
 				MainTabActivity.tabHost.setCurrentTab(2);
 				break;

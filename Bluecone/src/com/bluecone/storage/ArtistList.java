@@ -32,6 +32,7 @@ public class ArtistList {
 		public static final String TITLE = "title";
 		public static final String ALBUM_TITLE = "album_title";
 		public static final String ARTIST_NAME = "artist_name";
+		public static final String TRACK_LENGHT = "track_lenght";
 		
 	}
 

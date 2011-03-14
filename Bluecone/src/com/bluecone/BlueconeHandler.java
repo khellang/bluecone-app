@@ -1,20 +1,16 @@
 package com.bluecone;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-
 import com.bluecone.connect.DeviceConnector;
 import com.bluecone.storage.ArtistList;
 import com.bluecone.storage.ArtistList.Album;
 import com.bluecone.storage.ArtistList.Artist;
 import com.bluecone.storage.ArtistList.Track;
 import com.bluecone.storage.BlueconeContentProvider;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.BaseColumns;
@@ -133,7 +129,7 @@ public final class BlueconeHandler extends Handler {
 					Intent addQueueIntent = new Intent(QueueActivity.UPDATE_QUEUE);
 					String[] temp = in[1].split("\\|");
 					Log.d(TAG, "QUEUE Pos: " + temp[0] + ", Path: " + temp[1]);
-					addQueueIntent.putExtra(QueueActivity.PATH, temp[1]);
+					addQueueIntent.putExtra(Track.PATH, temp[1]);
 					addQueueIntent.putExtra(QueueActivity.POS, temp[0]);
 					BlueconeContext.getContext().sendBroadcast(addQueueIntent);
 					break;
@@ -161,9 +157,10 @@ public final class BlueconeHandler extends Handler {
 					if(D)Log.d(TAG, "Playing , path:" +in[1]);
 					String selection = Track.PATH+"=? ";
 					String[]selectionArgs = new String[]{in[1]};
-					Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE}, selection, selectionArgs, null);
+					Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE,Track.TRACK_LENGHT}, selection, selectionArgs, null);
 					cur.moveToFirst();
 					String nowPlaying = cur.getString(1);
+					Log.d(TAG, "Lengden på sangen: "+cur.getInt(2));
 					Intent currentTrackIntent = new Intent(MainTabActivity.SET_NOW_PLAYING);
 					currentTrackIntent.putExtra(QueueActivity.NOW_PLAYING, nowPlaying);
 					BlueconeContext.getContext().sendBroadcast(currentTrackIntent);
@@ -234,6 +231,7 @@ public final class BlueconeHandler extends Handler {
 							trackValues.put(Track.TITLE, input[TRACK]);
 							trackValues.put(Track.ALBUM_TITLE, input[ALBUM]);
 							trackValues.put(Track.ARTIST_NAME, input[ARTIST]);
+							trackValues.put(Track.TRACK_LENGHT, 500);
 							artistContent[progress] = artValues;
 							albumContent[progress] = albumValues;
 							trackContent[progress] = trackValues;
@@ -249,7 +247,7 @@ public final class BlueconeHandler extends Handler {
 							progress = setProgress(++progress)?0:progress;			//Keeps track of progress. When progress >= max; waiting : false-->true
 							Intent addQueueIntent = new Intent(QueueActivity.UPDATE_QUEUE);
 							addQueueIntent.putExtra(QueueActivity.POS, input[0]);
-							addQueueIntent.putExtra(QueueActivity.PATH, input[1]);
+							addQueueIntent.putExtra(Track.PATH, input[1]);
 							BlueconeContext.getContext().sendBroadcast(addQueueIntent);
 							BlueconeContext.getContext().sendBroadcast(progressIntent);
 						}

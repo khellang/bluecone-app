@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.util.Log;
@@ -38,7 +37,7 @@ public class QueueActivity extends Activity {
 	public static final String QUEUE_ELEMENTS="elements";
 	//public static final String PROGRESS="com.bluecone.PROGRESS";
 	//public static final String PROGRESS_INTENT="com.bluecone.PROGRESS_INTENT";
-	public static final String PATH = "path";
+	//public static final String PATH = "path";
 	public static final String POS = "position";
 	public static final String MAX = "max";
 	public static final String IS_MASTER = "is_master";
@@ -136,7 +135,7 @@ public class QueueActivity extends Activity {
 			case UPDATE:
 				if(D)Log.d(TAG, "queuestart_initiated = "+queuestart_initiated);
 				String selection = Track.PATH+"=? ";
-				String[]selectionArgs = new String[]{intent.getStringExtra(PATH)};
+				String[]selectionArgs = new String[]{intent.getStringExtra(Track.PATH)};
 				if(D)Log.d(TAG, "input: "+selectionArgs[0]);
 
 				cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH}, selection, selectionArgs, null);
