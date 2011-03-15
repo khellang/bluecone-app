@@ -52,7 +52,7 @@ public final class BlueconeHandler extends Handler {
 	private static ArrayList<String> storage;
 	private boolean waiting;
 	private static int max;
-	private int progress;
+	private int added_to_storage;
 
 
 
@@ -101,6 +101,7 @@ public final class BlueconeHandler extends Handler {
 			case LISTSTART:
 				if(D)Log.d(TAG, "Liststart");
 				waiting = false;
+				added_to_storage = 0;
 				max = Integer.parseInt(in[1]);
 				Intent progressIntent = new Intent(MainTabActivity.REQUEST_TRANSMITT);
 				progressIntent.putExtra(MainTabActivity.PROGRESS, max);
@@ -111,6 +112,7 @@ public final class BlueconeHandler extends Handler {
 			case QUEUESTART:
 				if(D)Log.d(TAG, "Queuestart");
 				waiting = false;
+				added_to_storage = 0;
 				max = Integer.parseInt(in[1]);
 				Intent startUpdateIntent = new Intent(QueueActivity.START_UPDATE_QUEUE);
 				startUpdateIntent.putExtra(QueueActivity.MAX, max);
@@ -123,7 +125,10 @@ public final class BlueconeHandler extends Handler {
 				break;
 			case QUEUE:
 				if(D)Log.d(TAG, "Plain QUEUE");
-				if(!waiting&&progress<max)	
+				//&&(added_to_storage++)<max er ment for å sjekke om ventet input til queue er ferdig.
+				// Denne er MULIGENS NØDVENDIG avhengig av om bluecone sender QUEUE etter LISTSTART og påfølgende LIST før writerthread er ferdig
+				// og dermed waiting ennå ikke er satt til true
+				if(!waiting&&(added_to_storage++)<max) 	
 					storage.add((String) msg.obj);
 				else{
 					Intent addQueueIntent = new Intent(QueueActivity.UPDATE_QUEUE);
@@ -196,7 +201,7 @@ public final class BlueconeHandler extends Handler {
 		private final	int ARTIST = 1;
 		private final	int ALBUM = 2;
 		private final	int TRACK = 3;
-		
+		private int progress;
 
 		public WriterThread(){
 			progress = 0;
