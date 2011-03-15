@@ -1,18 +1,15 @@
 package com.bluecone.connect;
 
-import java.io.BufferedInputStream;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.UUID;
-
 import com.bluecone.BlueconeHandler;
-
+import debug.Debug;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -22,20 +19,16 @@ import android.util.Log;
 
 public class DeviceConnector {
 
-	private static final String TAG = "DeviceConnector";
-	private static boolean D = true;
-	private static final UUID mUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
+//	private static final UUID mUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	private BluetoothAdapter bluetoothAdapter;
 	private BluetoothDevice bluetoothDevice;
-	
 	private ConnectThread connectThread;
 	private ConnectedThread connectedThread;
-	
 	public static final int STATE_CHANGED = 0;
 	public static final int STATE_NONE = 0;
 	public static final int STATE_CONNECTING = 1;
 	public static final int STATE_CONNECTED = 2;
-	
 	public static final String KEY_NAME = "name";
 	public static final String KEY_TOAST = "toast";
 	public static final int FLAG_NAME = 5;
@@ -50,13 +43,13 @@ public class DeviceConnector {
 	}
 	
 	private BluetoothDevice setDeviceByMAC(String mac){
-		if(D)Log.d(TAG, "setDeviceByMac..."+mac);
+		if(Debug.D)Log.d(Debug.TAG_CONNECTOR, "setDeviceByMac..."+mac);
 		return bluetoothAdapter.getRemoteDevice(mac);
 	}
 
 	
     public synchronized void start() {
-        if (D) Log.d(TAG, "start");
+        if (Debug.D) Log.d(Debug.TAG_CONNECTOR, "start");
 
         // Cancel any thread attempting to make a connection
         if (connectThread != null) {connectThread.cancel(); connectThread = null;}
@@ -68,13 +61,13 @@ public class DeviceConnector {
     }
 
 	private  void setState(int newState) {
-		Log.d(TAG, "setState: "+state +" --> "+newState);
+		if(Debug.D)Log.d(Debug.TAG_CONNECTOR, "setState: "+state +" --> "+newState);
 		state = newState;
 		BlueconeHandler.getHandler().obtainMessage(STATE_CHANGED, state, -1).sendToTarget();
 
 	}
 	public synchronized void connect(String mac){
-		if(D)Log.d(TAG, "connect to.... ");
+		if(Debug.D)Log.d(Debug.TAG_CONNECTOR, "connect to.... ");
 		bluetoothDevice = setDeviceByMAC(mac);
 		cancelThreads();//Avslutter tilkoblingstråder
 		connectThread = new ConnectThread(bluetoothDevice);//Oppretter en ny tråd for å koble til enheten
@@ -83,7 +76,7 @@ public class DeviceConnector {
 	}
 
 	public synchronized void connected(BluetoothSocket socket,BluetoothDevice device){
-		if(D)Log.d(TAG, "connected");
+		if(Debug.D)Log.d(Debug.TAG_CONNECTOR, "connected");
 		cancelThreads();//Avslutter alle tråder
 		connectedThread = new ConnectedThread(socket);
 		connectedThread.start();
@@ -98,7 +91,7 @@ public class DeviceConnector {
 
 	}
 	public synchronized void stop(){
-		if(D)Log.d(TAG, "stop");
+		if(Debug.D)Log.d(Debug.TAG_CONNECTOR, "stop");
 		cancelThreads();
 		setState(STATE_NONE);
 	}
@@ -114,7 +107,7 @@ public class DeviceConnector {
 	
 	
 	private void connectionFailed(){
-		if(D)Log.d(TAG, "connection failed....");
+		if(Debug.D)Log.d(Debug.TAG_CONNECTOR, "connection failed....");
 		Message msg = BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.TOAST);
 		Bundle bundle = new Bundle();
 		bundle.putString(KEY_TOAST, "Kunne ikke koble til.");
@@ -133,16 +126,16 @@ public class DeviceConnector {
 	
 	
 	private void cancelThreads(){
-		if(D)Log.d(TAG, "cancelThreads id ");	 
+		if(Debug.D)Log.d(Debug.TAG_CONNECTOR, "cancelThreads id ");	 
 			if(connectThread!=null){
 				connectThread.cancel();
 				connectThread = null;
-				if(D)Log.d(TAG, "ConnectThread cancelled");
+				if(Debug.D)Log.d(Debug.TAG_CONNECTOR, "ConnectThread cancelled");
 			}
 			if(connectedThread!=null){
 				connectedThread.cancel();
 				connectedThread = null;
-				if(D)Log.d(TAG, "ConnectedThread cancelled");
+				if(Debug.D)Log.d(Debug.TAG_CONNECTOR, "ConnectedThread cancelled");
 			}
 		
 
@@ -154,10 +147,9 @@ public class DeviceConnector {
 		private final InputStreamReader input;
 		private final BufferedReader reader;
 		private final OutputStream output;
-		private Object String;
 		
 		public ConnectedThread(BluetoothSocket s) {
-			Log.d(TAG, "ConnectedThread");
+			if(Debug.D)Log.d(Debug.TAG_CONNECTOR, "ConnectedThread");
 			socket = s;
 			InputStream tmp_in = null;
 			OutputStream tmp_out = null;
@@ -166,7 +158,7 @@ public class DeviceConnector {
 				tmp_in = socket.getInputStream();
 				tmp_out = socket.getOutputStream();
 			}catch(IOException e){
-				Log.d(TAG, "Strømmer feilet");
+				Log.d(Debug.TAG_CONNECTOR, "Strømmer feilet");
 			}
 			input = new InputStreamReader(tmp_in);
 			reader = new BufferedReader(input);
@@ -175,7 +167,7 @@ public class DeviceConnector {
 		
 		@Override
 		public void run(){
-			Log.d(TAG, "ConnectedThread har startet");
+			if(Debug.D)Log.d(Debug.TAG_CONNECTOR, "ConnectedThread har startet");
 //			 byte[] buffer = new byte[2048];
 //			
 //			BufferedReader buf = new BufferedReader
@@ -188,7 +180,7 @@ public class DeviceConnector {
 	            		
 	            			if((msg = reader.readLine())!=null){
 	            				
-	            			Log.d(TAG, "msg: "+msg);
+	            				if(Debug.D)Log.d(Debug.TAG_CONNECTOR, "msg: "+msg);
 	            		
 	            			BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.INPUT, -1, -1,msg).sendToTarget();	
 	            			}
@@ -200,14 +192,14 @@ public class DeviceConnector {
 	            		/** Gammel kode ved bruk av kun inputstream*/
 //						bytes = input.read(buffer);
 //						String tmp = new String(buffer).trim();
-//						Log.d(TAG, " "+tmp);
+//						Log.d(Debug.TAG_CONNECTOR, " "+tmp);
 //						BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.INPUT, bytes, -1,buffer).sendToTarget();	
 //						
 //						
 //						buffer = new byte[2048];
 						
 //	            	} catch (IOException e) {
-//						Log.d(TAG, "tilkobling tapt");
+//						Log.d(Debug.TAG_CONNECTOR, "tilkobling tapt");
 //						connectionLost();
 //						break;
 //					}
@@ -221,7 +213,7 @@ public class DeviceConnector {
 				BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.OUTPUT, -1, -1, out)
                  .sendToTarget();
 			}catch(IOException e){
-				Log.d(TAG, "Noe gikk galt ved skriving");
+				Log.d(Debug.TAG_CONNECTOR, "Noe gikk galt ved skriving");
 			}
 			
 		}
@@ -230,7 +222,7 @@ public class DeviceConnector {
 			try {
 				socket.close();
 			} catch (IOException e) {
-				Log.d(TAG, "Klarte ikke å lukke socket",e);
+				Log.d(Debug.TAG_CONNECTOR, "Klarte ikke å lukke socket",e);
 			}
 
 		}
@@ -247,29 +239,29 @@ public class DeviceConnector {
 //			try{
 //			tmp = device.createRfcommSocketToServiceRecord(mUUID);
 //			}catch(IOException e){
-//				Log.d(TAG, "create Rfcomm feilet");
+//				Log.d(Debug.TAG_CONNECTOR, "create Rfcomm feilet");
 //			}
 			
 			// Prøver med denne for HTC-kompabilitet.
 			Method m;
 			try {
-				Log.d(TAG, "CreateRfcommSocket");
+				if(Debug.D)Log.d(Debug.TAG_CONNECTOR, "CreateRfcommSocket");
 				m = device.getClass().getMethod("createRfcommSocket", new Class[] { int.class });
 				tmp = (BluetoothSocket)m.invoke(device, Integer.valueOf(1));
 			} catch (SecurityException e) {
-				Log.d(TAG, "SecurityException");
+				Log.d(Debug.TAG_CONNECTOR, "SecurityException");
 				e.printStackTrace();
 			} catch (NoSuchMethodException e) {
-				Log.d(TAG, "NoSuchMethodException");
+				Log.d(Debug.TAG_CONNECTOR, "NoSuchMethodException");
 				e.printStackTrace();
 			} catch (IllegalArgumentException e) {
-				Log.d(TAG, "IllegalArgumentException");
+				Log.d(Debug.TAG_CONNECTOR, "IllegalArgumentException");
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
-				Log.d(TAG, "IllegalAccessException");
+				Log.d(Debug.TAG_CONNECTOR, "IllegalAccessException");
 				e.printStackTrace();
 			} catch (InvocationTargetException e) {
-				Log.d(TAG, "InvocationTargetException");
+				Log.d(Debug.TAG_CONNECTOR, "InvocationTargetException");
 				e.printStackTrace();
 			}
 			
@@ -277,7 +269,7 @@ public class DeviceConnector {
 		}
 		@Override
 		public void run(){
-			Log.i(TAG, "BEGIN connectThread");
+			if(Debug.D)Log.i(Debug.TAG_CONNECTOR, "BEGIN connectThread");
             setName("ConnectThread");
             
             bluetoothAdapter.cancelDiscovery();
@@ -290,7 +282,7 @@ public class DeviceConnector {
             try{
             	socket.close();
             }catch(IOException f){
-            	Log.d(TAG, "socket.close() feilet etter connect");
+            	Log.d(Debug.TAG_CONNECTOR, "socket.close() feilet etter connect");
             }
            
             return;
@@ -305,7 +297,7 @@ public class DeviceConnector {
 			try{
 				socket.close();
 			}catch(IOException e){
-			Log.d(TAG, "close av tilkoblet socket feilet",e);
+			Log.d(Debug.TAG_CONNECTOR, "close av tilkoblet socket feilet",e);
 			}
 		}
 

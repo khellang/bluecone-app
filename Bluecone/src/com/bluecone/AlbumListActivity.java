@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import com.bluecone.storage.ArtistList.Album;
 import com.bluecone.storage.ArtistList.Artist;
+
+import debug.Debug;
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -22,8 +24,6 @@ import android.widget.TextView;
 
 public class AlbumListActivity extends ListActivity {
 
-	private static final String TAG = "Albumlist";
-	private static final boolean D = true;
 	public static String REFRESH_TRACK = "com.bluecone.REFRESH_TRACK";
 
 	private Cursor cursor;
@@ -39,7 +39,7 @@ public class AlbumListActivity extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		if(D)Log.d(TAG, "onCreate...");
+		if(Debug.D)Log.d(Debug.TAG_ALBUM, "onCreate...");
 		
 		setContentView(R.layout.album_layout);
 		sortOrder = Album.TITLE+" ASC";
@@ -68,7 +68,7 @@ public class AlbumListActivity extends ListActivity {
 		public void onReceive(Context context, Intent intent) {
 			switch(actionMap.get(intent.getAction())){
 			case REFRESH:
-				if(D)Log.d(TAG, "REFRESH_FILTER");
+				if(Debug.D)Log.d(Debug.TAG_ALBUM, "REFRESH_FILTER");
 				selection = null;
 				selectionArgs = null;				 	
 				update();

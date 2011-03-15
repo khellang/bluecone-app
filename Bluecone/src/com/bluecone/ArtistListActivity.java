@@ -2,6 +2,8 @@ package com.bluecone;
 
 
 import com.bluecone.storage.ArtistList.Artist;
+
+import debug.Debug;
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -22,8 +24,6 @@ import android.widget.TextView;
 
 public class ArtistListActivity extends ListActivity{
 
-	private static final String TAG = "Artistlist";
-	private static final boolean D = true;
 	protected static String REFRESH_ALBUM = "com.bluecone.REFRESH_ALBUM";
 	private Cursor cursor;
 	private LayoutInflater layoutInflater;
@@ -40,7 +40,7 @@ public class ArtistListActivity extends ListActivity{
 		cursor = BlueconeContext.getContext().getContentResolver().query(Artist.CONTENT_URI, new String[] { BaseColumns._ID, Artist.NAME}, null, null, sortOrder);		
 		startManagingCursor(cursor);	// Denne er deprecated. CursorLoader kan/skal brukes, men denne virker sannsynligvis ikke på SDK 7. 		 
 		setListAdapter(artistBaseAdapter);
-		if(D)Log.d(TAG, "...onCreate");
+		if(Debug.D)Log.d(Debug.TAG_ARTIST, "...onCreate");
 	}
 
 	@Override
@@ -133,7 +133,7 @@ public class ArtistListActivity extends ListActivity{
 		public void onClick(View v) {
 			Intent intent = new Intent(REFRESH_ALBUM);
 			intent.putExtra(Artist.NAME, ((((ViewHolder) v.getTag()).name)).getText());
-			Log.d(TAG, "Trykker på "+intent.getStringExtra(Artist.NAME));
+			if(Debug.D)Log.d(Debug.TAG_ARTIST, "Trykker på "+intent.getStringExtra(Artist.NAME));
 			sendBroadcast(intent);
 
 

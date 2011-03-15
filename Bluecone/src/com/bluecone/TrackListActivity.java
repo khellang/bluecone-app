@@ -5,6 +5,8 @@ import java.util.HashMap;
 import com.bluecone.storage.ArtistList.Album;
 import com.bluecone.storage.ArtistList.Track;
 
+import debug.Debug;
+
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,9 +27,6 @@ import android.widget.Toast;
 
 public class TrackListActivity extends ListActivity {
 
-	private static final String TAG = "Tracklist";
-	private static final boolean D = true;
-
 
 	private Cursor cursor;
 	private LayoutInflater layoutInflater;
@@ -43,7 +42,7 @@ public class TrackListActivity extends ListActivity {
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.track_layout);
-		if(D)Log.d(TAG, "onCreate");
+		if(Debug.D)Log.d(Debug.TAG_TRACK, "onCreate");
 
 		sortOrder = Track.TITLE+" ASC";
 		trackBaseAdapter = new TrackBaseAdapter();
@@ -137,7 +136,7 @@ public class TrackListActivity extends ListActivity {
 		}
 
 		public void onClick(View v) {
-			Log.d(TAG, " KLIKK");
+			if(Debug.D)Log.d(Debug.TAG_TRACK, " KLIKK");
 		
 			((ViewHolder)v.getTag()).title.setEnabled(true);
 			String path = ((ViewHolder)v.getTag()).path;

@@ -7,10 +7,13 @@ import com.bluecone.storage.ArtistList.Album;
 import com.bluecone.storage.ArtistList.Artist;
 import com.bluecone.storage.ArtistList.Track;
 import com.bluecone.storage.BlueconeContentProvider;
+
+import debug.Debug;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.BaseColumns;
@@ -20,8 +23,7 @@ import android.widget.Toast;
 
 public final class BlueconeHandler extends Handler {
 
-	private static final String TAG = "BlueconeHandler";
-	private static final boolean D = true;
+
 	private static BlueconeHandler handler = new BlueconeHandler();
 	private ContentResolver contentResolver;
 	private static final HashMap<String, Integer> map;
@@ -74,7 +76,7 @@ public final class BlueconeHandler extends Handler {
 		case STATE_CHANGED:
 			switch(msg.arg1){
 			case STATE_NONE:
-				if(D)Log.d(TAG, "STATE_NONE");
+				if(Debug.D)Log.d(Debug.TAG_HANDLER, "STATE_NONE");
 				Intent disconnectedIntent = new Intent(MainTabActivity.CONNECTION_LOST);
 				BlueconeContext.getContext().sendBroadcast(disconnectedIntent);
 				break;
@@ -94,12 +96,12 @@ public final class BlueconeHandler extends Handler {
 			break;
 
 		case INPUT:
-			Log.d(TAG, "INPUT: "+msg.obj);
+			Log.d(Debug.TAG_HANDLER, "INPUT: "+msg.obj);
 			String tmp = new String((String) msg.obj).trim();
 			String [] in = tmp.split("#");
 			switch(map.get(in[0])){
 			case LISTSTART:
-				if(D)Log.d(TAG, "Liststart");
+				if(Debug.D)Log.d(Debug.TAG_HANDLER, "Liststart");
 				waiting = false;
 				added_to_storage = 0;
 				max = Integer.parseInt(in[1]);
@@ -110,7 +112,7 @@ public final class BlueconeHandler extends Handler {
 				musicWriterThread.start();
 				break;
 			case QUEUESTART:
-				if(D)Log.d(TAG, "Queuestart");
+				if(Debug.D)Log.d(Debug.TAG_HANDLER, "Queuestart");
 				waiting = false;
 				added_to_storage = 0;
 				max = Integer.parseInt(in[1]);
@@ -124,16 +126,17 @@ public final class BlueconeHandler extends Handler {
 				queueWriterThread.start();					
 				break;
 			case QUEUE:
-				if(D)Log.d(TAG, "Plain QUEUE");
+				if(Debug.D)Log.d(Debug.TAG_HANDLER, "Plain QUEUE");
 				//&&(added_to_storage++)<max er ment for å sjekke om ventet input til queue er ferdig.
 				// Denne er MULIGENS NØDVENDIG avhengig av om bluecone sender QUEUE etter LISTSTART og påfølgende LIST før writerthread er ferdig
 				// og dermed waiting ennå ikke er satt til true
-				if(!waiting&&(added_to_storage++)<max) 	
+				//if(!waiting&&(added_to_storage++)<max) 	
+					if(!waiting)
 					storage.add((String) msg.obj);
 				else{
 					Intent addQueueIntent = new Intent(QueueActivity.UPDATE_QUEUE);
 					String[] temp = in[1].split("\\|");
-					Log.d(TAG, "QUEUE Pos: " + temp[0] + ", Path: " + temp[1]);
+					Log.d(Debug.TAG_HANDLER, "QUEUE Pos: " + temp[0] + ", Path: " + temp[1]);
 					addQueueIntent.putExtra(Track.PATH, temp[1]);
 					addQueueIntent.putExtra(QueueActivity.POS, temp[0]);
 					BlueconeContext.getContext().sendBroadcast(addQueueIntent);
@@ -143,7 +146,7 @@ public final class BlueconeHandler extends Handler {
 				storage.add((String) msg.obj);
 				break;
 			case MASTER:
-				if(D)Log.d(TAG, "Master Mode");
+				if(Debug.D)Log.d(Debug.TAG_HANDLER, "Master Mode");
 				if (in[1].equals("OK")) {
 					Intent masterIntent = new Intent(QueueActivity.MASTER_MODE);
 					masterIntent.putExtra(QueueActivity.IS_MASTER, true);
@@ -154,7 +157,7 @@ public final class BlueconeHandler extends Handler {
 				}
 				break;
 			case REMOVE:
-				if(D)Log.d(TAG, "REMOVE");
+				if(Debug.D)Log.d(Debug.TAG_HANDLER, "REMOVE");
 				Intent removeIntent = new Intent(QueueActivity.REMOVE_FIRST_IN_QUEUE);
 				BlueconeContext.getContext().sendBroadcast(removeIntent);
 				break;
@@ -162,18 +165,22 @@ public final class BlueconeHandler extends Handler {
 
 				/** Her kan det legges til progress for den sangen som spilles
 				 * Denne progressen sendes så til QueueActivity */
-
-				if(D)Log.d(TAG, "Playing , path:" +in[1]);
+				//	String[] input = in[i].split("\\|");
+				//if(Debug.D)Log.d(Debug.TAG_HANDLER, "Playing , path:" +input[0]);
 				String selection = Track.PATH+"=? ";
-				String[]selectionArgs = new String[]{in[1]};
+				String[]selectionArgs = new String[]{in[1]};//{input[0]};
 				Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE,Track.TRACK_LENGHT}, selection, selectionArgs, null);
 				cur.moveToFirst();
+				try{
 				String nowPlaying = cur.getString(1);
-				int lenght = cur.getInt(2);
 				Intent currentTrackIntent = new Intent(MainTabActivity.SET_NOW_PLAYING);
 				currentTrackIntent.putExtra(QueueActivity.NOW_PLAYING, nowPlaying);
-				currentTrackIntent.putExtra(QueueActivity.PROGRESS, lenght);
+				currentTrackIntent.putExtra(QueueActivity.PROGRESS, cur.getInt(2));
+				currentTrackIntent.putExtra(QueueActivity.CURRENT_PROGRESS, 50);//input[1]
 				BlueconeContext.getContext().sendBroadcast(currentTrackIntent);
+				}catch(CursorIndexOutOfBoundsException e){
+					Log.d(Debug.TAG_HANDLER, "PLAYING: Cursor size =  "+cur.getCount());
+				}
 				break;
 			}
 			break;
@@ -182,7 +189,7 @@ public final class BlueconeHandler extends Handler {
 			//Brukes ikke foreløpig..... Write track fanges opp i BlueconeTabActivity.class
 			break;
 		case TOAST:
-			if(D)Log.d(TAG, "Toast");
+			if(Debug.D)Log.d(Debug.TAG_HANDLER, "Toast");
 			String tmp_2 = msg.getData().getString(DeviceConnector.KEY_TOAST) ;
 			if(tmp_2!=null)
 				Toast.makeText(BlueconeContext.getContext(),tmp_2, Toast.LENGTH_LONG).show();
@@ -217,7 +224,7 @@ public final class BlueconeHandler extends Handler {
 					Log.d("THREAD","Storage!empty");
 					String tmp = new String((String) storage.get(0)).trim();
 
-					Log.d(TAG, "FLAG_INPUT in = "+tmp);
+					Log.d(Debug.TAG_HANDLER, "FLAG_INPUT in = "+tmp);
 					String [] in = tmp.split("#");
 					int lenght = in.length;
 
@@ -225,7 +232,7 @@ public final class BlueconeHandler extends Handler {
 					case LIST:
 						for(int i=0;i<storage.size();i++){
 							String d = new String(storage.get(i));
-							Log.d(TAG,"TEST: "+d);
+							Log.d(Debug.TAG_HANDLER,"TEST: "+d);
 						}
 						storage.remove(0);
 						for(int i = 1;i<lenght;i++){
@@ -262,7 +269,7 @@ public final class BlueconeHandler extends Handler {
 						}
 						break;
 
-					default: Log.d(TAG, "Uventet feil");
+					default: Log.d(Debug.TAG_HANDLER, "Uventet feil");
 					break;
 					}
 
@@ -277,13 +284,13 @@ public final class BlueconeHandler extends Handler {
 			waiting = true;
 			Intent update_intent = new Intent(MainTabActivity.REFRESH);
 			BlueconeContext.getContext().sendBroadcast(update_intent);
-			Log.d(TAG, "FINISHED");
+			Log.d(Debug.TAG_HANDLER, "FINISHED");
 			return true;
 		}
 		return false;
 	}
 	private void addToDatabase(){
-		if(D)Log.d(TAG, "addToDatabase");
+		if(Debug.D)Log.d(Debug.TAG_HANDLER, "addToDatabase");
 		BlueconeContentProvider.insertThis(artistContent, albumContent, trackContent);
 	}
 
@@ -294,7 +301,7 @@ public final class BlueconeHandler extends Handler {
 			addToDatabase();
 			Intent update_intent = new Intent(MainTabActivity.REFRESH);
 			BlueconeContext.getContext().sendBroadcast(update_intent);
-			Log.d(TAG, "FINISHED");
+			Log.d(Debug.TAG_HANDLER, "FINISHED");
 			return true;
 		}
 		return false;

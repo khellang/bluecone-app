@@ -9,6 +9,8 @@ import com.bluecone.storage.ArtistList.Album;
 import com.bluecone.storage.ArtistList.Artist;
 import com.bluecone.storage.ArtistList.Track;
 
+import debug.Debug;
+
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -26,8 +28,7 @@ import android.util.Log;
 
 public class BlueconeContentProvider extends ContentProvider {
 	
-    private static final String TAG = "BlueConeContentProvider";
-    private static final boolean D = true;
+   
     private static final String DATABASE_NAME = "bluecone.db";
     private static final int DATABASE_VERSION = 1;
     private static final String ARTIST_TABLE_NAME = "artist";
@@ -80,7 +81,7 @@ public class BlueconeContentProvider extends ContentProvider {
 		
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Log.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion
+            Log.w(Debug.TAG_PROVIDER, "Upgrading database from version " + oldVersion + " to " + newVersion
                     + ", which will destroy all old data");
             db.execSQL("DROP TABLE IF EXISTS " + ARTIST_TABLE_NAME);
             db.execSQL("DROP TABLE IF EXISTS " + ALBUM_TABLE_NAME);
@@ -103,7 +104,7 @@ public class BlueconeContentProvider extends ContentProvider {
     }
     
     public static void insertThis(ContentValues [] artist,ContentValues[] album,ContentValues [] track){
-    	Intent requestTransmitt = new Intent(MainTabActivity.REQUEST_TRANSMITT);
+    	Intent requestTransmitt = new Intent(MainTabActivity.START_TRANSMITT);
 		requestTransmitt.putExtra(MainTabActivity.PROGRESS, artist.length);
 		BlueconeContext.getContext().sendBroadcast(requestTransmitt);
 		Intent progressIntent = new Intent(MainTabActivity.START_TRANSMITT);
@@ -119,9 +120,9 @@ public class BlueconeContentProvider extends ContentProvider {
 			}
 			BlueconeContentProvider.setTransactionSucsssfull();
 		}catch(SQLException a){
-			if(D)Log.d(TAG, "SQLException..."+a);
+			if(Debug.D)Log.d(Debug.TAG_PROVIDER, "SQLException..."+a);
 		}catch(IllegalArgumentException b){
-			if(D)Log.d(TAG, "IllegalArgumentException..."+b);
+			if(Debug.D)Log.d(Debug.TAG_PROVIDER, "IllegalArgumentException..."+b);
 				
 		}finally{
 			BlueconeContentProvider.endTransaction();

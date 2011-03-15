@@ -4,6 +4,8 @@ import java.util.Set;
 
 import com.bluecone.R;
 
+import debug.Debug;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -23,9 +25,6 @@ import android.widget.TextView;
 
 public class DeviceFinder extends Activity implements OnItemClickListener{
 	
-	   // Debugging
-    private static final String TAG = "EnhetsListe";
-    private static final boolean D = true;
     
     public static final String EXTRA_UNIT_ADDRESS = "unit_address";
     public static final String REQUEST_CONNECT = "com.bluecone.connect.REQUEST_CONNECT";
@@ -41,26 +40,26 @@ public class DeviceFinder extends Activity implements OnItemClickListener{
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		if(D)Log.d(TAG, "onCreate...");
+		if(Debug.D)Log.d(Debug.TAG_FINDER, "onCreate...");
 		//Vinduet får en progressbar 
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.device_layout);
 		
-		if(D)Log.d(TAG, "bluetoothAdapter...");
+		if(Debug.D)Log.d(Debug.TAG_FINDER, "bluetoothAdapter...");
 		//instansier blåtannadapteret
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		if(D)Log.d(TAG, "...bluetoothAdapter");
+		if(Debug.D)Log.d(Debug.TAG_FINDER, "...bluetoothAdapter");
 
 		//Dersom brukeren angrer returneres resultatkoden kansellert
 		setResult(RESULT_CANCELED);
 	
-		if(D)Log.d(TAG, "Arrayadapter...");
+		if(Debug.D)Log.d(Debug.TAG_FINDER, "Arrayadapter...");
 		pairedAdapter = new ArrayAdapter<String>(this, R.layout.device_name_layout);
 		foundAdapter = new ArrayAdapter<String>(this, R.layout.device_name_layout);
-		if(D)Log.d(TAG, "...Arrayadapter");
+		if(Debug.D)Log.d(Debug.TAG_FINDER, "...Arrayadapter");
 		
 		
-		if(D)Log.d(TAG, "ListView...");
+		if(Debug.D)Log.d(Debug.TAG_FINDER, "ListView...");
 		//Henter ut listview for aktuelle enheter, setter på tilhørende adapter, leger til lytter 
 		ListView lagrede_enheter = (ListView) findViewById(R.id.Liste_parede_enheter);
 		lagrede_enheter.setAdapter(pairedAdapter);
@@ -69,25 +68,25 @@ public class DeviceFinder extends Activity implements OnItemClickListener{
 		ListView nye_enheter = (ListView) findViewById(R.id.Liste_funnede_enheter);
 		nye_enheter.setAdapter(foundAdapter);
 		nye_enheter.setOnItemClickListener(this);
-		if(D)Log.d(TAG, "...ListView");
+		if(Debug.D)Log.d(Debug.TAG_FINDER, "...ListView");
 		
-		if(D)Log.d(TAG, "IntentFilter...");
+		if(Debug.D)Log.d(Debug.TAG_FINDER, "IntentFilter...");
 		// Gjør klar til å motta broadcast når en enhet blir oppdaget
 		IntentFilter i_filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
 		this.registerReceiver(receiver, i_filter);
-		if(D)Log.d(TAG, "...receiver.IntentFilter...");
+		if(Debug.D)Log.d(Debug.TAG_FINDER, "...receiver.IntentFilter...");
 		
 		//Gjør klar til å motta broadcast når oppdaging avsluttes
 		i_filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 		this.registerReceiver(receiver, i_filter);
-		if(D)Log.d(TAG, "...receiver.IntentFilter");
+		if(Debug.D)Log.d(Debug.TAG_FINDER, "...receiver.IntentFilter");
 		
 		
-		if(D)Log.d(TAG, "Set<BluetoothDevice>...");
+		if(Debug.D)Log.d(Debug.TAG_FINDER, "Set<BluetoothDevice>...");
 		//Hent ut lagrede enheter
 		Set<BluetoothDevice> lagrede = bluetoothAdapter.getBondedDevices();
 		
-		if(D)Log.d(TAG, "...Set<BluetoothDevice>");
+		if(Debug.D)Log.d(Debug.TAG_FINDER, "...Set<BluetoothDevice>");
 		if(lagrede.size()>0){
 			for(BluetoothDevice b:lagrede){
 				pairedAdapter.add(b.getName()+"\n"+b.getAddress());
@@ -97,7 +96,7 @@ public class DeviceFinder extends Activity implements OnItemClickListener{
 			pairedAdapter.add(ingen_lagret);
 		}
 		
-		if(D)Log.d(TAG, "...onCreate");
+		if(Debug.D)Log.d(Debug.TAG_FINDER, "...onCreate");
 		
 		
 	}
@@ -115,7 +114,7 @@ public class DeviceFinder extends Activity implements OnItemClickListener{
 	}
 	
 	public void sokEtterEnheter(View view){
-		if(D)Log.d(TAG, "sokEtterEnheter()");
+		if(Debug.D)Log.d(Debug.TAG_FINDER, "sokEtterEnheter()");
 
 		//Skjul knappen slik at den ikke kan trykkes på under søk
 		findViewById(R.id.Button_scan).setVisibility(View.GONE);
@@ -139,7 +138,7 @@ public class DeviceFinder extends Activity implements OnItemClickListener{
 		
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if(D)Log.d(TAG, "onReceive()");
+			if(Debug.D)Log.d(Debug.TAG_FINDER, "onReceive()");
 			
 			String action = intent.getAction();
 			

@@ -6,12 +6,15 @@ import java.util.List;
 
 import com.bluecone.storage.ArtistList.Track;
 
+import debug.Debug;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -29,15 +32,14 @@ import android.widget.TextView;
 
 public class QueueActivity extends Activity {
 
-
-	private static final String TAG = "Queuelist";
-	private static final boolean D = true;	
+	
 	public static final  String MASTER_MODE = "com.bluecone.MASTER_MODE";
 	public static final String REMOVE_FIRST_IN_QUEUE = "com.bluecone.REMOVE_FIRST_IN_QUEUE";
 	public static final String START_UPDATE_QUEUE = "com.bluecone.START_UPDATE_QUEUE";
 	public static final String UPDATE_QUEUE = "com.bluecone.UPDATE_QUEUE";
 	public static final String QUEUE_ELEMENTS="elements";
 	public static final String PROGRESS="com.bluecone.queueactivity.PROGRESS";
+	public static final String CURRENT_PROGRESS="com.bluecone.queueactivity.CURRENT_PROGRESS";
 	public static final String POS = "position";
 	public static final String MAX = "max";
 	public static final String IS_MASTER = "is_master";
@@ -130,47 +132,57 @@ public class QueueActivity extends Activity {
 			case START:
 				queuestart_initiated = true;
 				max = intent.getIntExtra(MAX, 1);
-				if(D)Log.d(TAG, "Start "+max);
+				if(Debug.D)Log.d(Debug.TAG_QUEUE, "Start "+max);
 				DATA.clear();
 				break;
 			case UPDATE:
-				if(D)Log.d(TAG, "queuestart_initiated = "+queuestart_initiated);
+				if(Debug.D)Log.d(Debug.TAG_QUEUE, "queuestart_initiated = "+queuestart_initiated);
 				String selection = Track.PATH+"=? ";
 				String[]selectionArgs = new String[]{intent.getStringExtra(Track.PATH)};
-				if(D)Log.d(TAG, "input: "+selectionArgs[0]);
+				if(Debug.D)Log.d(Debug.TAG_QUEUE, "input: "+selectionArgs[0]);
 
-				cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH}, selection, selectionArgs, null);
+				cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH,Track.TRACK_LENGHT}, selection, selectionArgs, null);
 				cursor.moveToFirst();
 		
 				int pos = Integer.parseInt(intent.getStringExtra(POS));
-				Log.d(TAG, "Pos: " + pos);
+				if(Debug.D)Log.d(Debug.TAG_QUEUE, "Pos: " + pos);
+				try{
 				DATA.add(pos, cursor.getString(1));
-
+				}catch(CursorIndexOutOfBoundsException e){
+					Log.d(Debug.TAG_QUEUE, "UPDATE Cursor size = " + cursor.getCount());
+				}
 				update();
 				
 				cursor.close();
 
 				break;
 			case MASTER:
-				Log.d(TAG, "IS_MASTER= "+intent.getBooleanExtra(IS_MASTER, false));
+				Log.d(Debug.TAG_QUEUE, "IS_MASTER= "+intent.getBooleanExtra(IS_MASTER, false));
 				setMaster(intent.getBooleanExtra(IS_MASTER, false));
 				break;
 			case REMOVE:
-				Log.d(TAG, "REMOVE");
+				if(Debug.D)Log.d(Debug.TAG_QUEUE, "REMOVE");
+				currentProgress = 0;
+				String selection_2 = Track.TITLE+"=?";
+				String [] selectionArgs_2 = new String[]{DATA.get(0)};
+				cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TRACK_LENGHT}, selection_2, selectionArgs_2, null);
 				try{
+				cursor.moveToFirst();
 				nowPlaying = DATA.remove(0);
-				}catch(ArrayIndexOutOfBoundsException e){
-					Log.d(TAG, "Arraylist is empty");
-				}
 				Intent currentTrackIntent = new Intent(MainTabActivity.SET_NOW_PLAYING);
 				currentTrackIntent.putExtra(NOW_PLAYING, nowPlaying);
+				currentTrackIntent.putExtra(PROGRESS, cursor.getInt(1));
 				sendBroadcast(currentTrackIntent);
+				cursor.close();
+				}catch(IndexOutOfBoundsException e){
+					Log.d(Debug.TAG_QUEUE, "Arraylist is empty");
+				}
 				update();
 				break;
 			case SET_PROGRESS:
-				if(D)Log.d(TAG, "SET_PROGRESS");
-				currentProgress = 0;
-				startSeekBar(intent.getIntExtra(PROGRESS, 0));
+				if(Debug.D)Log.d(Debug.TAG_QUEUE, "SET_PROGRESS");
+				currentProgress = intent.getIntExtra(CURRENT_PROGRESS, 0);
+				startSeekBar(intent.getIntExtra(PROGRESS, 100));
 			
 				
 			break;
@@ -184,7 +196,7 @@ public class QueueActivity extends Activity {
 		
 		private void startSeekBar(int max) {
 			seekbar.setMax(max);
-			if(D)Log.d(TAG, "Seekbar.setMax");
+			if(Debug.D)Log.d(Debug.TAG_QUEUE, "Seekbar Max = "+max);
 			ProgressThread seekbarProgressThread = new ProgressThread();
 			seekbarProgressThread.start();
 			
@@ -198,7 +210,6 @@ public class QueueActivity extends Activity {
 		public void handleMessage(Message msg){
 			switch(msg.what){
 			case SET_PROGRESS:
-				Log.d(TAG, "seekbarhandler");
 			seekbar.setProgress(msg.arg1);
 			break;
 			}
@@ -245,7 +256,7 @@ public class QueueActivity extends Activity {
 			}
 
 			holder.playing.setText((CharSequence) DATA.toArray()[position]);
-			Log.d(TAG,"getView: "+DATA.toArray()[position]);
+			if(Debug.D)Log.d(Debug.TAG_QUEUE,"getView: "+DATA.toArray()[position]);
 
 
 			return convertView;
@@ -328,14 +339,12 @@ public class QueueActivity extends Activity {
 		@Override
 		public void run() {
 			while(currentProgress<seekbar.getMax()){
-			Log.d(TAG, "PROGRESSTHREAD "+ currentProgress);	
 			seekBarHandler.sendMessage(seekBarHandler.obtainMessage(SET_PROGRESS, ++currentProgress, 0));
 			
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				if(Debug.D)Log.d(Debug.TAG_QUEUE, "PROGRESSTHREAD "+ currentProgress);	
 			}
 			
 		}

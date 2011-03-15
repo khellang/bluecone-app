@@ -5,6 +5,8 @@ import java.util.HashMap;
 import com.bluecone.connect.DeviceConnector;
 import com.bluecone.connect.DeviceFinder;
 
+import debug.Debug;
+
 import android.app.AlertDialog;
 import android.app.TabActivity;
 import android.bluetooth.BluetoothAdapter;
@@ -44,13 +46,9 @@ public class MainTabActivity extends TabActivity {
 	private static final int MASTER = 5;
 	private static final int NOW_PLAYING = 6;
 	public static final String MASTER_COMMAND = "com.bluecone.MASTER_COMAND";
-
 	public static final String PROGRESS = "progress";
 	private int max;
 	private int progress;
-	private static final String TAG = "Tabactivity";
-	private static final boolean D = true;
-
 	private static final int REQUEST_ENABLE = 1;
 	private static final int REQUEST_DEVICE = 2;
 	private BluetoothAdapter bluetoothAdapter;
@@ -68,8 +66,8 @@ public class MainTabActivity extends TabActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (D)
-			Log.d(TAG, "oncreate...");
+		if(Debug.D)
+			Log.d(Debug.TAG_MAIN, "oncreate...");
 
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		setContentView(R.layout.main);
@@ -137,7 +135,7 @@ public class MainTabActivity extends TabActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		Log.d(TAG, "onStart");
+		Log.d(Debug.TAG_MAIN, "onStart");
 		IntentFilter writeIntent = new IntentFilter(REQUEST_WRITE);
 		IntentFilter connectedIntent = new IntentFilter(DEVICE_CONNECTED);
 		IntentFilter transmittIntent = new IntentFilter(REQUEST_TRANSMITT);
@@ -164,19 +162,19 @@ public class MainTabActivity extends TabActivity {
 	public void onDestroy() {
 		super.onDestroy();
 		this.unregisterReceiver(receiver);
-		if(D)Log.d(TAG, "onDestroy");
+		if(Debug.D)Log.d(Debug.TAG_MAIN, "onDestroy");
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
 		case REQUEST_ENABLE:
-			Log.d(TAG, "onActivityResult: REQUEST_ENABLE");
+			Log.d(Debug.TAG_MAIN, "onActivityResult: REQUEST_ENABLE");
 			if (resultCode != RESULT_OK)
 				finish();
 			break;
 		case REQUEST_DEVICE:
-			Log.d(TAG, "onActivityResult: REQUEST_DEVICE");
+			Log.d(Debug.TAG_MAIN, "onActivityResult: REQUEST_DEVICE");
 			if (resultCode == RESULT_OK) {
 				String mac = data.getExtras().getString(
 						DeviceFinder.EXTRA_UNIT_ADDRESS);
@@ -188,7 +186,7 @@ public class MainTabActivity extends TabActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		Log.d(TAG, "onCreateOptionsMenu");
+		Log.d(Debug.TAG_MAIN, "onCreateOptionsMenu");
 		MenuInflater menuInflater = getMenuInflater();
 		menuInflater.inflate(R.menu.menu, menu);
 		return true;
@@ -198,17 +196,17 @@ public class MainTabActivity extends TabActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.scan:
-			Log.d(TAG, "MenueSelected: scan");
+			Log.d(Debug.TAG_MAIN, "MenueSelected: scan");
 			Intent intent = new Intent(DeviceFinder.REQUEST_CONNECT);
 			startActivityForResult(intent, REQUEST_DEVICE);
 			break;
 		case R.id.back:
-			Log.d(TAG, "MenueSelected: back");
+			Log.d(Debug.TAG_MAIN, "MenueSelected: back");
 			Intent refreshIntent = new Intent(REFRESH);
 			sendBroadcast(refreshIntent);
 			break;
 		case R.id.master:
-			Log.d(TAG, "MenueSelected: master");
+			Log.d(Debug.TAG_MAIN, "MenueSelected: master");
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
 			alert.setTitle("Master Mode");
@@ -254,28 +252,28 @@ public class MainTabActivity extends TabActivity {
 		public void onReceive(Context context, Intent intent) {
 			switch (actionMap.get(intent.getAction())) {
 			case WRITE:
-				if (D)
-					Log.d(TAG, "BroadcastReceiver: WRITE");
+				if(Debug.D)
+					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: WRITE");
 				String path = "ADD#" + intent.getStringExtra(TRACK_WRITE);
 				deviceConnector.write(path.getBytes());
 				break;
 			case CONNECTED:
-				if (D)
-					Log.d(TAG, "BroadcastReceiver: CONNECTED");
+				if(Debug.D)
+					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: CONNECTED");
 				title_right.setText(R.string.connected);
 				break;
 			case TRANSMITT:
-				if (D)
-					Log.d(TAG, "BroadcastReceiver: Transmitt");
+				if(Debug.D)
+					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: Transmitt");
 				title_left.setText(R.string.transfer);
 				max = intent.getIntExtra(PROGRESS, 10000);
-				progressHorizontal.setMax(max);
+				progressHorizontal.setMax(max+10);
 				progressHorizontal.setVisibility(View.VISIBLE);
 				progress = 0;
 				break;
 			case TRANSMITTING:
-				if (D)
-					Log.d(TAG, "BroadcastReceiver: Transmitting");
+				if(Debug.D)
+					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: Transmitting");
 				progressHorizontal.incrementProgressBy(1);
 			
 
@@ -287,13 +285,13 @@ public class MainTabActivity extends TabActivity {
 				}
 				break;
 			case DISCONNECTED:
-				if (D)
-					Log.d(TAG, "BroadcastReceiver: Disconnected");
+				if(Debug.D)
+					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: Disconnected");
 				title_right.setText(R.string.not_connected);
 				break;
 			case MASTER:
-				if (D)
-					Log.d(TAG, "BroadcastReceiver: MASTER");
+				if(Debug.D)
+					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: MASTER");
 				String masterCommand = intent.getStringExtra(MASTER_COMMAND);
 				deviceConnector.write(masterCommand.getBytes());
 				break;
