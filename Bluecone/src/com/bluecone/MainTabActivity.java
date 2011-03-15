@@ -164,8 +164,7 @@ public class MainTabActivity extends TabActivity {
 	public void onDestroy() {
 		super.onDestroy();
 		this.unregisterReceiver(receiver);
-		Log.d(TAG, "onDestroy");
-		// finish();
+		if(D)Log.d(TAG, "onDestroy");
 	}
 
 	@Override

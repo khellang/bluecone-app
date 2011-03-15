@@ -15,7 +15,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Messenger;
 import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,8 +38,6 @@ public class QueueActivity extends Activity {
 	public static final String UPDATE_QUEUE = "com.bluecone.UPDATE_QUEUE";
 	public static final String QUEUE_ELEMENTS="elements";
 	public static final String PROGRESS="com.bluecone.queueactivity.PROGRESS";
-	//public static final String PROGRESS_INTENT="com.bluecone.PROGRESS_INTENT";
-	//public static final String PATH = "path";
 	public static final String POS = "position";
 	public static final String MAX = "max";
 	public static final String IS_MASTER = "is_master";
@@ -143,15 +140,8 @@ public class QueueActivity extends Activity {
 				if(D)Log.d(TAG, "input: "+selectionArgs[0]);
 
 				cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH}, selection, selectionArgs, null);
-				//if(queuestart_initiated){	
-				//if(start<=max){
 				cursor.moveToFirst();
-				
-				
-				// Gammel måte å sette inn ny sang i kø
-				// DATA.add(cursor.getString(1));
-				
-				// Ny måte
+		
 				int pos = Integer.parseInt(intent.getStringExtra(POS));
 				Log.d(TAG, "Pos: " + pos);
 				DATA.add(pos, cursor.getString(1));
@@ -180,7 +170,7 @@ public class QueueActivity extends Activity {
 			case SET_PROGRESS:
 				if(D)Log.d(TAG, "SET_PROGRESS");
 				currentProgress = 0;
-				startSeekBar(intent.getIntExtra(PROGRESS, 500));
+				startSeekBar(intent.getIntExtra(PROGRESS, 0));
 			
 				
 			break;

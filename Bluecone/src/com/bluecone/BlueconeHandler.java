@@ -52,6 +52,7 @@ public final class BlueconeHandler extends Handler {
 	private static ArrayList<String> storage;
 	private boolean waiting;
 	private static int max;
+	private int progress;
 
 
 
@@ -122,7 +123,7 @@ public final class BlueconeHandler extends Handler {
 				break;
 			case QUEUE:
 				if(D)Log.d(TAG, "Plain QUEUE");
-				if(!waiting)	
+				if(!waiting&&progress<max)	
 					storage.add((String) msg.obj);
 				else{
 					Intent addQueueIntent = new Intent(QueueActivity.UPDATE_QUEUE);
@@ -195,7 +196,7 @@ public final class BlueconeHandler extends Handler {
 		private final	int ARTIST = 1;
 		private final	int ALBUM = 2;
 		private final	int TRACK = 3;
-		private int progress;
+		
 
 		public WriterThread(){
 			progress = 0;
