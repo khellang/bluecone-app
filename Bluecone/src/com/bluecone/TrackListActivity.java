@@ -4,9 +4,7 @@ import java.util.HashMap;
 
 import com.bluecone.storage.ArtistList.Album;
 import com.bluecone.storage.ArtistList.Track;
-
 import debug.Debug;
-
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,12 +16,10 @@ import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class TrackListActivity extends ListActivity {
 
@@ -50,6 +46,7 @@ public class TrackListActivity extends ListActivity {
 		cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI, new String[] { BaseColumns._ID, Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH }, null, null, null);
 		startManagingCursor(cursor);
 		setListAdapter(trackBaseAdapter);
+	
 
 	}
 
@@ -90,21 +87,20 @@ public class TrackListActivity extends ListActivity {
 
 	}
 
-	private class TrackBaseAdapter extends BaseAdapter implements OnClickListener, OnLongClickListener{
+	private class TrackBaseAdapter extends BaseAdapter{
 
 
 		public int getCount() {
-			// TODO Auto-generated method stub
 			return cursor.getCount();
 		}
 
 		public Object getItem(int position) {
-			// TODO Auto-generated method stub
-			return position;
+				cursor.moveToPosition(position);
+				
+			return position ;
 		}
 
 		public long getItemId(int position) {
-			// TODO Auto-generated method stub
 			return position;
 		}
 
@@ -118,8 +114,6 @@ public class TrackListActivity extends ListActivity {
 				holder.album = (TextView) convertView.findViewById(R.id.track_album_title);
 				holder.artist = (TextView) convertView.findViewById(R.id.track_artist_name);
 				convertView.setTag(holder);
-				convertView.setOnClickListener(TrackBaseAdapter.this);
-				convertView.setOnLongClickListener(TrackBaseAdapter.this);
 				
 			}
 			else{
@@ -134,26 +128,21 @@ public class TrackListActivity extends ListActivity {
 			holder.path = (cursor.getString(4));
 			return convertView;
 		}
+	
 
-		public void onClick(View v) {
-			if(Debug.D)Log.d(Debug.TAG_TRACK, " KLIKK");
-		
+	}
+	
+	@Override
+	protected void onListItemClick (ListView l, View v, int position, long id){
+			Log.d(Debug.TAG_TRACK, "OnListItemClick");
 			((ViewHolder)v.getTag()).title.setEnabled(true);
 			String path = ((ViewHolder)v.getTag()).path;
 			Intent writeIntent = new Intent(MainTabActivity.REQUEST_WRITE);
 			writeIntent.putExtra(MainTabActivity.TRACK_WRITE, path);
 			sendBroadcast(writeIntent);
-
-
-		}
-
-		@Override
-		public boolean onLongClick(View v) {
-			Toast.makeText(BlueconeContext.getContext(), "Long click not implemented", Toast.LENGTH_LONG).show();
-			return false;
-		}
-
 	}
+	
+	
 
 	private class ViewHolder{
 		TextView title;
@@ -161,6 +150,8 @@ public class TrackListActivity extends ListActivity {
 		TextView artist;
 		String path;
 	} 
+	
+
 	
 	static{
 		actionMap = new HashMap<String, Integer>();

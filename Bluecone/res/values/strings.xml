@@ -13,6 +13,9 @@
     <string name="not_connected">Not connected</string>
     <string name="connected">Connected</string>
     <string name="transfer">Updating...</string>
-    <color name="click">#FF0000</color>
-    <color name="list_color">#FFFFFF</color>
+    <color name="click">#CBCB0F</color>
+    <color name="list_color">#B6BBBF</color>
+    <string name="popup_menu_search">search</string>
+    <string name="popup_menu_remove">Remove from queue</string>
+    <string name="popup_menu_cancel">Cancel</string>
 </resources>

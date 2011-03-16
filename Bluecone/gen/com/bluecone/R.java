@@ -69,6 +69,7 @@ public final class R {
         public static final int album_title=0x7f070000;
         public static final int artist_name=0x7f070002;
         public static final int back=0x7f07001d;
+        public static final int cancel=0x7f070020;
         public static final int custom_title_center=0x7f070004;
         public static final int custom_title_left=0x7f070003;
         public static final int custom_title_right=0x7f070005;
@@ -80,6 +81,7 @@ public final class R {
         public static final int progress_horizontal=0x7f07000c;
         public static final int queue_list=0x7f07000e;
         public static final int queue_track_title=0x7f07000d;
+        public static final int remove=0x7f07001f;
         public static final int scan=0x7f07001c;
         public static final int seekBar1=0x7f070010;
         public static final int tableLayout1=0x7f07000f;
@@ -107,6 +109,7 @@ public final class R {
     }
     public static final class menu {
         public static final int menu=0x7f060000;
+        public static final int track_menu=0x7f060001;
     }
     public static final class string {
         public static final int app_name=0x7f040000;
@@ -121,6 +124,9 @@ public final class R {
         public static final int menu_master=0x7f040003;
         public static final int menu_scan=0x7f040001;
         public static final int not_connected=0x7f04000a;
+        public static final int popup_menu_cancel=0x7f04000f;
+        public static final int popup_menu_remove=0x7f04000e;
+        public static final int popup_menu_search=0x7f04000d;
         public static final int transfer=0x7f04000c;
     }
 }

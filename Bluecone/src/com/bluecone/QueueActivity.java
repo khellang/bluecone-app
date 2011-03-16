@@ -14,25 +14,31 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
-import android.database.CursorIndexOutOfBoundsException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.BaseColumns;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class QueueActivity extends Activity {
 
-	
+
 	public static final  String MASTER_MODE = "com.bluecone.MASTER_MODE";
 	public static final String REMOVE_FIRST_IN_QUEUE = "com.bluecone.REMOVE_FIRST_IN_QUEUE";
 	public static final String START_UPDATE_QUEUE = "com.bluecone.START_UPDATE_QUEUE";
@@ -66,6 +72,8 @@ public class QueueActivity extends Activity {
 	private SeekBar seekbar;
 	private String nowPlaying;
 	private int currentProgress;
+	private String selection;
+	private String[]selectionArgs;
 
 
 
@@ -88,9 +96,11 @@ public class QueueActivity extends Activity {
 		seekbar.setEnabled(false);
 		queueBaseAdapter = new QueueBaseAdapter();
 		layoutInflater = (LayoutInflater) BlueconeContext.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-		cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI, new String[] { BaseColumns._ID, Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH }, null, null, null);
+		cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI, new String[] { BaseColumns._ID, Track.TITLE, 
+				Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH }, null, null, null);
 		startManagingCursor(cursor);
 		listView.setAdapter(queueBaseAdapter);
+		registerForContextMenu(listView);
 		setMaster(false);
 
 	}
@@ -108,7 +118,7 @@ public class QueueActivity extends Activity {
 		this.registerReceiver(receiver, masterIntent);
 		this.registerReceiver(receiver, removeIntent);
 		this.registerReceiver(receiver, progressIntent);
-		
+
 	}
 
 	@Override
@@ -137,23 +147,25 @@ public class QueueActivity extends Activity {
 				break;
 			case UPDATE:
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "queuestart_initiated = "+queuestart_initiated);
-				String selection = Track.PATH+"=? ";
-				String[]selectionArgs = new String[]{intent.getStringExtra(Track.PATH)};
+				selection = Track.PATH+"=? ";
+				selectionArgs = new String[]{intent.getStringExtra(Track.PATH)};
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "input: "+selectionArgs[0]);
-
-				cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TITLE, Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH,Track.TRACK_LENGHT}, selection, selectionArgs, null);
+				
+				cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TITLE,
+						Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH,Track.TRACK_LENGHT}, selection, selectionArgs, null);
 				cursor.moveToFirst();
-		
+
 				int pos = Integer.parseInt(intent.getStringExtra(POS));
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "Pos: " + pos);
 				try{
-				DATA.add(pos, cursor.getString(1));
-				}catch(CursorIndexOutOfBoundsException e){
+					DATA.add(pos, cursor.getString(1));
+				}catch(IndexOutOfBoundsException e){
 					Log.d(Debug.TAG_QUEUE, "UPDATE Cursor size = " + cursor.getCount());
 				}
-				update();
-				
 				cursor.close();
+				update();
+
+
 
 				break;
 			case MASTER:
@@ -163,43 +175,44 @@ public class QueueActivity extends Activity {
 			case REMOVE:
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "REMOVE");
 				currentProgress = 0;
-				String selection_2 = Track.TITLE+"=?";
-				String [] selectionArgs_2 = new String[]{DATA.get(0)};
-				cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TRACK_LENGHT}, selection_2, selectionArgs_2, null);
+				selection = Track.TITLE+"=?";
+				selectionArgs = new String[]{DATA.get(0)};
+				Cursor lenght_cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,
+						new String[] {BaseColumns._ID,Track.TRACK_LENGHT},
+						selection, selectionArgs, null);
 				try{
-				cursor.moveToFirst();
-				nowPlaying = DATA.remove(0);
-				Intent currentTrackIntent = new Intent(MainTabActivity.SET_NOW_PLAYING);
-				currentTrackIntent.putExtra(NOW_PLAYING, nowPlaying);
-				currentTrackIntent.putExtra(PROGRESS, cursor.getInt(1));
-				sendBroadcast(currentTrackIntent);
-				cursor.close();
+					lenght_cursor.moveToFirst();
+					nowPlaying = DATA.remove(0);
+					Intent currentTrackIntent = new Intent(MainTabActivity.SET_NOW_PLAYING);
+					currentTrackIntent.putExtra(NOW_PLAYING, nowPlaying);
+					currentTrackIntent.putExtra(PROGRESS, lenght_cursor.getInt(1));
+					sendBroadcast(currentTrackIntent);
+					lenght_cursor.close();
 				}catch(IndexOutOfBoundsException e){
 					Log.d(Debug.TAG_QUEUE, "Arraylist is empty");
-				}
-				update();
+				}			
 				break;
 			case SET_PROGRESS:
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "SET_PROGRESS");
 				currentProgress = intent.getIntExtra(CURRENT_PROGRESS, 0);
 				startSeekBar(intent.getIntExtra(PROGRESS, 100));
-			
-				
-			break;
+
+
+				break;
 			}
 
 
 		}
 
-		
-	
-		
+
+
+
 		private void startSeekBar(int max) {
 			seekbar.setMax(max);
 			if(Debug.D)Log.d(Debug.TAG_QUEUE, "Seekbar Max = "+max);
 			ProgressThread seekbarProgressThread = new ProgressThread();
 			seekbarProgressThread.start();
-			
+
 		}
 
 	};
@@ -210,12 +223,12 @@ public class QueueActivity extends Activity {
 		public void handleMessage(Message msg){
 			switch(msg.what){
 			case SET_PROGRESS:
-			seekbar.setProgress(msg.arg1);
-			break;
+				seekbar.setProgress(msg.arg1);
+				break;
 			}
 		}
 	};
-	
+
 	private void setMaster(boolean master){
 		if (!master) {
 			prev.setVisibility(Button.GONE);
@@ -235,6 +248,7 @@ public class QueueActivity extends Activity {
 	}
 
 	private void update(){
+		
 		queueBaseAdapter.notifyDataSetChanged();
 
 	}
@@ -248,8 +262,8 @@ public class QueueActivity extends Activity {
 				convertView = layoutInflater.inflate(R.layout.queue_entry, null);
 				holder = new ViewHolder();
 				holder.playing = (TextView) convertView.findViewById(R.id.queue_track_title);
-
 				convertView.setTag(holder);
+				
 			}
 			else{
 				holder = (ViewHolder) convertView.getTag();
@@ -271,8 +285,8 @@ public class QueueActivity extends Activity {
 
 		@Override
 		public Object getItem(int position) {
-			// TODO Auto-generated method stub
-			return position;
+			
+			return DATA.get(position);
 		}
 
 		@Override
@@ -280,11 +294,41 @@ public class QueueActivity extends Activity {
 			// TODO Auto-generated method stub
 			return DATA.toArray().length;
 		}
+
 	};
 	private class ViewHolder{
 		TextView playing;
 
 	}
+	
+	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+	                                ContextMenuInfo menuInfo) {
+	  super.onCreateContextMenu(menu, v, menuInfo);
+	  MenuInflater inflater = getMenuInflater();
+	  inflater.inflate(R.menu.track_menu, menu);
+	  
+	}
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+	  AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+	  switch (item.getItemId()) {
+	  case R.id.remove:
+		  selection = Track.TITLE+"=? ";
+			selectionArgs = new String[]{(String) queueBaseAdapter.getItem(info.position)};
+		  Cursor pathCursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,
+					new String[] {BaseColumns._ID,Track.PATH},
+					selection, selectionArgs, null);
+		  pathCursor.moveToFirst();
+		  Toast.makeText(BlueconeContext.getContext(), pathCursor.getString(1), Toast.LENGTH_LONG).show();
+		  pathCursor.close();
+	    return true;
+	  default:
+	    return super.onContextItemSelected(item);
+	  }
+	}
+
 
 	public void play(View view){
 		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
@@ -332,23 +376,23 @@ public class QueueActivity extends Activity {
 		actionMap.put(MainTabActivity.SET_NOW_PLAYING, SET_PROGRESS);
 
 	}
-	
+
 	private  class ProgressThread extends Thread{
-		
-		
+
+
 		@Override
 		public void run() {
 			while(currentProgress<seekbar.getMax()){
-			seekBarHandler.sendMessage(seekBarHandler.obtainMessage(SET_PROGRESS, ++currentProgress, 0));
-			
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				if(Debug.D)Log.d(Debug.TAG_QUEUE, "PROGRESSTHREAD "+ currentProgress);	
+				seekBarHandler.sendMessage(seekBarHandler.obtainMessage(SET_PROGRESS, ++currentProgress, 0));
+
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					if(Debug.D)Log.d(Debug.TAG_QUEUE, "PROGRESSTHREAD "+ currentProgress);	
+				}
+
 			}
-			
 		}
-		}
-}
+	}
 
 }
