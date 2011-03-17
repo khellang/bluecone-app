@@ -38,6 +38,7 @@ public class MainTabActivity extends TabActivity {
 	public static final String START_TRANSMITT = "com.bluecone.START_TRANSMITT";
 	public static final String REQUEST_MASTER = "com.bluecone.REQUEST_MASTER";
 	public static final String SET_NOW_PLAYING = "com.bluecone.SET_NOW_PLAYING";
+	public static final String COMMAND = "com.bluecone.COMMAND";
 	private static final int WRITE = 0;
 	private static final int CONNECTED = 1;
 	private static final int TRANSMITT = 2;
@@ -254,8 +255,8 @@ public class MainTabActivity extends TabActivity {
 			case WRITE:
 				if(Debug.D)
 					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: WRITE");
-				String path = "ADD#" + intent.getStringExtra(TRACK_WRITE);
-				deviceConnector.write(path.getBytes());
+				String write = intent.getStringExtra(COMMAND) + intent.getStringExtra(TRACK_WRITE);
+				deviceConnector.write(write.getBytes());
 				break;
 			case CONNECTED:
 				if(Debug.D)

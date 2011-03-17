@@ -188,6 +188,7 @@ public class QueueActivity extends Activity {
 					currentTrackIntent.putExtra(PROGRESS, lenght_cursor.getInt(1));
 					sendBroadcast(currentTrackIntent);
 					lenght_cursor.close();
+					update();
 				}catch(IndexOutOfBoundsException e){
 					Log.d(Debug.TAG_QUEUE, "Arraylist is empty");
 				}			
@@ -321,7 +322,10 @@ public class QueueActivity extends Activity {
 					new String[] {BaseColumns._ID,Track.PATH},
 					selection, selectionArgs, null);
 		  pathCursor.moveToFirst();
-		  Toast.makeText(BlueconeContext.getContext(), pathCursor.getString(1), Toast.LENGTH_LONG).show();
+		  Intent removeIntent = new Intent(MainTabActivity.REQUEST_WRITE);
+		  removeIntent.putExtra(MainTabActivity.COMMAND, "QUEUEREMOVE#");
+		  removeIntent.putExtra(MainTabActivity.TRACK_WRITE, pathCursor.getString(1) );
+		  sendBroadcast(removeIntent);
 		  pathCursor.close();
 	    return true;
 	  default:
