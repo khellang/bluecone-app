@@ -31,14 +31,22 @@ import android.widget.Toast;
 
 public class MainTabActivity extends TabActivity {
 
+	
+	/**Intent actions*/
 	public static final String REFRESH = "com.bluecone.REFRESH";
+	public static final String DEVICE_CONNECTED = "com.bluecone.DEVICE_CONNECTED";
 	public static final String REQUEST_WRITE = "com.bluecone.REQUEST_WRITE";
-	public static final String DEVICE_CONNECTED = "com.bluecone.CONNECTED_FILTER";
 	public static final String REQUEST_TRANSMITT = "com.bluecone.REQUEST_TRANSMITT";
-	public static final String START_TRANSMITT = "com.bluecone.START_TRANSMITT";
 	public static final String REQUEST_MASTER = "com.bluecone.REQUEST_MASTER";
+	public static final String START_TRANSMITT = "com.bluecone.START_TRANSMITT";
 	public static final String SET_NOW_PLAYING = "com.bluecone.SET_NOW_PLAYING";
 	public static final String COMMAND = "com.bluecone.COMMAND";
+	public static final String MASTER_COMMAND = "com.bluecone.MASTER_COMAND";
+	public static final String PROGRESS = "com.bluecone.PROGRESS";
+	public static final String CONNECTION_LOST = "com.bluecone.CONNECTION_LOST";
+	public static final String BLUECONE_WRITE = "com.bluecone.BLUECONE_WRITE";
+
+	/**Receiver handling*/
 	private static final int WRITE = 0;
 	private static final int CONNECTED = 1;
 	private static final int TRANSMITT = 2;
@@ -46,22 +54,24 @@ public class MainTabActivity extends TabActivity {
 	private static final int DISCONNECTED = 4;
 	private static final int MASTER = 5;
 	private static final int NOW_PLAYING = 6;
-	public static final String MASTER_COMMAND = "com.bluecone.MASTER_COMAND";
-	public static final String PROGRESS = "progress";
-	private int max;
-	private int progress;
+
+	/**Activity result handling*/
 	private static final int REQUEST_ENABLE = 1;
 	private static final int REQUEST_DEVICE = 2;
-	private BluetoothAdapter bluetoothAdapter;
-	protected static DeviceConnector deviceConnector;
-	protected static TabHost tabHost;
-	public static final String CONNECTION_LOST = "com.bluecone.CONNECTION_LOST";
-	public static final String TRACK_WRITE = "track_write";
+
+	/**For internal use only*/
 	private static final HashMap<String, Integer> actionMap;
+	private BluetoothAdapter bluetoothAdapter;
 	private ProgressBar progressHorizontal;
 	private TextView title_right;
 	private TextView title_left;
 	private TextView title_center;
+	private int max;
+	private int progress;
+
+	/**Instances to be used by other classes in this package */
+	protected static DeviceConnector deviceConnector;
+	protected static TabHost tabHost;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -133,6 +143,8 @@ public class MainTabActivity extends TabActivity {
 
 	}
 
+	
+	/**Register receiver with necessary intent filters   */
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -158,7 +170,8 @@ public class MainTabActivity extends TabActivity {
 			startActivityForResult(enableIntent, REQUEST_ENABLE);
 		}
 	}
-
+	
+	/**Unregister receiver */
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -166,6 +179,7 @@ public class MainTabActivity extends TabActivity {
 		if(Debug.D)Log.d(Debug.TAG_MAIN, "onDestroy");
 	}
 
+	/**Handle callback from sent intents*/
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
@@ -185,6 +199,7 @@ public class MainTabActivity extends TabActivity {
 		}
 	}
 
+	/**Create menu*/
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		Log.d(Debug.TAG_MAIN, "onCreateOptionsMenu");
@@ -193,6 +208,7 @@ public class MainTabActivity extends TabActivity {
 		return true;
 	}
 
+	/**Perform described actions in menu*/
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -246,7 +262,8 @@ public class MainTabActivity extends TabActivity {
 		}
 		return true;
 	}
-
+	
+	/**Treat relevant broadcasts*/
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 
 		@Override
@@ -255,7 +272,7 @@ public class MainTabActivity extends TabActivity {
 			case WRITE:
 				if(Debug.D)
 					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: WRITE");
-				String write = intent.getStringExtra(COMMAND) + intent.getStringExtra(TRACK_WRITE);
+				String write = intent.getStringExtra(COMMAND) + intent.getStringExtra(BLUECONE_WRITE);
 				deviceConnector.write(write.getBytes());
 				break;
 			case CONNECTED:
@@ -302,6 +319,7 @@ public class MainTabActivity extends TabActivity {
 		}
 	};
 
+	/**Fill hashmap*/
 	static {
 		actionMap = new HashMap<String, Integer>();
 		actionMap.put(REQUEST_WRITE, WRITE);

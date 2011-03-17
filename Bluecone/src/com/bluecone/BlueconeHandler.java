@@ -54,7 +54,6 @@ public final class BlueconeHandler extends Handler {
 	private static ArrayList<String> storage;
 	private boolean waiting;
 	private static int max;
-	private int added_to_storage;
 
 
 
@@ -103,7 +102,6 @@ public final class BlueconeHandler extends Handler {
 			case LISTSTART:
 				if(Debug.D)Log.d(Debug.TAG_HANDLER, "Liststart");
 				waiting = false;
-				added_to_storage = 0;
 				max = Integer.parseInt(in[1]);
 				Intent progressIntent = new Intent(MainTabActivity.REQUEST_TRANSMITT);
 				progressIntent.putExtra(MainTabActivity.PROGRESS, max);
@@ -114,7 +112,6 @@ public final class BlueconeHandler extends Handler {
 			case QUEUESTART:
 				if(Debug.D)Log.d(Debug.TAG_HANDLER, "Queuestart");
 				waiting = false;
-				added_to_storage = 0;
 				max = Integer.parseInt(in[1]);
 				Intent startUpdateIntent = new Intent(QueueActivity.START_UPDATE_QUEUE);
 				startUpdateIntent.putExtra(QueueActivity.MAX, max);
@@ -131,7 +128,7 @@ public final class BlueconeHandler extends Handler {
 				// Denne er MULIGENS NØDVENDIG avhengig av om bluecone sender QUEUE etter LISTSTART og påfølgende LIST før writerthread er ferdig
 				// og dermed waiting ennå ikke er satt til true
 				//if(!waiting&&(added_to_storage++)<max) 	
-					if(!waiting)
+				if(!waiting)
 					storage.add((String) msg.obj);
 				else{
 					Intent addQueueIntent = new Intent(QueueActivity.UPDATE_QUEUE);
@@ -172,12 +169,12 @@ public final class BlueconeHandler extends Handler {
 				Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE,Track.TRACK_LENGHT}, selection, selectionArgs, null);
 				cur.moveToFirst();
 				try{
-				String nowPlaying = cur.getString(1);
-				Intent currentTrackIntent = new Intent(MainTabActivity.SET_NOW_PLAYING);
-				currentTrackIntent.putExtra(QueueActivity.NOW_PLAYING, nowPlaying);
-				currentTrackIntent.putExtra(QueueActivity.PROGRESS, cur.getInt(2));
-				currentTrackIntent.putExtra(QueueActivity.CURRENT_PROGRESS, 50);//input[1]
-				BlueconeContext.getContext().sendBroadcast(currentTrackIntent);
+					String nowPlaying = cur.getString(1);
+					Intent currentTrackIntent = new Intent(MainTabActivity.SET_NOW_PLAYING);
+					currentTrackIntent.putExtra(QueueActivity.NOW_PLAYING, nowPlaying);
+					currentTrackIntent.putExtra(QueueActivity.PROGRESS, cur.getInt(2));
+					currentTrackIntent.putExtra(QueueActivity.CURRENT_PROGRESS, 50);//input[1]
+					BlueconeContext.getContext().sendBroadcast(currentTrackIntent);
 				}catch(CursorIndexOutOfBoundsException e){
 					Log.d(Debug.TAG_HANDLER, "PLAYING: Cursor size =  "+cur.getCount());
 				}

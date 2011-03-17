@@ -17,9 +17,9 @@ import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class AlbumListActivity extends ListActivity {
@@ -93,7 +93,7 @@ public class AlbumListActivity extends ListActivity {
 	}
 
 
-	private class AlbumBaseAdapter extends BaseAdapter implements OnClickListener{
+	private class AlbumBaseAdapter extends BaseAdapter{
 
 
 		public int getCount() {
@@ -120,7 +120,6 @@ public class AlbumListActivity extends ListActivity {
 				holder.title = (TextView) convertView.findViewById(R.id.album_title);
 				holder.artist = (TextView) convertView.findViewById(R.id.album_artist_name);
 				convertView.setTag(holder);
-				convertView.setOnClickListener(AlbumBaseAdapter.this);
 			}
 			else{
 				holder = (ViewHolder) convertView.getTag();
@@ -132,19 +131,20 @@ public class AlbumListActivity extends ListActivity {
 			return convertView;
 		}
 
-		public void onClick(View v) {
-			Intent intent = new Intent(REFRESH_TRACK);
-			intent.putExtra(Album.TITLE,((((ViewHolder) v.getTag()).title)).getText());
-			intent.putExtra(Album.ARTIST_NAME,((((ViewHolder) v.getTag()).artist)).getText());
-			sendBroadcast(intent);
-		}
-
 	}
 
 	private class ViewHolder{
 		TextView title;
 		TextView artist;
 	} 
+	
+	@Override
+	protected void onListItemClick (ListView l, View v, int position, long id){
+		Intent intent = new Intent(REFRESH_TRACK);
+		intent.putExtra(Album.TITLE,((((ViewHolder) v.getTag()).title)).getText());
+		intent.putExtra(Album.ARTIST_NAME,((((ViewHolder) v.getTag()).artist)).getText());
+		sendBroadcast(intent);
+	}
 
 	static{
 		actionMap = new HashMap<String, Integer>();

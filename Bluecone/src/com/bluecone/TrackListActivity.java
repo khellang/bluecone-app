@@ -139,7 +139,7 @@ public class TrackListActivity extends ListActivity {
 			String path = ((ViewHolder)v.getTag()).path;
 			Intent writeIntent = new Intent(MainTabActivity.REQUEST_WRITE);
 			writeIntent.putExtra(MainTabActivity.COMMAND,"ADD#");
-			writeIntent.putExtra(MainTabActivity.TRACK_WRITE, path);
+			writeIntent.putExtra(MainTabActivity.BLUECONE_WRITE, path);
 			sendBroadcast(writeIntent);
 	}
 	

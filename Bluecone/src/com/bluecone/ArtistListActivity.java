@@ -15,9 +15,9 @@ import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 
@@ -92,21 +92,18 @@ public class ArtistListActivity extends ListActivity{
 
 	}
 
-	private class ArtistBaseAdapter extends BaseAdapter implements OnClickListener{
+	private class ArtistBaseAdapter extends BaseAdapter{
 
 
 		public int getCount() {
-			// TODO Auto-generated method stub
 			return cursor.getCount();
 		}
 
 		public Object getItem(int position) {
-			// TODO Auto-generated method stub
 			return position;
 		}
 
 		public long getItemId(int position) {
-			// TODO Auto-generated method stub
 			return position;
 		}
 
@@ -118,7 +115,6 @@ public class ArtistListActivity extends ListActivity{
 				holder = new ViewHolder();
 				holder.name = (TextView) convertView.findViewById(R.id.artist_name);
 				convertView.setTag(holder);
-				convertView.setOnClickListener(ArtistBaseAdapter.this);
 			}
 			else{
 				holder = (ViewHolder) convertView.getTag();
@@ -130,20 +126,18 @@ public class ArtistListActivity extends ListActivity{
 			return convertView;
 		}
 
-		public void onClick(View v) {
-			Intent intent = new Intent(REFRESH_ALBUM);
-			intent.putExtra(Artist.NAME, ((((ViewHolder) v.getTag()).name)).getText());
-			if(Debug.D)Log.d(Debug.TAG_ARTIST, "Trykker på "+intent.getStringExtra(Artist.NAME));
-			sendBroadcast(intent);
-
-
-
-		}
-
 	}
 
 	private class ViewHolder{
 		TextView name;
+	}
+	
+	@Override
+	protected void onListItemClick (ListView l, View v, int position, long id){
+		Intent intent = new Intent(REFRESH_ALBUM);
+		intent.putExtra(Artist.NAME, ((((ViewHolder) v.getTag()).name)).getText());
+		if(Debug.D)Log.d(Debug.TAG_ARTIST, "Trykker på "+intent.getStringExtra(Artist.NAME));
+		sendBroadcast(intent);
 	}
 
 

@@ -25,7 +25,6 @@ import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.BaseAdapter;
@@ -34,7 +33,6 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class QueueActivity extends Activity {
 
@@ -324,7 +322,7 @@ public class QueueActivity extends Activity {
 		  pathCursor.moveToFirst();
 		  Intent removeIntent = new Intent(MainTabActivity.REQUEST_WRITE);
 		  removeIntent.putExtra(MainTabActivity.COMMAND, "QUEUEREMOVE#");
-		  removeIntent.putExtra(MainTabActivity.TRACK_WRITE, pathCursor.getString(1) );
+		  removeIntent.putExtra(MainTabActivity.BLUECONE_WRITE, pathCursor.getString(1) );
 		  sendBroadcast(removeIntent);
 		  pathCursor.close();
 	    return true;
