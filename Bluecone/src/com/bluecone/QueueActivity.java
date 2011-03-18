@@ -173,24 +173,13 @@ public class QueueActivity extends Activity {
 				break;
 			case REMOVE:
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "REMOVE");
-				currentProgress = 0;
-				selection = Track.TITLE+"=?";
 				try{
-				selectionArgs = new String[]{DATA.get(intent.getIntExtra(REMOVE_POS, 0))};
-				Cursor lenght_cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,
-						new String[] {BaseColumns._ID,Track.TRACK_LENGHT},
-						selection, selectionArgs, null);
-					lenght_cursor.moveToFirst();
-					nowPlaying = DATA.remove(0);
-					Intent currentTrackIntent = new Intent(MainTabActivity.SET_NOW_PLAYING);
-					currentTrackIntent.putExtra(NOW_PLAYING, nowPlaying);
-					currentTrackIntent.putExtra(PROGRESS, lenght_cursor.getInt(1));
-					sendBroadcast(currentTrackIntent);
-					lenght_cursor.close();
+					DATA.remove(intent.getIntExtra(REMOVE_POS, 0));
+				}catch(ArrayIndexOutOfBoundsException e){
+					Log.d(Debug.TAG_QUEUE, "Remove index: "+intent.getIntExtra(REMOVE_POS, 0));
+				}
 					update();
-				}catch(IndexOutOfBoundsException e){
-					Log.d(Debug.TAG_QUEUE, "Arraylist is empty");
-				}			
+//				}			
 				break;
 			case SET_PROGRESS:
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "SET_PROGRESS");
@@ -386,7 +375,6 @@ public class QueueActivity extends Activity {
 		@Override
 		public void run() {
 			while(currentProgress<seekbar.getMax()){
-				if(Debug.D)Log.d(Debug.TAG_QUEUE, "PROGRESSTHREAD "+ currentProgress);	
 				seekBarHandler.sendMessage(seekBarHandler.obtainMessage(SET_PROGRESS, ++currentProgress, 0));
 
 				try {
