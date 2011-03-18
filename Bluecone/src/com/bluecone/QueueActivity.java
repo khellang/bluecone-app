@@ -44,6 +44,7 @@ public class QueueActivity extends Activity {
 	public static final String QUEUE_ELEMENTS="elements";
 	public static final String PROGRESS="com.bluecone.queueactivity.PROGRESS";
 	public static final String CURRENT_PROGRESS="com.bluecone.queueactivity.CURRENT_PROGRESS";
+	public static final String REMOVE_POS="com.bluecone.queueactivity.REMOVE_POS";
 	public static final String POS = "position";
 	public static final String MAX = "max";
 	public static final String IS_MASTER = "is_master";
@@ -174,11 +175,11 @@ public class QueueActivity extends Activity {
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "REMOVE");
 				currentProgress = 0;
 				selection = Track.TITLE+"=?";
-				selectionArgs = new String[]{DATA.get(0)};
+				try{
+				selectionArgs = new String[]{DATA.get(intent.getIntExtra(REMOVE_POS, 0))};
 				Cursor lenght_cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,
 						new String[] {BaseColumns._ID,Track.TRACK_LENGHT},
 						selection, selectionArgs, null);
-				try{
 					lenght_cursor.moveToFirst();
 					nowPlaying = DATA.remove(0);
 					Intent currentTrackIntent = new Intent(MainTabActivity.SET_NOW_PLAYING);
@@ -385,6 +386,7 @@ public class QueueActivity extends Activity {
 		@Override
 		public void run() {
 			while(currentProgress<seekbar.getMax()){
+				if(Debug.D)Log.d(Debug.TAG_QUEUE, "PROGRESSTHREAD "+ currentProgress);	
 				seekBarHandler.sendMessage(seekBarHandler.obtainMessage(SET_PROGRESS, ++currentProgress, 0));
 
 				try {

@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 public class AlbumListActivity extends ListActivity {
 
+	/**Intent actions*/
 	public static String REFRESH_TRACK = "com.bluecone.REFRESH_TRACK";
 
 	private Cursor cursor;

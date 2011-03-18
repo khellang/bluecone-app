@@ -156,6 +156,12 @@ public final class BlueconeHandler extends Handler {
 			case REMOVE:
 				if(Debug.D)Log.d(Debug.TAG_HANDLER, "REMOVE");
 				Intent removeIntent = new Intent(QueueActivity.REMOVE_FIRST_IN_QUEUE);
+				int pos=0;
+				try{
+					pos = Integer.parseInt(in[1]);
+				}catch(ArrayIndexOutOfBoundsException e){
+				}
+				removeIntent.putExtra(QueueActivity.REMOVE_POS, pos);
 				BlueconeContext.getContext().sendBroadcast(removeIntent);
 				break;
 			case PLAYING:

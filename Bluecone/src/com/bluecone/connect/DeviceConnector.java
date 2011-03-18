@@ -8,7 +8,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import com.bluecone.BlueconeContext;
 import com.bluecone.BlueconeHandler;
+import com.bluecone.R;
+
 import debug.Debug;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -110,7 +114,7 @@ public class DeviceConnector {
 		if(Debug.D)Log.d(Debug.TAG_CONNECTOR, "connection failed....");
 		Message msg = BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.TOAST);
 		Bundle bundle = new Bundle();
-		bundle.putString(KEY_TOAST, "Kunne ikke koble til.");
+		bundle.putString(KEY_TOAST, BlueconeContext.getContext().getResources().getString(R.string.toast_connection_failed));
 		msg.setData(bundle);
 		BlueconeHandler.getHandler().sendMessage(msg);
 		setState(STATE_NONE);		
@@ -118,7 +122,7 @@ public class DeviceConnector {
 	private void connectionLost(){
 		Message msg = BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.TOAST);
 		Bundle bundle = new Bundle();
-		bundle.putString(KEY_TOAST, "Tilkobling avbrutt.");
+		bundle.putString(KEY_TOAST, BlueconeContext.getContext().getResources().getString(R.string.toast_connection_lost));
 		msg.setData(bundle);
 		BlueconeHandler.getHandler().sendMessage(msg);
 		setState(STATE_NONE);

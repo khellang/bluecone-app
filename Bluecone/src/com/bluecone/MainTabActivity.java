@@ -176,6 +176,7 @@ public class MainTabActivity extends TabActivity {
 	public void onDestroy() {
 		super.onDestroy();
 		this.unregisterReceiver(receiver);
+		
 		if(Debug.D)Log.d(Debug.TAG_MAIN, "onDestroy");
 	}
 
@@ -258,6 +259,9 @@ public class MainTabActivity extends TabActivity {
 					});
 
 			alert.show();
+			break;
+		case R.id.exit:
+			android.os.Process.killProcess(android.os.Process.myPid());
 			break;
 		}
 		return true;
