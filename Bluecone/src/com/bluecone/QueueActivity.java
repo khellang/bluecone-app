@@ -33,6 +33,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class QueueActivity extends Activity {
 
@@ -69,10 +70,10 @@ public class QueueActivity extends Activity {
 	private ImageButton volume_up;
 	private ImageButton volume_down;
 	private SeekBar seekbar;
-	private String nowPlaying;
 	private int currentProgress;
 	private String selection;
 	private String[]selectionArgs;
+	private boolean isMaster;
 
 
 
@@ -84,6 +85,7 @@ public class QueueActivity extends Activity {
 		setContentView(R.layout.queue_layout);
 
 		queuestart_initiated = false;
+		isMaster = false;
 		prev = (ImageButton)findViewById(R.id.imageButton1);
 		stop = (ImageButton)findViewById(R.id.imageButton2);
 		play = (ImageButton)findViewById(R.id.imageButton3);
@@ -149,7 +151,7 @@ public class QueueActivity extends Activity {
 				selection = Track.PATH+"=? ";
 				selectionArgs = new String[]{intent.getStringExtra(Track.PATH)};
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "input: "+selectionArgs[0]);
-				
+
 				cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TITLE,
 						Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH,Track.TRACK_LENGHT}, selection, selectionArgs, null);
 				cursor.moveToFirst();
@@ -178,8 +180,8 @@ public class QueueActivity extends Activity {
 				}catch(ArrayIndexOutOfBoundsException e){
 					Log.d(Debug.TAG_QUEUE, "Remove index: "+intent.getIntExtra(REMOVE_POS, 0));
 				}
-					update();
-//				}			
+				update();
+				//				}			
 				break;
 			case SET_PROGRESS:
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "SET_PROGRESS");
@@ -218,7 +220,10 @@ public class QueueActivity extends Activity {
 		}
 	};
 
+
+
 	private void setMaster(boolean master){
+		isMaster = master;
 		if (!master) {
 			prev.setVisibility(Button.GONE);
 			stop.setVisibility(Button.GONE);
@@ -237,7 +242,7 @@ public class QueueActivity extends Activity {
 	}
 
 	private void update(){
-		
+
 		queueBaseAdapter.notifyDataSetChanged();
 
 	}
@@ -252,7 +257,7 @@ public class QueueActivity extends Activity {
 				holder = new ViewHolder();
 				holder.playing = (TextView) convertView.findViewById(R.id.queue_track_title);
 				convertView.setTag(holder);
-				
+
 			}
 			else{
 				holder = (ViewHolder) convertView.getTag();
@@ -274,7 +279,7 @@ public class QueueActivity extends Activity {
 
 		@Override
 		public Object getItem(int position) {
-			
+
 			return DATA.get(position);
 		}
 
@@ -289,36 +294,40 @@ public class QueueActivity extends Activity {
 		TextView playing;
 
 	}
-	
-	
+
+
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
-	                                ContextMenuInfo menuInfo) {
-	  super.onCreateContextMenu(menu, v, menuInfo);
-	  MenuInflater inflater = getMenuInflater();
-	  inflater.inflate(R.menu.track_menu, menu);
-	  
+			ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.track_menu, menu);
+
 	}
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-	  AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-	  switch (item.getItemId()) {
-	  case R.id.remove:
-		  selection = Track.TITLE+"=? ";
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		switch (item.getItemId()) {
+		case R.id.remove:
+			if(!isMaster){
+				Toast.makeText(BlueconeContext.getContext(), "Master mode required", Toast.LENGTH_SHORT).show();
+				return true;
+			}
+			selection = Track.TITLE+"=? ";
 			selectionArgs = new String[]{(String) queueBaseAdapter.getItem(info.position)};
-		  Cursor pathCursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,
+			Cursor pathCursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,
 					new String[] {BaseColumns._ID,Track.PATH},
 					selection, selectionArgs, null);
-		  pathCursor.moveToFirst();
-		  Intent removeIntent = new Intent(MainTabActivity.REQUEST_WRITE);
-		  removeIntent.putExtra(MainTabActivity.COMMAND, "QUEUEREMOVE#");
-		  removeIntent.putExtra(MainTabActivity.BLUECONE_WRITE, pathCursor.getString(1) );
-		  sendBroadcast(removeIntent);
-		  pathCursor.close();
-	    return true;
-	  default:
-	    return super.onContextItemSelected(item);
-	  }
+			pathCursor.moveToFirst();
+			Intent removeIntent = new Intent(MainTabActivity.REQUEST_WRITE);
+			removeIntent.putExtra(MainTabActivity.COMMAND, "QUEUEREMOVE#");
+			removeIntent.putExtra(MainTabActivity.BLUECONE_WRITE, pathCursor.getString(1) );
+			sendBroadcast(removeIntent);
+			pathCursor.close();
+			return true;
+		default:
+			return super.onContextItemSelected(item);
+		}
 	}
 
 
