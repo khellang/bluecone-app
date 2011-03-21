@@ -38,7 +38,7 @@
 				<action android:name="com.bluecone.intent.MASTER_MODE"></action>
 			</intent-filter>
 		</activity>
-		<activity android:name="com.bluecone.connect.DeviceFinder">
+		<activity android:name="com.bluecone.connect.DeviceFinder" android:theme="@android:style/Theme.Dialog">
 			<intent-filter>
 				<action android:name="com.bluecone.intent.REQUEST_CONNECT"></action>
 				<category android:name="android.intent.category.DEFAULT"></category>
