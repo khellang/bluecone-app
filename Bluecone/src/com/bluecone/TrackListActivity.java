@@ -2,6 +2,7 @@ package com.bluecone;
 
 import java.util.HashMap;
 
+import com.bluecone.intent.Bluecone_intent;
 import com.bluecone.storage.ArtistList.Album;
 import com.bluecone.storage.ArtistList.Track;
 import debug.Debug;
@@ -53,8 +54,8 @@ public class TrackListActivity extends ListActivity {
 	@Override
 	public void onStart(){
 		super.onStart();
-		IntentFilter refresh_allIntent = new IntentFilter(MainTabActivity.REFRESH);
-		IntentFilter refresh_albumIntent = new IntentFilter(AlbumListActivity.REFRESH_TRACK);
+		IntentFilter refresh_allIntent = new IntentFilter(Bluecone_intent.REFRESH);
+		IntentFilter refresh_albumIntent = new IntentFilter(Bluecone_intent.REFRESH_TRACK);
 		this.registerReceiver(receiver, refresh_allIntent);
 		this.registerReceiver(receiver, refresh_albumIntent);
 	}
@@ -137,9 +138,9 @@ public class TrackListActivity extends ListActivity {
 			Log.d(Debug.TAG_TRACK, "OnListItemClick");
 			((ViewHolder)v.getTag()).title.setEnabled(true);
 			String path = ((ViewHolder)v.getTag()).path;
-			Intent writeIntent = new Intent(MainTabActivity.REQUEST_WRITE);
-			writeIntent.putExtra(MainTabActivity.COMMAND,"ADD#");
-			writeIntent.putExtra(MainTabActivity.BLUECONE_WRITE, path);
+			Intent writeIntent = new Intent(Bluecone_intent.REQUEST_WRITE);
+			writeIntent.putExtra(Bluecone_intent.EXTRA_COMMAND,"ADD#");
+			writeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, path);
 			sendBroadcast(writeIntent);
 	}
 	
@@ -156,8 +157,8 @@ public class TrackListActivity extends ListActivity {
 	
 	static{
 		actionMap = new HashMap<String, Integer>();
-		actionMap.put(MainTabActivity.REFRESH, REFRESH);
-		actionMap.put(AlbumListActivity.REFRESH_TRACK, REFRESH_TRACK);
+		actionMap.put(Bluecone_intent.REFRESH, REFRESH);
+		actionMap.put(Bluecone_intent.REFRESH_TRACK, REFRESH_TRACK);
 		
 	}
 

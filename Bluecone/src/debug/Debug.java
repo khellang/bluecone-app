@@ -12,5 +12,9 @@ public final class Debug {
 	public static final String TAG_CONNECTOR = "connector";
 	public static final String TAG_FINDER = "finder";
 	public static final String TAG_PROVIDER = "provider";
+	public static final String TAG_CONTENTS = "contents";
+	public static final String TAG_ARTIST_CONTENTS = "artistcontent";
+	public static final String TAG_ALBUM_CONTENTS = "albumcontent";
+	public static final String TAG_TRACK_CONTENTS = "trackcontent";
 	
 }

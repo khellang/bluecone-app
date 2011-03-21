@@ -3,7 +3,7 @@ package com.bluecone;
 import java.util.HashMap;
 
 import com.bluecone.connect.DeviceConnector;
-import com.bluecone.connect.DeviceFinder;
+import com.bluecone.intent.Bluecone_intent;
 
 import debug.Debug;
 
@@ -31,20 +31,7 @@ import android.widget.Toast;
 
 public class MainTabActivity extends TabActivity {
 
-	
-	/**Intent actions*/
-	public static final String REFRESH = "com.bluecone.REFRESH";
-	public static final String DEVICE_CONNECTED = "com.bluecone.DEVICE_CONNECTED";
-	public static final String REQUEST_WRITE = "com.bluecone.REQUEST_WRITE";
-	public static final String REQUEST_TRANSMITT = "com.bluecone.REQUEST_TRANSMITT";
-	public static final String REQUEST_MASTER = "com.bluecone.REQUEST_MASTER";
-	public static final String START_TRANSMITT = "com.bluecone.START_TRANSMITT";
-	public static final String SET_NOW_PLAYING = "com.bluecone.SET_NOW_PLAYING";
-	public static final String COMMAND = "com.bluecone.COMMAND";
-	public static final String MASTER_COMMAND = "com.bluecone.MASTER_COMAND";
-	public static final String PROGRESS = "com.bluecone.PROGRESS";
-	public static final String CONNECTION_LOST = "com.bluecone.CONNECTION_LOST";
-	public static final String BLUECONE_WRITE = "com.bluecone.BLUECONE_WRITE";
+
 
 	/**Receiver handling*/
 	private static final int WRITE = 0;
@@ -149,13 +136,13 @@ public class MainTabActivity extends TabActivity {
 	public void onStart() {
 		super.onStart();
 		Log.d(Debug.TAG_MAIN, "onStart");
-		IntentFilter writeIntent = new IntentFilter(REQUEST_WRITE);
-		IntentFilter connectedIntent = new IntentFilter(DEVICE_CONNECTED);
-		IntentFilter transmittIntent = new IntentFilter(REQUEST_TRANSMITT);
-		IntentFilter startTransmittIntent = new IntentFilter(START_TRANSMITT);
-		IntentFilter disconnectedIntent = new IntentFilter(CONNECTION_LOST);
-		IntentFilter masterIntent = new IntentFilter(REQUEST_MASTER);
-		IntentFilter currentTrackIntent = new IntentFilter(SET_NOW_PLAYING);
+		IntentFilter writeIntent = new IntentFilter(Bluecone_intent.REQUEST_WRITE);
+		IntentFilter connectedIntent = new IntentFilter(Bluecone_intent.DEVICE_CONNECTED);
+		IntentFilter transmittIntent = new IntentFilter(Bluecone_intent.REQUEST_TRANSMITT);
+		IntentFilter startTransmittIntent = new IntentFilter(Bluecone_intent.START_TRANSMITT);
+		IntentFilter disconnectedIntent = new IntentFilter(Bluecone_intent.CONNECTION_LOST);
+		IntentFilter masterIntent = new IntentFilter(Bluecone_intent.REQUEST_MASTER);
+		IntentFilter currentTrackIntent = new IntentFilter(Bluecone_intent.SET_NOW_PLAYING);
 		this.registerReceiver(receiver, writeIntent);
 		this.registerReceiver(receiver, connectedIntent);
 		this.registerReceiver(receiver, transmittIntent);
@@ -193,7 +180,7 @@ public class MainTabActivity extends TabActivity {
 			Log.d(Debug.TAG_MAIN, "onActivityResult: REQUEST_DEVICE");
 			if (resultCode == RESULT_OK) {
 				String mac = data.getExtras().getString(
-						DeviceFinder.EXTRA_UNIT_ADDRESS);
+						Bluecone_intent.EXTRA_UNIT_ADDRESS);
 				deviceConnector.connect(mac);
 			}
 			break;
@@ -215,12 +202,12 @@ public class MainTabActivity extends TabActivity {
 		switch (item.getItemId()) {
 		case R.id.scan:
 			Log.d(Debug.TAG_MAIN, "MenueSelected: scan");
-			Intent intent = new Intent(DeviceFinder.REQUEST_CONNECT);
+			Intent intent = new Intent(Bluecone_intent.REQUEST_CONNECT);
 			startActivityForResult(intent, REQUEST_DEVICE);
 			break;
 		case R.id.back:
 			Log.d(Debug.TAG_MAIN, "MenueSelected: back");
-			Intent refreshIntent = new Intent(REFRESH);
+			Intent refreshIntent = new Intent(Bluecone_intent.REFRESH);
 			sendBroadcast(refreshIntent);
 			break;
 		case R.id.master:
@@ -241,9 +228,9 @@ public class MainTabActivity extends TabActivity {
 								int whichButton) {
 							String value = input.getText().toString();
 							Intent writeIntent = new Intent(
-									MainTabActivity.REQUEST_MASTER);
+									Bluecone_intent.REQUEST_MASTER);
 							writeIntent.putExtra(
-									MainTabActivity.MASTER_COMMAND, "MASTER#"
+									Bluecone_intent.EXTRA_MASTER_COMMAND, "MASTER#"
 											+ value);
 							sendBroadcast(writeIntent);
 						}
@@ -276,7 +263,7 @@ public class MainTabActivity extends TabActivity {
 			case WRITE:
 				if(Debug.D)
 					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: WRITE");
-				String write = intent.getStringExtra(COMMAND) + intent.getStringExtra(BLUECONE_WRITE);
+				String write = intent.getStringExtra(Bluecone_intent.EXTRA_COMMAND) + intent.getStringExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE);
 				deviceConnector.write(write.getBytes());
 				break;
 			case CONNECTED:
@@ -288,8 +275,8 @@ public class MainTabActivity extends TabActivity {
 				if(Debug.D)
 					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: Transmitt");
 				title_left.setText(R.string.transfer);
-				max = intent.getIntExtra(PROGRESS, 10000);
-				progressHorizontal.setMax(max+10);
+				max = intent.getIntExtra(Bluecone_intent.EXTRA_PROGRESS_MAX, 100);
+				progressHorizontal.setMax(max);
 				progressHorizontal.setVisibility(View.VISIBLE);
 				progress = 0;
 				break;
@@ -314,11 +301,11 @@ public class MainTabActivity extends TabActivity {
 			case MASTER:
 				if(Debug.D)
 					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: MASTER");
-				String masterCommand = intent.getStringExtra(MASTER_COMMAND);
+				String masterCommand = intent.getStringExtra(Bluecone_intent.EXTRA_MASTER_COMMAND);
 				deviceConnector.write(masterCommand.getBytes());
 				break;
 			case NOW_PLAYING:
-				title_center.setText(intent.getStringExtra(QueueActivity.NOW_PLAYING));
+				title_center.setText(intent.getStringExtra(Bluecone_intent.EXTRA_NOW_PLAYING));
 			}
 		}
 	};
@@ -326,12 +313,12 @@ public class MainTabActivity extends TabActivity {
 	/**Fill hashmap*/
 	static {
 		actionMap = new HashMap<String, Integer>();
-		actionMap.put(REQUEST_WRITE, WRITE);
-		actionMap.put(DEVICE_CONNECTED, CONNECTED);
-		actionMap.put(REQUEST_TRANSMITT, TRANSMITT);
-		actionMap.put(START_TRANSMITT, TRANSMITTING);
-		actionMap.put(CONNECTION_LOST, DISCONNECTED);
-		actionMap.put(REQUEST_MASTER, MASTER);
-		actionMap.put(SET_NOW_PLAYING, NOW_PLAYING);
+		actionMap.put(Bluecone_intent.REQUEST_WRITE, WRITE);
+		actionMap.put(Bluecone_intent.DEVICE_CONNECTED, CONNECTED);
+		actionMap.put(Bluecone_intent.REQUEST_TRANSMITT, TRANSMITT);
+		actionMap.put(Bluecone_intent.START_TRANSMITT, TRANSMITTING);
+		actionMap.put(Bluecone_intent.CONNECTION_LOST, DISCONNECTED);
+		actionMap.put(Bluecone_intent.REQUEST_MASTER, MASTER);
+		actionMap.put(Bluecone_intent.SET_NOW_PLAYING, NOW_PLAYING);
 	}
 }

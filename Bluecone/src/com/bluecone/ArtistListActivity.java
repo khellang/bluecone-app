@@ -1,6 +1,7 @@
 package com.bluecone;
 
 
+import com.bluecone.intent.Bluecone_intent;
 import com.bluecone.storage.ArtistList.Artist;
 
 import debug.Debug;
@@ -24,7 +25,6 @@ import android.widget.TextView;
 
 public class ArtistListActivity extends ListActivity{
 
-	protected static String REFRESH_ALBUM = "com.bluecone.REFRESH_ALBUM";
 	private Cursor cursor;
 	private LayoutInflater layoutInflater;
 	private ArtistBaseAdapter artistBaseAdapter;
@@ -46,18 +46,16 @@ public class ArtistListActivity extends ListActivity{
 	@Override
 	public void onStart(){
 		super.onStart();
-		IntentFilter filter = new IntentFilter(MainTabActivity.REFRESH);
+		IntentFilter filter = new IntentFilter(Bluecone_intent.REFRESH);
 		this.registerReceiver(receiver, filter);
 	}
 	@Override 
 	public void onResume(){
 		super.onResume();
-	//	update();
 	}
 	@Override
 	public void onPause(){
 		super.onPause();
-		//cursor.close();
 	}
 	@Override
 	public void onStop(){
@@ -134,7 +132,7 @@ public class ArtistListActivity extends ListActivity{
 	
 	@Override
 	protected void onListItemClick (ListView l, View v, int position, long id){
-		Intent intent = new Intent(REFRESH_ALBUM);
+		Intent intent = new Intent(Bluecone_intent.REFRESH_ALBUM);
 		intent.putExtra(Artist.NAME, ((((ViewHolder) v.getTag()).name)).getText());
 		if(Debug.D)Log.d(Debug.TAG_ARTIST, "Trykker på "+intent.getStringExtra(Artist.NAME));
 		sendBroadcast(intent);

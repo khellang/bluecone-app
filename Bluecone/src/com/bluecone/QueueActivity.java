@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.bluecone.intent.Bluecone_intent;
 import com.bluecone.storage.ArtistList.Track;
 
 import debug.Debug;
@@ -38,25 +39,11 @@ import android.widget.Toast;
 public class QueueActivity extends Activity {
 
 
-	public static final  String MASTER_MODE = "com.bluecone.MASTER_MODE";
-	public static final String REMOVE_FIRST_IN_QUEUE = "com.bluecone.REMOVE_FIRST_IN_QUEUE";
-	public static final String START_UPDATE_QUEUE = "com.bluecone.START_UPDATE_QUEUE";
-	public static final String UPDATE_QUEUE = "com.bluecone.UPDATE_QUEUE";
-	public static final String QUEUE_ELEMENTS="elements";
-	public static final String PROGRESS="com.bluecone.queueactivity.PROGRESS";
-	public static final String CURRENT_PROGRESS="com.bluecone.queueactivity.CURRENT_PROGRESS";
-	public static final String REMOVE_POS="com.bluecone.queueactivity.REMOVE_POS";
-	public static final String POS = "position";
-	public static final String MAX = "max";
-	public static final String IS_MASTER = "is_master";
 	private static final int START = 0;
 	private static final int UPDATE = 1;
 	private static final int MASTER = 2;
 	private static final int REMOVE = 3;
 	private static final int SET_PROGRESS = 4;
-	private static boolean queuestart_initiated ;
-	protected static String NOW_PLAYING  ="com.bluecone.NOW_PLAYING";
-	private int max;
 	private static final HashMap<String, Integer> actionMap;
 	private LayoutInflater layoutInflater;
 	private List< String> DATA = new ArrayList<String>();
@@ -83,8 +70,6 @@ public class QueueActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.queue_layout);
-
-		queuestart_initiated = false;
 		isMaster = false;
 		prev = (ImageButton)findViewById(R.id.imageButton1);
 		stop = (ImageButton)findViewById(R.id.imageButton2);
@@ -109,11 +94,11 @@ public class QueueActivity extends Activity {
 	@Override
 	public void onStart(){
 		super.onStart();
-		IntentFilter startQueueIntent = new IntentFilter(START_UPDATE_QUEUE);
-		IntentFilter queueIntent = new IntentFilter(UPDATE_QUEUE);
-		IntentFilter masterIntent = new IntentFilter(MASTER_MODE);
-		IntentFilter removeIntent = new IntentFilter(REMOVE_FIRST_IN_QUEUE);
-		IntentFilter progressIntent = new IntentFilter(MainTabActivity.SET_NOW_PLAYING);
+		IntentFilter startQueueIntent = new IntentFilter(Bluecone_intent.START_UPDATE_QUEUE);
+		IntentFilter queueIntent = new IntentFilter(Bluecone_intent.UPDATE_QUEUE);
+		IntentFilter masterIntent = new IntentFilter(Bluecone_intent.MASTER_MODE);
+		IntentFilter removeIntent = new IntentFilter(Bluecone_intent.REMOVE);
+		IntentFilter progressIntent = new IntentFilter(Bluecone_intent.SET_NOW_PLAYING);
 		this.registerReceiver(receiver, startQueueIntent);
 		this.registerReceiver(receiver, queueIntent);
 		this.registerReceiver(receiver, masterIntent);
@@ -141,13 +126,9 @@ public class QueueActivity extends Activity {
 		public void onReceive(Context context, Intent intent) {
 			switch(actionMap.get(intent.getAction())){
 			case START:
-				queuestart_initiated = true;
-				max = intent.getIntExtra(MAX, 1);
-				if(Debug.D)Log.d(Debug.TAG_QUEUE, "Start "+max);
 				DATA.clear();
 				break;
 			case UPDATE:
-				if(Debug.D)Log.d(Debug.TAG_QUEUE, "queuestart_initiated = "+queuestart_initiated);
 				selection = Track.PATH+"=? ";
 				selectionArgs = new String[]{intent.getStringExtra(Track.PATH)};
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "input: "+selectionArgs[0]);
@@ -156,8 +137,8 @@ public class QueueActivity extends Activity {
 						Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH,Track.TRACK_LENGHT}, selection, selectionArgs, null);
 				cursor.moveToFirst();
 
-				int pos = Integer.parseInt(intent.getStringExtra(POS));
-				if(Debug.D)Log.d(Debug.TAG_QUEUE, "Pos: " + pos);
+				int pos = Integer.parseInt(intent.getStringExtra(Bluecone_intent.EXTRA_POS));
+				if(Debug.D)Log.d(Debug.TAG_QUEUE, "Pos: " + pos+" track_name = "+cursor.getString(1));
 				try{
 					DATA.add(pos, cursor.getString(1));
 				}catch(IndexOutOfBoundsException e){
@@ -170,23 +151,22 @@ public class QueueActivity extends Activity {
 
 				break;
 			case MASTER:
-				Log.d(Debug.TAG_QUEUE, "IS_MASTER= "+intent.getBooleanExtra(IS_MASTER, false));
-				setMaster(intent.getBooleanExtra(IS_MASTER, false));
+				Log.d(Debug.TAG_QUEUE, "IS_MASTER= "+intent.getBooleanExtra(Bluecone_intent.EXTRA_IS_MASTER, false));
+				setMaster(intent.getBooleanExtra(Bluecone_intent.EXTRA_IS_MASTER, false));
 				break;
 			case REMOVE:
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "REMOVE");
 				try{
-					DATA.remove(intent.getIntExtra(REMOVE_POS, 0));
-				}catch(ArrayIndexOutOfBoundsException e){
-					Log.d(Debug.TAG_QUEUE, "Remove index: "+intent.getIntExtra(REMOVE_POS, 0));
+					DATA.remove(intent.getIntExtra(Bluecone_intent.EXTRA_REMOVE_POS, 0));
+				}catch(IndexOutOfBoundsException e){
+					Log.d(Debug.TAG_QUEUE, "Remove index: "+intent.getIntExtra(Bluecone_intent.EXTRA_REMOVE_POS, 0));
 				}
-				update();
-				//				}			
+				update();			
 				break;
 			case SET_PROGRESS:
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "SET_PROGRESS");
-				currentProgress = intent.getIntExtra(CURRENT_PROGRESS, 0);
-				startSeekBar(intent.getIntExtra(PROGRESS, 100));
+				currentProgress = intent.getIntExtra(Bluecone_intent.EXTRA_CURRENT_PROGRESS, 0);
+				startSeekBar(intent.getIntExtra(Bluecone_intent.EXTRA_DURATION, 100));
 
 
 				break;
@@ -273,7 +253,6 @@ public class QueueActivity extends Activity {
 
 		@Override
 		public long getItemId(int position) {
-			// TODO Auto-generated method stub
 			return position;
 		}
 
@@ -285,7 +264,6 @@ public class QueueActivity extends Activity {
 
 		@Override
 		public int getCount() {
-			// TODO Auto-generated method stub
 			return DATA.toArray().length;
 		}
 
@@ -319,9 +297,9 @@ public class QueueActivity extends Activity {
 					new String[] {BaseColumns._ID,Track.PATH},
 					selection, selectionArgs, null);
 			pathCursor.moveToFirst();
-			Intent removeIntent = new Intent(MainTabActivity.REQUEST_WRITE);
-			removeIntent.putExtra(MainTabActivity.COMMAND, "QUEUEREMOVE#");
-			removeIntent.putExtra(MainTabActivity.BLUECONE_WRITE, pathCursor.getString(1) );
+			Intent removeIntent = new Intent(Bluecone_intent.REQUEST_WRITE);
+			removeIntent.putExtra(Bluecone_intent.EXTRA_COMMAND, "QUEUEREMOVE#");
+			removeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, pathCursor.getString(1) );
 			sendBroadcast(removeIntent);
 			pathCursor.close();
 			return true;
@@ -332,49 +310,49 @@ public class QueueActivity extends Activity {
 
 
 	public void play(View view){
-		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
-		intent.putExtra(MainTabActivity.MASTER_COMMAND, "PLAY");
+		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
+		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "PLAY");
 		sendBroadcast(intent);
 	}
 	public void stop(View view){
-		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
-		intent.putExtra(MainTabActivity.MASTER_COMMAND, "STOP");
+		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
+		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "STOP");
 		sendBroadcast(intent);
 
 	}
 	public void next(View view){
-		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
-		intent.putExtra(MainTabActivity.MASTER_COMMAND, "NEXT");
+		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
+		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "NEXT");
 		sendBroadcast(intent);
 
 	}
 	public void prev(View view){
-		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
-		intent.putExtra(MainTabActivity.MASTER_COMMAND, "PREV");
+		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
+		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "PREV");
 		sendBroadcast(intent);
 
 	}
 	public void adjustVolumeUp(View view){
-		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
-		intent.putExtra(MainTabActivity.MASTER_COMMAND, "VOLUP");
+		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
+		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "VOLUP");
 		sendBroadcast(intent);
 
 	}
 	public void adjustVolumeDown(View view){
-		Intent intent = new Intent(MainTabActivity.REQUEST_MASTER);
-		intent.putExtra(MainTabActivity.MASTER_COMMAND, "VOLDOWN");
+		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
+		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "VOLDOWN");
 		sendBroadcast(intent);
 
 	}
 
 	static{
 		actionMap = new HashMap<String, Integer>();
-		actionMap.put(START_UPDATE_QUEUE, START);
-		actionMap.put(UPDATE_QUEUE, UPDATE);
-		actionMap.put(MASTER_MODE, MASTER);
-		actionMap.put(MASTER_MODE, MASTER);
-		actionMap.put(REMOVE_FIRST_IN_QUEUE, REMOVE);
-		actionMap.put(MainTabActivity.SET_NOW_PLAYING, SET_PROGRESS);
+		actionMap.put(Bluecone_intent.START_UPDATE_QUEUE, START);
+		actionMap.put(Bluecone_intent.UPDATE_QUEUE, UPDATE);
+		actionMap.put(Bluecone_intent.MASTER_MODE, MASTER);
+		actionMap.put(Bluecone_intent.MASTER_MODE, MASTER);
+		actionMap.put(Bluecone_intent.REMOVE, REMOVE);
+		actionMap.put(Bluecone_intent.SET_NOW_PLAYING, SET_PROGRESS);
 
 	}
 

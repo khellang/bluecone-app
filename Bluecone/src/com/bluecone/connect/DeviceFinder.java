@@ -3,6 +3,7 @@ package com.bluecone.connect;
 import java.util.Set;
 
 import com.bluecone.R;
+import com.bluecone.intent.Bluecone_intent;
 
 import debug.Debug;
 
@@ -26,8 +27,7 @@ import android.widget.TextView;
 public class DeviceFinder extends Activity implements OnItemClickListener{
 	
     
-    public static final String EXTRA_UNIT_ADDRESS = "unit_address";
-    public static final String REQUEST_CONNECT = "com.bluecone.connect.REQUEST_CONNECT";
+ 
     
     //Blåtannadapteret som hentes fra systemet
     private BluetoothAdapter bluetoothAdapter;
@@ -174,7 +174,7 @@ public class DeviceFinder extends Activity implements OnItemClickListener{
         String adresse = info.substring(info.length() - 17);
         // ResultatsIntent opprettes og adressen legges til i Extrafeltet til Intentèn
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_UNIT_ADDRESS, adresse);
+        intent.putExtra(Bluecone_intent.EXTRA_UNIT_ADDRESS, adresse);
         
         // Sett resultat og avslutt EnhetsListe
         setResult(Activity.RESULT_OK, intent);

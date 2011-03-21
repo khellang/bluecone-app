@@ -2,6 +2,7 @@ package com.bluecone;
 
 import java.util.HashMap;
 
+import com.bluecone.intent.Bluecone_intent;
 import com.bluecone.storage.ArtistList.Album;
 import com.bluecone.storage.ArtistList.Artist;
 
@@ -25,7 +26,7 @@ import android.widget.TextView;
 public class AlbumListActivity extends ListActivity {
 
 	/**Intent actions*/
-	public static String REFRESH_TRACK = "com.bluecone.REFRESH_TRACK";
+
 
 	private Cursor cursor;
 	private LayoutInflater layoutInflater;
@@ -55,8 +56,8 @@ public class AlbumListActivity extends ListActivity {
 	@Override
 	public void onStart(){
 		super.onStart();
-		IntentFilter refresh_all = new IntentFilter(MainTabActivity.REFRESH);
-		IntentFilter refresh_artist = new IntentFilter(ArtistListActivity.REFRESH_ALBUM);
+		IntentFilter refresh_all = new IntentFilter(Bluecone_intent.REFRESH);
+		IntentFilter refresh_artist = new IntentFilter(Bluecone_intent.REFRESH_ALBUM);
 		this.registerReceiver(receiver, refresh_all);
 		this.registerReceiver(receiver, refresh_artist);
 	}
@@ -98,17 +99,14 @@ public class AlbumListActivity extends ListActivity {
 
 
 		public int getCount() {
-			// TODO Auto-generated method stub
 			return cursor.getCount();
 		}
 
 		public Object getItem(int position) {
-			// TODO Auto-generated method stub
 			return position;
 		}
 
 		public long getItemId(int position) {
-			// TODO Auto-generated method stub
 			return position;
 		}
 
@@ -141,7 +139,7 @@ public class AlbumListActivity extends ListActivity {
 	
 	@Override
 	protected void onListItemClick (ListView l, View v, int position, long id){
-		Intent intent = new Intent(REFRESH_TRACK);
+		Intent intent = new Intent(Bluecone_intent.REFRESH_TRACK);
 		intent.putExtra(Album.TITLE,((((ViewHolder) v.getTag()).title)).getText());
 		intent.putExtra(Album.ARTIST_NAME,((((ViewHolder) v.getTag()).artist)).getText());
 		sendBroadcast(intent);
@@ -149,8 +147,8 @@ public class AlbumListActivity extends ListActivity {
 
 	static{
 		actionMap = new HashMap<String, Integer>();
-		actionMap.put(MainTabActivity.REFRESH, REFRESH);
-		actionMap.put(ArtistListActivity.REFRESH_ALBUM, SHOW_ALBUM);
+		actionMap.put(Bluecone_intent.REFRESH, REFRESH);
+		actionMap.put(Bluecone_intent.REFRESH_ALBUM, SHOW_ALBUM);
 	}
 
 }
