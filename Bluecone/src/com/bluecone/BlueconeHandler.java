@@ -10,6 +10,7 @@ import com.bluecone.storage.ArtistList.Track;
 import com.bluecone.storage.Contents;
 import com.bluecone.storage.TrackContent;
 import debug.Debug;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
@@ -137,8 +138,18 @@ public final class BlueconeHandler extends Handler {
 				}
 				BlueconeContext.getContext().sendBroadcast(this.progressIntent);
 				if(contents[0].tryCommit()){
-					for(Contents c:contents)
-					c.commitContent();
+					final ProgressDialog center = ProgressDialog.show(BlueconeContext.getContext(), null, "Insert to database",true,false);
+					
+					new Thread(new Runnable() {
+						
+						@Override
+						public void run() {
+							for(Contents c:contents)
+								c.commitContent();
+							
+							center.dismiss();
+						}
+					}).start();
 				}
 					
 				break;
