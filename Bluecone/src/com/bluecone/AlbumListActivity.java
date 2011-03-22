@@ -42,7 +42,6 @@ public class AlbumListActivity extends ListActivity {
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		if(Debug.D)Log.d(Debug.TAG_ALBUM, "onCreate...");
-		
 		setContentView(R.layout.album_layout);
 		sortOrder = Album.TITLE+" ASC";
 		albumBaseAdapter = new AlbumBaseAdapter();

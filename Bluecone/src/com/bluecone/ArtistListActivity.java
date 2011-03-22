@@ -85,7 +85,7 @@ public class ArtistListActivity extends ListActivity{
 
 	private void update(){
 		cursor.close();
-		cursor = BlueconeContext.getContext().getContentResolver().query(Artist.CONTENT_URI, new String[] { BaseColumns._ID, Artist.NAME}, null, null, null);		
+		cursor = BlueconeContext.getContext().getContentResolver().query(Artist.CONTENT_URI, new String[] { BaseColumns._ID, Artist.NAME}, null, null,sortOrder);		
 		artistBaseAdapter.notifyDataSetChanged();
 
 	}

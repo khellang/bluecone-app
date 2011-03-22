@@ -92,7 +92,6 @@ public class MainTabActivity extends TabActivity {
 
 		Intent tabIntent;
 		tabIntent = new Intent().setClass(this, ArtistListActivity.class);
-
 		tabSpec = tabHost
 				.newTabSpec("artist")
 				.setIndicator("Artist",

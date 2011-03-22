@@ -3,12 +3,9 @@ package com.bluecone;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import com.bluecone.intent.Bluecone_intent;
 import com.bluecone.storage.ArtistList.Track;
-
 import debug.Debug;
-
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -46,7 +43,8 @@ public class QueueActivity extends Activity {
 	private static final int SET_PROGRESS = 4;
 	private static final HashMap<String, Integer> actionMap;
 	private LayoutInflater layoutInflater;
-	private List< String> DATA = new ArrayList<String>();
+	private List<String> trackHolder = new ArrayList<String>();
+	private List<String> pathHolder = new ArrayList<String>();
 	private QueueBaseAdapter queueBaseAdapter;
 	private Cursor cursor;
 	private ListView listView;
@@ -126,7 +124,8 @@ public class QueueActivity extends Activity {
 		public void onReceive(Context context, Intent intent) {
 			switch(actionMap.get(intent.getAction())){
 			case START:
-				DATA.clear();
+				trackHolder.clear();
+				pathHolder.clear();
 				break;
 			case UPDATE:
 				selection = Track.PATH+"=? ";
@@ -138,11 +137,11 @@ public class QueueActivity extends Activity {
 				cursor.moveToFirst();
 
 				int pos = Integer.parseInt(intent.getStringExtra(Bluecone_intent.EXTRA_POS));
-				if(Debug.D)Log.d(Debug.TAG_QUEUE, "Pos: " + pos+" track_name = "+cursor.getString(1));
 				try{
-					DATA.add(pos, cursor.getString(1));
+					trackHolder.add(pos, cursor.getString(1));
+					pathHolder.add(pos, cursor.getString(4));
 				}catch(IndexOutOfBoundsException e){
-					Log.d(Debug.TAG_QUEUE, "UPDATE Cursor size = " + cursor.getCount());
+					Log.d(Debug.TAG_QUEUE, "UPDATE Cursor size = " + cursor.getCount()+" string 4= "+cursor.getString(4));
 				}
 				cursor.close();
 				update();
@@ -157,7 +156,7 @@ public class QueueActivity extends Activity {
 			case REMOVE:
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "REMOVE");
 				try{
-					DATA.remove(intent.getIntExtra(Bluecone_intent.EXTRA_REMOVE_POS, 0));
+					trackHolder.remove(intent.getIntExtra(Bluecone_intent.EXTRA_REMOVE_POS, 0));
 				}catch(IndexOutOfBoundsException e){
 					Log.d(Debug.TAG_QUEUE, "Remove index: "+intent.getIntExtra(Bluecone_intent.EXTRA_REMOVE_POS, 0));
 				}
@@ -243,8 +242,8 @@ public class QueueActivity extends Activity {
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-			holder.playing.setText((CharSequence) DATA.toArray()[position]);
-			if(Debug.D)Log.d(Debug.TAG_QUEUE,"getView: "+DATA.toArray()[position]);
+			holder.playing.setText((CharSequence) trackHolder.toArray()[position]);
+			if(Debug.D)Log.d(Debug.TAG_QUEUE,"getView: "+trackHolder.toArray()[position]);
 
 
 			return convertView;
@@ -259,17 +258,18 @@ public class QueueActivity extends Activity {
 		@Override
 		public Object getItem(int position) {
 
-			return DATA.get(position);
+			return trackHolder.get(position);
 		}
 
 		@Override
 		public int getCount() {
-			return DATA.toArray().length;
+			return trackHolder.toArray().length;
 		}
 
 	};
 	private class ViewHolder{
 		TextView playing;
+		
 
 	}
 
@@ -291,17 +291,22 @@ public class QueueActivity extends Activity {
 				Toast.makeText(BlueconeContext.getContext(), "Master mode required", Toast.LENGTH_SHORT).show();
 				return true;
 			}
-			selection = Track.TITLE+"=? ";
-			selectionArgs = new String[]{(String) queueBaseAdapter.getItem(info.position)};
-			Cursor pathCursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,
-					new String[] {BaseColumns._ID,Track.PATH},
-					selection, selectionArgs, null);
-			pathCursor.moveToFirst();
+//				Old			
+//			selection = Track.TITLE+"=? ";
+//			selectionArgs = new String[]{(String) queueBaseAdapter.getItem(info.position)};
+//			Cursor pathCursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,
+//					new String[] {BaseColumns._ID,Track.PATH},
+//					selection, selectionArgs, null);
+//			pathCursor.moveToFirst();
 			Intent removeIntent = new Intent(Bluecone_intent.REQUEST_WRITE);
 			removeIntent.putExtra(Bluecone_intent.EXTRA_COMMAND, "QUEUEREMOVE#");
-			removeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, pathCursor.getString(1) );
+//			Old*******************
+//			removeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, pathCursor.getString(1) );
+//			New***********************
+			Log.d(Debug.TAG_QUEUE, "pos: "+info.position+" path: "+pathHolder.get(info.position));
+			removeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, pathHolder.remove(info.position));
 			sendBroadcast(removeIntent);
-			pathCursor.close();
+//			pathCursor.close();
 			return true;
 		default:
 			return super.onContextItemSelected(item);

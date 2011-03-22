@@ -1,12 +1,14 @@
 package com.bluecone.storage;
 
 import com.bluecone.BlueconeContext;
+import com.bluecone.BlueconeHandler;
 import com.bluecone.intent.Bluecone_intent;
 
 import debug.Debug;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteConstraintException;
 import android.util.Log;
 
 public abstract class Contents implements BlueconeContentValues {
@@ -36,9 +38,12 @@ public abstract class Contents implements BlueconeContentValues {
 	@Override
 	public synchronized void commitContent() {
 		if(Debug.D)Log.d(Debug.TAG_CONTENTS, "Id = "+_id);
+		try{
 		BlueconeContentProvider.insertThis(value,_id);
+		}catch(SQLiteConstraintException e){}
 		Intent update_intent = new Intent(Bluecone_intent.REFRESH);
 		BlueconeContext.getContext().sendBroadcast(update_intent);
+	
 
 	}
 
