@@ -161,9 +161,9 @@ public final class BlueconeHandler extends Handler {
 					//					BlueconeContext.getContext().sendBroadcast(startUpdateIntent);				
 					//					break;
 				case QUEUE:
+					Log.d(Debug.TAG_HANDLER, "QUEUE");
 					Intent addQueueIntent = new Intent(Bluecone_intent.UPDATE_QUEUE);
 					String[] temp = in[1].split("\\|");
-					Log.d(Debug.TAG_HANDLER, "QUEUE Pos: " + temp[0] + ", Path: " + temp[1]);
 					addQueueIntent.putExtra(Track.PATH, temp[1]);
 					addQueueIntent.putExtra(Bluecone_intent.EXTRA_POS, temp[0]);
 					if(!ready_to_release){
@@ -221,8 +221,12 @@ public final class BlueconeHandler extends Handler {
 					if(Debug.D)Log.d(Debug.TAG_HANDLER, "REMOVE");
 					Intent removeIntent = new Intent(Bluecone_intent.REMOVE);
 					if(!ready_to_release){
-						remove_buffer = removeIntent;
 						Log.d(Debug.TAG_HANDLER, "Added to removebuffer");
+						remove_buffer = removeIntent;
+						try{
+							remove_buffer.putExtra(Bluecone_intent.EXTRA_REMOVE_POS, Integer.parseInt(in[1]));
+						}catch(ArrayIndexOutOfBoundsException e){}
+				
 					}else {try{
 						removeIntent.putExtra(Bluecone_intent.EXTRA_REMOVE_POS, Integer.parseInt(in[1]));
 					}catch(ArrayIndexOutOfBoundsException e){}

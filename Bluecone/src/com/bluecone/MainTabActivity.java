@@ -296,6 +296,7 @@ public class MainTabActivity extends TabActivity {
 				if(Debug.D)
 					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: Disconnected");
 				title_right.setText(R.string.not_connected);
+				title_center.setText("");
 				break;
 			case MASTER:
 				if(Debug.D)
