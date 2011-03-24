@@ -89,6 +89,7 @@ public class DeviceFinder extends Activity implements OnItemClickListener{
 		if(Debug.D)Log.d(Debug.TAG_FINDER, "...Set<BluetoothDevice>");
 		if(lagrede.size()>0){
 			for(BluetoothDevice b:lagrede){
+				if(b.getName().equalsIgnoreCase("BlueCone"))
 				pairedAdapter.add(b.getName()+"\n"+b.getAddress());
 			}
 		}else{
@@ -148,6 +149,7 @@ public class DeviceFinder extends Activity implements OnItemClickListener{
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 //Dersom den oppdagede enheten er paret går vi videre
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
+                	if(device.getName().equalsIgnoreCase("BlueCone"))
                     foundAdapter.add(device.getName() + "\n" + device.getAddress());
                 }
 			}
@@ -155,11 +157,11 @@ public class DeviceFinder extends Activity implements OnItemClickListener{
                 	setProgressBarIndeterminateVisibility(false);
                 	setTitle(R.string.app_name);
                 	if(foundAdapter.getCount()==0){
-                		String ingen_funnet = getResources().getText(R.string.device_non_found).toString();
-                		foundAdapter.add(ingen_funnet);
+                		String non_found = getResources().getText(R.string.device_non_found).toString();
+                		foundAdapter.add(non_found);
                 	}
                 }
-			
+			findViewById(R.id.Button_scan).setVisibility(View.VISIBLE);
 			
 		}
 	};
