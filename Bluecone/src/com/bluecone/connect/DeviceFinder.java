@@ -160,8 +160,8 @@ public class DeviceFinder extends Activity implements OnItemClickListener{
                 		String non_found = getResources().getText(R.string.device_non_found).toString();
                 		foundAdapter.add(non_found);
                 	}
+                	findViewById(R.id.Button_scan).setVisibility(View.VISIBLE);
                 }
-			findViewById(R.id.Button_scan).setVisibility(View.VISIBLE);
 			
 		}
 	};
