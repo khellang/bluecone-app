@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.bluecone.intent.Bluecone_intent;
 import com.bluecone.storage.ArtistList.Album;
 import com.bluecone.storage.ArtistList.Artist;
+import com.bluecone.storage.ArtistList.Track;
 
 import debug.Debug;
 import android.app.ListActivity;
@@ -16,12 +17,19 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.View.OnLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class AlbumListActivity extends ListActivity {
 
@@ -49,6 +57,7 @@ public class AlbumListActivity extends ListActivity {
 		cursor = BlueconeContext.getContext().getContentResolver().query(Album.CONTENT_URI, new String[] { BaseColumns._ID, Album.TITLE, Album.ARTIST_NAME}, null, null, sortOrder);
 		startManagingCursor(cursor);
 		setListAdapter(albumBaseAdapter);
+		registerForContextMenu(getListView());
 
 	}
 
@@ -103,6 +112,18 @@ public class AlbumListActivity extends ListActivity {
 
 		public Object getItem(int position) {
 			return position;
+			
+		}
+		public String getAlbum(int position){
+			cursor.moveToPosition(position);
+			return cursor.getString(1);
+			
+		}
+		
+		public String getArtist(int position){
+			cursor.moveToPosition(position);
+			return cursor.getString(2);
+
 		}
 
 		public long getItemId(int position) {
@@ -134,6 +155,7 @@ public class AlbumListActivity extends ListActivity {
 	private class ViewHolder{
 		TextView title;
 		TextView artist;
+
 	} 
 	
 	@Override
@@ -143,6 +165,59 @@ public class AlbumListActivity extends ListActivity {
 		intent.putExtra(Album.ARTIST_NAME,((((ViewHolder) v.getTag()).artist)).getText());
 		sendBroadcast(intent);
 	}
+	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.album_menu, menu);
+
+	}
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		switch (item.getItemId()) {
+		case R.id.add_album:
+			selection = Track.ALBUM_TITLE+"=? AND "+Track.ARTIST_NAME+"=?";
+			selectionArgs = new String[]{albumBaseAdapter.getAlbum(info.position),albumBaseAdapter.getArtist(info.position)};
+			Cursor albumCursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI, new String[] { BaseColumns._ID,
+					Track.PATH}, selection, selectionArgs, sortOrder);
+			final int nbr_of_tracks = albumCursor.getCount();
+			int i=0;
+			final String[] paths = new String[nbr_of_tracks];
+			albumCursor.moveToFirst();
+			paths[i] = albumCursor.getString(1);
+			while(albumCursor.moveToNext()){
+				paths[++i] = albumCursor.getString(1);
+			}
+			albumCursor.close();
+			
+				new Thread(new Runnable() {
+				int i=0;
+				@Override
+				public void run() {
+					while(i<nbr_of_tracks){
+						Log.d(Debug.TAG_ALBUM, "path = "+paths[i]);
+						Intent writeIntent = new Intent(Bluecone_intent.REQUEST_WRITE);
+						writeIntent.putExtra(Bluecone_intent.EXTRA_COMMAND,"ADD#");
+						writeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, paths[i++]);
+						sendBroadcast(writeIntent);
+						
+					}
+					
+				}
+			}).start();
+			
+			break;
+		case R.id.cancel:
+			return false;
+		default:
+			return super.onContextItemSelected(item);
+		}
+		return true;
+	}
+
 
 	static{
 		actionMap = new HashMap<String, Integer>();

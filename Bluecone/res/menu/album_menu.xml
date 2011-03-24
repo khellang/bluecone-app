@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/Album_group">
+        <item android:icon="@drawable/ic_master" android:title="@string/menu_add_album" android:id="@+id/add_album">
+        </item>
+        <item android:title="@string/popup_menu_cancel" android:id="@+id/cancel_add_album"></item>
+    </group>
+</menu>

@@ -93,6 +93,10 @@ public class BlueconeContentProvider extends ContentProvider {
 		dbHelper.getWritableDatabase().endTransaction();
 	}
 
+	
+	public synchronized static void dropBlueconeDatabase(){
+		dbHelper.onOpen(dbHelper.getReadableDatabase());
+	}
 
 	public synchronized static void insertThis(ContentValues[] value,int id) {
 		SQLiteDatabase db = dbHelper.getWritableDatabase();

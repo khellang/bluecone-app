@@ -10,6 +10,7 @@ import com.bluecone.storage.AlbumContent;
 import com.bluecone.storage.ArtistContent;
 import com.bluecone.storage.ArtistList;
 import com.bluecone.storage.ArtistList.Track;
+import com.bluecone.storage.BlueconeContentProvider;
 import com.bluecone.storage.Contents;
 import com.bluecone.storage.TrackContent;
 import debug.Debug;
@@ -138,28 +139,11 @@ public final class BlueconeHandler extends Handler {
 					contents[0] = new ArtistContent(max,0);
 					contents[1] = new AlbumContent(max,1);
 					contents[2] = new TrackContent(max,2);
+					BlueconeContentProvider.dropBlueconeDatabase();
 					Intent progressIntent = new Intent(Bluecone_intent.REQUEST_TRANSMITT);
 					progressIntent.putExtra(Bluecone_intent.EXTRA_PROGRESS_MAX, max);
 					BlueconeContext.getContext().sendBroadcast(progressIntent);
 					break;
-					//				case QUEUESTART:
-					//					if(Debug.D)Log.d(Debug.TAG_HANDLER, "Queuestart");
-					//					final Intent startUpdateIntent = new Intent(Bluecone_intent.START_UPDATE_QUEUE);
-					//					if(!connected){
-					//						new Thread(new Runnable() {
-					//							
-					//							@Override
-					//							public void run() {
-					//								while(true){
-					//								if(ready_to_release){
-					//								BlueconeContext.getContext().sendBroadcast(startUpdateIntent);				
-					//								}
-					//								}
-					//							}
-					//						}).start();
-					//					}
-					//					BlueconeContext.getContext().sendBroadcast(startUpdateIntent);				
-					//					break;
 				case QUEUE:
 					Log.d(Debug.TAG_HANDLER, "QUEUE");
 					Intent addQueueIntent = new Intent(Bluecone_intent.UPDATE_QUEUE);

@@ -152,7 +152,7 @@ public class QueueActivity extends Activity {
 					trackHolder.add(pos, cursor.getString(1));
 					pathHolder.add(pos, cursor.getString(4));
 				}catch(IndexOutOfBoundsException e){
-					Log.d(Debug.TAG_QUEUE, "UPDATE Cursor size = " + cursor.getCount()+" string 4= "+cursor.getString(4));
+					Log.d(Debug.TAG_QUEUE, ""+e);
 				}
 				cursor.close();
 				update();
