@@ -203,7 +203,12 @@ public class AlbumListActivity extends ListActivity {
 						writeIntent.putExtra(Bluecone_intent.EXTRA_COMMAND,"ADD#");
 						writeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, paths[i++]);
 						sendBroadcast(writeIntent);
-						
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 					
 				}

@@ -44,8 +44,8 @@ public class QueueActivity extends Activity {
 	private static final int LOST_CONNECTION = 5;
 	private static final HashMap<String, Integer> actionMap;
 	private LayoutInflater layoutInflater;
-	private List<String> trackHolder = new ArrayList<String>();
-	private List<String> pathHolder = new ArrayList<String>();
+	private static List<String> trackHolder;
+	private static List<String> pathHolder;
 	private QueueBaseAdapter queueBaseAdapter;
 	private Cursor cursor;
 	private ListView listView;
@@ -70,6 +70,8 @@ public class QueueActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.queue_layout);
 		isMaster = false;
+		trackHolder = new ArrayList<String>();
+		pathHolder = new ArrayList<String>();
 		prev = (ImageButton)findViewById(R.id.imageButton1);
 		stop = (ImageButton)findViewById(R.id.imageButton2);
 		play = (ImageButton)findViewById(R.id.imageButton3);
@@ -93,13 +95,13 @@ public class QueueActivity extends Activity {
 	@Override
 	public void onStart(){
 		super.onStart();
-		IntentFilter startQueueIntent = new IntentFilter(Bluecone_intent.START_UPDATE_QUEUE);
+//		IntentFilter startQueueIntent = new IntentFilter(Bluecone_intent.START_UPDATE_QUEUE);
 		IntentFilter queueIntent = new IntentFilter(Bluecone_intent.UPDATE_QUEUE);
 		IntentFilter masterIntent = new IntentFilter(Bluecone_intent.MASTER_MODE);
 		IntentFilter removeIntent = new IntentFilter(Bluecone_intent.REMOVE);
 		IntentFilter progressIntent = new IntentFilter(Bluecone_intent.SET_NOW_PLAYING);
 		IntentFilter lostConnectionIntent = new IntentFilter(Bluecone_intent.CONNECTION_LOST);
-		this.registerReceiver(receiver, startQueueIntent);
+//		this.registerReceiver(receiver, startQueueIntent);
 		this.registerReceiver(receiver, queueIntent);
 		this.registerReceiver(receiver, masterIntent);
 		this.registerReceiver(receiver, removeIntent);
@@ -134,23 +136,24 @@ public class QueueActivity extends Activity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			switch(actionMap.get(intent.getAction())){
-			case START:
-				trackHolder.clear();
-				pathHolder.clear();
-				break;
+//			case START:
+//				trackHolder.clear();
+//				pathHolder.clear();
+//				break;
 			case UPDATE:
 				selection = Track.PATH+"=? ";
 				selectionArgs = new String[]{intent.getStringExtra(Track.PATH)};
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "input: "+selectionArgs[0]);
 
-				cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,new String[] {BaseColumns._ID,Track.TITLE,
-						Track.ALBUM_TITLE, Track.ARTIST_NAME,Track.PATH,Track.TRACK_LENGHT}, selection, selectionArgs, null);
+				cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,
+						new String[] {BaseColumns._ID,Track.TITLE,}
+				, selection, selectionArgs, null);
 				cursor.moveToFirst();
 
 				int pos = Integer.parseInt(intent.getStringExtra(Bluecone_intent.EXTRA_POS));
 				try{
 					trackHolder.add(pos, cursor.getString(1));
-					pathHolder.add(pos, cursor.getString(4));
+					pathHolder.add(pos, selectionArgs[0]);
 				}catch(IndexOutOfBoundsException e){
 					Log.d(Debug.TAG_QUEUE, ""+e);
 				}
@@ -166,10 +169,12 @@ public class QueueActivity extends Activity {
 				break;
 			case REMOVE:
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "REMOVE");
+				int removeIndex = intent.getIntExtra(Bluecone_intent.EXTRA_REMOVE_POS, 0);
 				try{
-					trackHolder.remove(intent.getIntExtra(Bluecone_intent.EXTRA_REMOVE_POS, 0));
+					trackHolder.remove(removeIndex);
+					pathHolder.remove(removeIndex);
 				}catch(IndexOutOfBoundsException e){
-					Log.d(Debug.TAG_QUEUE, "Remove index: "+intent.getIntExtra(Bluecone_intent.EXTRA_REMOVE_POS, 0));
+					Log.d(Debug.TAG_QUEUE, "Exception in REMOVE Line: 167");
 				}
 				update();			
 				break;
@@ -349,7 +354,7 @@ public class QueueActivity extends Activity {
 //			removeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, pathCursor.getString(1) );
 //			New***********************
 			Log.d(Debug.TAG_QUEUE, "pos: "+info.position+" path: "+pathHolder.get(info.position));
-			removeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, pathHolder.remove(info.position));
+			removeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, pathHolder.get(info.position));
 			sendBroadcast(removeIntent);
 //			pathCursor.close();
 			return true;
