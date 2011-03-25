@@ -40,7 +40,7 @@ public class QueueActivity extends Activity {
 	private static final int UPDATE = 1;
 	private static final int MASTER = 2;
 	private static final int REMOVE = 3;
-	private static final int SET_PROGRESS = 4;
+	private static final int DECODE = 4;
 	private static final int LOST_CONNECTION = 5;
 	private static final HashMap<String, Integer> actionMap;
 	private LayoutInflater layoutInflater;
@@ -56,7 +56,8 @@ public class QueueActivity extends Activity {
 	private ImageButton volume_up;
 	private ImageButton volume_down;
 	private static SeekBar seekbar;
-	private static int currentProgress;
+	private static int seconds;
+	private static int percent;
 	private String selection;
 	private String[]selectionArgs;
 	private boolean isMaster;
@@ -81,6 +82,7 @@ public class QueueActivity extends Activity {
 		listView = (ListView) findViewById(R.id.queue_list);
 		seekbar = (SeekBar) findViewById(R.id.seekBar1);
 		seekbar.setEnabled(false);
+		seekbar.setMax(100);
 		queueBaseAdapter = new QueueBaseAdapter();
 		layoutInflater = (LayoutInflater) BlueconeContext.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI, new String[] { BaseColumns._ID, Track.TITLE, 
@@ -95,13 +97,11 @@ public class QueueActivity extends Activity {
 	@Override
 	public void onStart(){
 		super.onStart();
-//		IntentFilter startQueueIntent = new IntentFilter(Bluecone_intent.START_UPDATE_QUEUE);
 		IntentFilter queueIntent = new IntentFilter(Bluecone_intent.UPDATE_QUEUE);
 		IntentFilter masterIntent = new IntentFilter(Bluecone_intent.MASTER_MODE);
 		IntentFilter removeIntent = new IntentFilter(Bluecone_intent.REMOVE);
-		IntentFilter progressIntent = new IntentFilter(Bluecone_intent.SET_NOW_PLAYING);
+		IntentFilter progressIntent = new IntentFilter(Bluecone_intent.DECODE);
 		IntentFilter lostConnectionIntent = new IntentFilter(Bluecone_intent.CONNECTION_LOST);
-//		this.registerReceiver(receiver, startQueueIntent);
 		this.registerReceiver(receiver, queueIntent);
 		this.registerReceiver(receiver, masterIntent);
 		this.registerReceiver(receiver, removeIntent);
@@ -136,10 +136,6 @@ public class QueueActivity extends Activity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			switch(actionMap.get(intent.getAction())){
-//			case START:
-//				trackHolder.clear();
-//				pathHolder.clear();
-//				break;
 			case UPDATE:
 				selection = Track.PATH+"=? ";
 				selectionArgs = new String[]{intent.getStringExtra(Track.PATH)};
@@ -178,18 +174,19 @@ public class QueueActivity extends Activity {
 				}
 				update();			
 				break;
-			case SET_PROGRESS:
-				if(Debug.D)Log.d(Debug.TAG_QUEUE, "SET_PROGRESS");
+			case DECODE:
+				if(Debug.D)Log.d(Debug.TAG_QUEUE, "SET_DPS");
 				stopSeekBar();
-				currentProgress = intent.getIntExtra(Bluecone_intent.EXTRA_CURRENT_PROGRESS, 0);
-				startSeekBar(intent.getIntExtra(Bluecone_intent.EXTRA_DURATION, 100));
+				seconds = intent.getIntExtra(Bluecone_intent.EXTRA_CURRENT_SECONDS, 0);
+				percent = intent.getIntExtra(Bluecone_intent.EXTRA_CURRENT_PERCENT, 0);
+				startSeekBar(percent/seconds);
 
 
 				break;
 			case LOST_CONNECTION:
 				stopSeekBar();
-				currentProgress = 0;
-				seekbar.setProgress(currentProgress);
+				seconds = 0;
+				seekbar.setProgress(seconds);
 				trackHolder.clear();
 				pathHolder.clear();
 				update();
@@ -198,23 +195,23 @@ public class QueueActivity extends Activity {
 
 
 		}
+		
 
 		private volatile Thread seekbarProgressThread;
-		private synchronized void startSeekBar(int max) {
-			seekbar.setMax(max);
-			if(Debug.D)Log.d(Debug.TAG_QUEUE, "Seekbar Max = "+max);
+		private synchronized void startSeekBar(final int tick) {
 			if(seekbarProgressThread==null){
 				seekbarProgressThread = new Thread(new Runnable() {
 					
 					@Override
 					public void run() {
 						while(Thread.currentThread() == seekbarProgressThread){
-							seekBarHandler.sendMessage(seekBarHandler.obtainMessage(SET_PROGRESS, ++currentProgress, 0));
+							Log.d(Debug.TAG_QUEUE, "Tick= "+tick);
+							seekBarHandler.sendMessage(seekBarHandler.obtainMessage(DECODE, tick, 0));
 
 							try {
 								Thread.sleep(1000);
 							} catch (InterruptedException e) {
-								if(Debug.D)Log.d(Debug.TAG_QUEUE, "PROGRESSTHREAD "+ currentProgress);	
+								if(Debug.D)Log.d(Debug.TAG_QUEUE, "PROGRESSTHREAD "+ seconds);	
 							}
 						
 					}
@@ -241,8 +238,9 @@ public class QueueActivity extends Activity {
 		@Override
 		public void handleMessage(Message msg){
 			switch(msg.what){
-			case SET_PROGRESS:
-				seekbar.setProgress(msg.arg1);
+			case DECODE:
+				Log.d(Debug.TAG_QUEUE, "HandleMessage");
+				seekbar.incrementProgressBy(msg.arg1);
 				break;
 			}
 		}
@@ -407,7 +405,7 @@ public class QueueActivity extends Activity {
 		actionMap.put(Bluecone_intent.MASTER_MODE, MASTER);
 		actionMap.put(Bluecone_intent.MASTER_MODE, MASTER);
 		actionMap.put(Bluecone_intent.REMOVE, REMOVE);
-		actionMap.put(Bluecone_intent.SET_NOW_PLAYING, SET_PROGRESS);
+		actionMap.put(Bluecone_intent.DECODE, DECODE);
 		actionMap.put(Bluecone_intent.CONNECTION_LOST, LOST_CONNECTION);
 
 	}

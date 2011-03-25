@@ -18,6 +18,7 @@ public final class Bluecone_intent {
 	public static final String REMOVE = "com.bluecone.intent.REMOVE";
 	public static final String START_UPDATE_QUEUE = "com.bluecone.intent.START_UPDATE_QUEUE";
 	public static final String UPDATE_QUEUE = "com.bluecone.intent.UPDATE_QUEUE";
+	public static final String DECODE = "com.bluecone.intent.DECODE";
 
 	
 	
@@ -27,14 +28,16 @@ public final class Bluecone_intent {
 	public static final String EXTRA_MASTER_COMMAND = "com.bluecone.intent.EXTRA_MASTER_COMAND";
 	public static final String EXTRA_PROGRESS_MAX = "com.bluecone.intent.EXTRA_PROGRESS_MAX";
 	public static final String EXTRA_DURATION="com.bluecone.intent.EXTRA_DURATION";
-	public static final String EXTRA_CURRENT_PROGRESS="com.bluecone.intent.EXTRA_CURRENT_PROGRESS";
 	public static final String EXTRA_REMOVE_POS="com.bluecone.intent.EXTRA_REMOVE_POS";
 	public static final String EXTRA_UNIT_ADDRESS = "com.bluecone.intent.unit_address";
     public static final String EXTRA_POS = "com.bluecone.intent.EXTRA_POS";
 	public static final String EXTRA_IS_MASTER = "com.bluecone.intent.EXTRA_IS_MASTER";
 	public static final String EXTRA_NOW_PLAYING_TRACK  ="com.bluecone.intent.EXTRA_NOW_PLAYING_TRACK";
 	public static final String EXTRA_NOW_PLAYING_ARTIST  ="com.bluecone.intent.EXTRA_NOW_PLAYING_ARTIST";
-	public static final String EXTRA_NOW_PLAYING_ALBUM  ="com.bluecone.intent.EXTRA_NOW_PLAYING_ALBUM";
+	public static final String EXTRA_CURRENT_SECONDS="com.bluecone.intent.EXTRA_CURRENT_SECONDS";
+	public static final String EXTRA_CURRENT_PERCENT  ="com.bluecone.intent.EXTRA_CURRENT_PERCENT";
+
+	
 
 		/**onActivityResult expected*/
 	public static final String REQUEST_CONNECT = "com.bluecone.intent.REQUEST_CONNECT";

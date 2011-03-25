@@ -50,6 +50,7 @@ public final class BlueconeHandler extends Handler {
 	private static final int MASTER = 4;
 	private static final int REMOVE = 5;
 	private static final int PLAYING = 6;
+	private static final int DECODE = 7;
 
 
 	//*************************************
@@ -112,14 +113,13 @@ public final class BlueconeHandler extends Handler {
 			if(selectionArg_buffer!=null){
 				String selection = Track.PATH+"=? ";
 				Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE,
-						Track.ARTIST_NAME,Track.TRACK_LENGHT}, selection, selectionArg_buffer, null);
+						Track.ARTIST_NAME}, selection, selectionArg_buffer, null);
 				cur.moveToFirst();
 				try{
 					Intent currentTrackIntent = new Intent(Bluecone_intent.SET_NOW_PLAYING);
 					currentTrackIntent.putExtra(Bluecone_intent.EXTRA_NOW_PLAYING_TRACK, cur.getString(1));
 					currentTrackIntent.putExtra(Bluecone_intent.EXTRA_NOW_PLAYING_ARTIST, cur.getString(2));
-					currentTrackIntent.putExtra(Bluecone_intent.EXTRA_DURATION, cur.getInt(3));
-					currentTrackIntent.putExtra(Bluecone_intent.EXTRA_CURRENT_PROGRESS, 0);
+					currentTrackIntent.putExtra(Bluecone_intent.EXTRA_CURRENT_SECONDS, 0);
 					BlueconeContext.getContext().sendBroadcast(currentTrackIntent);
 				}catch(CursorIndexOutOfBoundsException e){
 					Log.d(Debug.TAG_HANDLER, "PLAYING: Cursor size =  "+cur.getCount());
@@ -227,19 +227,24 @@ public final class BlueconeHandler extends Handler {
 					}
 					else{
 					Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE,
-							Track.ARTIST_NAME,Track.TRACK_LENGHT}, selection, selectionArgs, null);
+							Track.ARTIST_NAME}, selection, selectionArgs, null);
 					cur.moveToFirst();
 					try{
 						Intent currentTrackIntent = new Intent(Bluecone_intent.SET_NOW_PLAYING);
 						currentTrackIntent.putExtra(Bluecone_intent.EXTRA_NOW_PLAYING_TRACK, cur.getString(1));
-						currentTrackIntent.putExtra(Bluecone_intent.EXTRA_NOW_PLAYING_ARTIST, cur.getString(2));
-						currentTrackIntent.putExtra(Bluecone_intent.EXTRA_DURATION, cur.getInt(3));
-						currentTrackIntent.putExtra(Bluecone_intent.EXTRA_CURRENT_PROGRESS, 0);
+						currentTrackIntent.putExtra(Bluecone_intent.EXTRA_NOW_PLAYING_ARTIST, cur.getString(2));	
 						BlueconeContext.getContext().sendBroadcast(currentTrackIntent);
 					}catch(CursorIndexOutOfBoundsException e){
 						Log.d(Debug.TAG_HANDLER, "PLAYING: Cursor size =  "+cur.getCount());
 					}
 					}
+					break;
+				case DECODE:
+					String[] rate = in[1].split("\\|");
+					Intent progress_per_second = new Intent(Bluecone_intent.DECODE);
+					progress_per_second.putExtra(Bluecone_intent.EXTRA_CURRENT_SECONDS, Integer.parseInt(rate[0]));
+					progress_per_second.putExtra(Bluecone_intent.EXTRA_CURRENT_PERCENT, Integer.parseInt(rate[1]));
+					BlueconeContext.getContext().sendBroadcast(progress_per_second);
 					break;
 				default: Log.d(Debug.TAG_HANDLER, "Default. Input fra Bluecone: "+msg.obj);
 				}
@@ -265,6 +270,7 @@ public final class BlueconeHandler extends Handler {
 		map.put("MASTER", MASTER);
 		map.put("REMOVE", REMOVE);
 		map.put("PLAYING", PLAYING);
+		map.put("DECODE", DECODE);
 	}
 
 }

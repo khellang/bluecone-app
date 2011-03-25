@@ -335,8 +335,6 @@ public class MainTabActivity extends TabActivity {
 					int pos = 0;
 					while(Thread.currentThread() == centerTicker){	
 						try {
-
-							Log.d(Debug.TAG_MAIN, "track_info= "+track_info);
 							if(dir_left)
 							{
 								if((pos+15)<track_info.length())
@@ -356,7 +354,7 @@ public class MainTabActivity extends TabActivity {
 									Thread.sleep(200);
 								}
 							} 
-							Thread.sleep(300);
+							Thread.sleep(400);
 						}catch (InterruptedException e) {
 							if(Debug.D)Log.d(Debug.TAG_MAIN, "INTERRUPTED_EXCEPTION ");	
 						}
