@@ -111,14 +111,15 @@ public final class BlueconeHandler extends Handler {
 			BlueconeContext.getContext().sendBroadcast(remove_buffer);
 			if(selectionArg_buffer!=null){
 				String selection = Track.PATH+"=? ";
-				Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE,Track.TRACK_LENGHT}, selection, selectionArg_buffer, null);
+				Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE,
+						Track.ARTIST_NAME,Track.TRACK_LENGHT}, selection, selectionArg_buffer, null);
 				cur.moveToFirst();
 				try{
-					String nowPlaying = cur.getString(1);
 					Intent currentTrackIntent = new Intent(Bluecone_intent.SET_NOW_PLAYING);
-					currentTrackIntent.putExtra(Bluecone_intent.EXTRA_NOW_PLAYING, nowPlaying);
-					currentTrackIntent.putExtra(Bluecone_intent.EXTRA_DURATION, cur.getInt(2));
-					currentTrackIntent.putExtra(Bluecone_intent.EXTRA_CURRENT_PROGRESS, 50);
+					currentTrackIntent.putExtra(Bluecone_intent.EXTRA_NOW_PLAYING_TRACK, cur.getString(1));
+					currentTrackIntent.putExtra(Bluecone_intent.EXTRA_NOW_PLAYING_ARTIST, cur.getString(2));
+					currentTrackIntent.putExtra(Bluecone_intent.EXTRA_DURATION, cur.getInt(3));
+					currentTrackIntent.putExtra(Bluecone_intent.EXTRA_CURRENT_PROGRESS, 0);
 					BlueconeContext.getContext().sendBroadcast(currentTrackIntent);
 				}catch(CursorIndexOutOfBoundsException e){
 					Log.d(Debug.TAG_HANDLER, "PLAYING: Cursor size =  "+cur.getCount());
@@ -225,14 +226,15 @@ public final class BlueconeHandler extends Handler {
 						Log.d(Debug.TAG_HANDLER, "Added to selectionArgbuffer");
 					}
 					else{
-					Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE,Track.TRACK_LENGHT}, selection, selectionArgs, null);
+					Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE,
+							Track.ARTIST_NAME,Track.TRACK_LENGHT}, selection, selectionArgs, null);
 					cur.moveToFirst();
 					try{
-						String nowPlaying = cur.getString(1);
 						Intent currentTrackIntent = new Intent(Bluecone_intent.SET_NOW_PLAYING);
-						currentTrackIntent.putExtra(Bluecone_intent.EXTRA_NOW_PLAYING, nowPlaying);
-						currentTrackIntent.putExtra(Bluecone_intent.EXTRA_DURATION, cur.getInt(2));
-						currentTrackIntent.putExtra(Bluecone_intent.EXTRA_CURRENT_PROGRESS, 50);
+						currentTrackIntent.putExtra(Bluecone_intent.EXTRA_NOW_PLAYING_TRACK, cur.getString(1));
+						currentTrackIntent.putExtra(Bluecone_intent.EXTRA_NOW_PLAYING_ARTIST, cur.getString(2));
+						currentTrackIntent.putExtra(Bluecone_intent.EXTRA_DURATION, cur.getInt(3));
+						currentTrackIntent.putExtra(Bluecone_intent.EXTRA_CURRENT_PROGRESS, 0);
 						BlueconeContext.getContext().sendBroadcast(currentTrackIntent);
 					}catch(CursorIndexOutOfBoundsException e){
 						Log.d(Debug.TAG_HANDLER, "PLAYING: Cursor size =  "+cur.getCount());

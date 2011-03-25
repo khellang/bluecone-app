@@ -32,7 +32,9 @@ public final class Bluecone_intent {
 	public static final String EXTRA_UNIT_ADDRESS = "com.bluecone.intent.unit_address";
     public static final String EXTRA_POS = "com.bluecone.intent.EXTRA_POS";
 	public static final String EXTRA_IS_MASTER = "com.bluecone.intent.EXTRA_IS_MASTER";
-	public static final String EXTRA_NOW_PLAYING  ="com.bluecone.intent.EXTRA_NOW_PLAYING";
+	public static final String EXTRA_NOW_PLAYING_TRACK  ="com.bluecone.intent.EXTRA_NOW_PLAYING_TRACK";
+	public static final String EXTRA_NOW_PLAYING_ARTIST  ="com.bluecone.intent.EXTRA_NOW_PLAYING_ARTIST";
+	public static final String EXTRA_NOW_PLAYING_ALBUM  ="com.bluecone.intent.EXTRA_NOW_PLAYING_ALBUM";
 
 		/**onActivityResult expected*/
 	public static final String REQUEST_CONNECT = "com.bluecone.intent.REQUEST_CONNECT";

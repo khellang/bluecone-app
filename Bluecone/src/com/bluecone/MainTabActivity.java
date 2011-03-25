@@ -1,12 +1,9 @@
 package com.bluecone;
 
 import java.util.HashMap;
-
 import com.bluecone.connect.DeviceConnector;
 import com.bluecone.intent.Bluecone_intent;
-
 import debug.Debug;
-
 import android.app.AlertDialog;
 import android.app.TabActivity;
 import android.bluetooth.BluetoothAdapter;
@@ -17,6 +14,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,7 +51,7 @@ public class MainTabActivity extends TabActivity {
 	private ProgressBar progressHorizontal;
 	private TextView title_right;
 	private TextView title_left;
-	private TextView title_center;
+	private static TextView title_center;
 	private int max;
 	private int progress;
 
@@ -83,7 +82,7 @@ public class MainTabActivity extends TabActivity {
 		BlueconeContext.setBlueconeContext(this);
 		if (bluetoothAdapter == null) {
 			Toast.makeText(this, "Bluetooth not supported", Toast.LENGTH_LONG)
-					.show();
+			.show();
 			finish();
 		}
 		tabHost = getTabHost();
@@ -93,33 +92,33 @@ public class MainTabActivity extends TabActivity {
 		Intent tabIntent;
 		tabIntent = new Intent().setClass(this, ArtistListActivity.class);
 		tabSpec = tabHost
-				.newTabSpec("artist")
-				.setIndicator("Artist",
-						resources.getDrawable(R.drawable.ic_artist))
+		.newTabSpec("artist")
+		.setIndicator("Artist",
+				resources.getDrawable(R.drawable.ic_artist))
 				.setContent(tabIntent);
 		tabHost.addTab(tabSpec);
 
 		tabIntent = new Intent().setClass(this, AlbumListActivity.class);
 		tabSpec = tabHost
-				.newTabSpec("album")
-				.setIndicator("Album",
-						resources.getDrawable(R.drawable.ic_album))
+		.newTabSpec("album")
+		.setIndicator("Album",
+				resources.getDrawable(R.drawable.ic_album))
 				.setContent(tabIntent);
 		tabHost.addTab(tabSpec);
 
 		tabIntent = new Intent().setClass(this, TrackListActivity.class);
 		tabSpec = tabHost
-				.newTabSpec("track")
-				.setIndicator("Track",
-						resources.getDrawable(R.drawable.ic_track))
+		.newTabSpec("track")
+		.setIndicator("Track",
+				resources.getDrawable(R.drawable.ic_track))
 				.setContent(tabIntent);
 		tabHost.addTab(tabSpec);
 
 		tabIntent = new Intent().setClass(this, QueueActivity.class);
 		tabSpec = tabHost
-				.newTabSpec("queue")
-				.setIndicator("Queue",
-						resources.getDrawable(R.drawable.ic_queue))
+		.newTabSpec("queue")
+		.setIndicator("Queue",
+				resources.getDrawable(R.drawable.ic_queue))
 				.setContent(tabIntent);
 		tabHost.addTab(tabSpec);
 		tabHost.setCurrentTab(3);
@@ -129,7 +128,7 @@ public class MainTabActivity extends TabActivity {
 
 	}
 
-	
+
 	/**Register receiver with necessary intent filters   */
 	@Override
 	public void onStart() {
@@ -156,13 +155,13 @@ public class MainTabActivity extends TabActivity {
 			startActivityForResult(enableIntent, REQUEST_ENABLE);
 		}
 	}
-	
+
 	/**Unregister receiver */
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		this.unregisterReceiver(receiver);
-		
+
 		if(Debug.D)Log.d(Debug.TAG_MAIN, "onDestroy");
 	}
 
@@ -222,27 +221,27 @@ public class MainTabActivity extends TabActivity {
 
 			alert.setPositiveButton("Log in",
 					new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog,
-								int whichButton) {
-							String value = input.getText().toString();
-							Intent writeIntent = new Intent(
-									Bluecone_intent.REQUEST_MASTER);
-							writeIntent.putExtra(
-									Bluecone_intent.EXTRA_MASTER_COMMAND, "MASTER#"
-											+ value);
-							sendBroadcast(writeIntent);
-						}
-					});
+				@Override
+				public void onClick(DialogInterface dialog,
+						int whichButton) {
+					String value = input.getText().toString();
+					Intent writeIntent = new Intent(
+							Bluecone_intent.REQUEST_MASTER);
+					writeIntent.putExtra(
+							Bluecone_intent.EXTRA_MASTER_COMMAND, "MASTER#"
+							+ value);
+					sendBroadcast(writeIntent);
+				}
+			});
 
 			alert.setNegativeButton("Cancel",
 					new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog,
-								int whichButton) {
-							// Canceled.
-						}
-					});
+				@Override
+				public void onClick(DialogInterface dialog,
+						int whichButton) {
+					// Canceled.
+				}
+			});
 
 			alert.show();
 			break;
@@ -252,7 +251,7 @@ public class MainTabActivity extends TabActivity {
 		}
 		return true;
 	}
-	
+
 	/**Treat relevant broadcasts*/
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 
@@ -283,7 +282,7 @@ public class MainTabActivity extends TabActivity {
 				if(Debug.D)
 					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: Transmitting");
 				progressHorizontal.incrementProgressBy(1);
-			
+
 
 				if ((++progress) >= max) {
 					title_left.setText(R.string.app_name);
@@ -297,6 +296,7 @@ public class MainTabActivity extends TabActivity {
 					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: Disconnected");
 				title_right.setText(R.string.not_connected);
 				title_center.setText("");
+				stopCenterTicker();
 				break;
 			case MASTER:
 				if(Debug.D)
@@ -305,10 +305,81 @@ public class MainTabActivity extends TabActivity {
 				deviceConnector.write(masterCommand.getBytes());
 				break;
 			case NOW_PLAYING:
-				title_center.setText(intent.getStringExtra(Bluecone_intent.EXTRA_NOW_PLAYING));
+				String textTicker = intent.getStringExtra(Bluecone_intent.EXTRA_NOW_PLAYING_ARTIST)+" - "+
+				intent.getStringExtra(Bluecone_intent.EXTRA_NOW_PLAYING_TRACK);
+				if(Debug.D)Log.d(Debug.TAG_MAIN, "NOW PLAYING: "+textTicker);
+				stopCenterTicker();
+				inputText(textTicker);
 			}
 		}
 	};
+
+	private static Handler centerTickHandler = new Handler(){
+		@Override
+		public void handleMessage(Message msg){
+			title_center.setText((CharSequence)msg.obj);
+		}
+	};
+
+
+	private volatile Thread centerTicker;
+	private synchronized void inputText(final String track_info) {
+
+		if(Debug.D)Log.d(Debug.TAG_MAIN, "inputText()");
+		if(centerTicker==null){
+			centerTicker = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					Log.d(Debug.TAG_MAIN, "RUN:::");
+					boolean dir_left = true;
+					int pos = 0;
+					while(Thread.currentThread() == centerTicker){	
+						try {
+
+							Log.d(Debug.TAG_MAIN, "track_info= "+track_info);
+							if(dir_left)
+							{
+								if((pos+15)<track_info.length())
+									centerTickHandler.sendMessage(centerTickHandler.obtainMessage(0,track_info.substring(++pos, (pos+15))));
+								else
+								{
+									dir_left = false;
+									Thread.sleep(200);
+								}
+							}
+							else{
+								if(pos>0)
+									centerTickHandler.sendMessage(centerTickHandler.obtainMessage(0,track_info.substring(--pos, (pos+15))));
+								else
+								{
+									dir_left=true;
+									Thread.sleep(200);
+								}
+							} 
+							Thread.sleep(300);
+						}catch (InterruptedException e) {
+							if(Debug.D)Log.d(Debug.TAG_MAIN, "INTERRUPTED_EXCEPTION ");	
+						}
+
+					}
+				}
+			});
+			centerTicker.start();
+
+		}
+
+	}
+
+	private synchronized void stopCenterTicker(){
+		if(centerTicker != null){
+			Thread interrupter = centerTicker;
+			centerTicker = null;
+			interrupter.interrupt();
+		}
+	}
+
+
+
 
 	/**Fill hashmap*/
 	static {
