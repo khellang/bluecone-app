@@ -42,6 +42,7 @@ public class QueueActivity extends Activity {
 	private static final int REMOVE = 3;
 	private static final int DECODE = 4;
 	private static final int LOST_CONNECTION = 5;
+	private static final int RESET_PROGRESS = 6;
 	private static final HashMap<String, Integer> actionMap;
 	private LayoutInflater layoutInflater;
 	private static List<String> trackHolder;
@@ -56,8 +57,8 @@ public class QueueActivity extends Activity {
 	private ImageButton volume_up;
 	private ImageButton volume_down;
 	private static SeekBar seekbar;
-	private static int seconds;
-	private static int percent;
+	private static float seconds;
+	private static float percent;
 	private String selection;
 	private String[]selectionArgs;
 	private boolean isMaster;
@@ -102,11 +103,13 @@ public class QueueActivity extends Activity {
 		IntentFilter removeIntent = new IntentFilter(Bluecone_intent.REMOVE);
 		IntentFilter progressIntent = new IntentFilter(Bluecone_intent.DECODE);
 		IntentFilter lostConnectionIntent = new IntentFilter(Bluecone_intent.CONNECTION_LOST);
+		IntentFilter resetTrack_tick = new IntentFilter(Bluecone_intent.SET_NOW_PLAYING);
 		this.registerReceiver(receiver, queueIntent);
 		this.registerReceiver(receiver, masterIntent);
 		this.registerReceiver(receiver, removeIntent);
 		this.registerReceiver(receiver, progressIntent);
 		this.registerReceiver(receiver, lostConnectionIntent);
+		this.registerReceiver(receiver, resetTrack_tick);
 
 	}
 
@@ -177,19 +180,24 @@ public class QueueActivity extends Activity {
 			case DECODE:
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "SET_DPS");
 				stopSeekBar();
-				seconds = intent.getIntExtra(Bluecone_intent.EXTRA_CURRENT_SECONDS, 0);
-				percent = intent.getIntExtra(Bluecone_intent.EXTRA_CURRENT_PERCENT, 0);
-				startSeekBar(percent/seconds);
+				seconds = (float)intent.getIntExtra(Bluecone_intent.EXTRA_CURRENT_SECONDS, 0)*100;
+				percent = (float)intent.getIntExtra(Bluecone_intent.EXTRA_CURRENT_PERCENT, 0);
+				Log.d(Debug.TAG_QUEUE, "Second = "+seconds+"\npercent = "+percent);
+				float totalTime = seconds/percent;
+				float tickTime = totalTime/100.0f*1000.0f;
+				Log.d(Debug.TAG_QUEUE, "TotalTime = "+totalTime);
+				startSeekBar((int)tickTime);
 
 
 				break;
 			case LOST_CONNECTION:
 				stopSeekBar();
-				seconds = 0;
-				seekbar.setProgress(seconds);
 				trackHolder.clear();
 				pathHolder.clear();
 				update();
+				break;
+			case RESET_PROGRESS:
+				stopSeekBar();
 				break;
 			}
 
@@ -198,18 +206,18 @@ public class QueueActivity extends Activity {
 		
 
 		private volatile Thread seekbarProgressThread;
-		private synchronized void startSeekBar(final int tick) {
+		private synchronized void startSeekBar(final int tickTime) {
 			if(seekbarProgressThread==null){
 				seekbarProgressThread = new Thread(new Runnable() {
 					
 					@Override
 					public void run() {
+						Log.d(Debug.TAG_QUEUE, "Tick= "+tickTime);
 						while(Thread.currentThread() == seekbarProgressThread){
-							Log.d(Debug.TAG_QUEUE, "Tick= "+tick);
-							seekBarHandler.sendMessage(seekBarHandler.obtainMessage(DECODE, tick, 0));
+							seekBarHandler.sendMessage(seekBarHandler.obtainMessage(DECODE,1, 0));
 
 							try {
-								Thread.sleep(1000);
+								Thread.sleep(tickTime);
 							} catch (InterruptedException e) {
 								if(Debug.D)Log.d(Debug.TAG_QUEUE, "PROGRESSTHREAD "+ seconds);	
 							}
@@ -224,6 +232,7 @@ public class QueueActivity extends Activity {
 		}
 		
 		private synchronized void stopSeekBar(){
+			seekbar.setProgress(0);
 			  if(seekbarProgressThread != null){
 			    Thread interrupter = seekbarProgressThread;
 			    seekbarProgressThread = null;
@@ -239,12 +248,12 @@ public class QueueActivity extends Activity {
 		public void handleMessage(Message msg){
 			switch(msg.what){
 			case DECODE:
-				Log.d(Debug.TAG_QUEUE, "HandleMessage");
 				seekbar.incrementProgressBy(msg.arg1);
 				break;
 			}
 		}
 	};
+
 	
 
 
@@ -407,6 +416,7 @@ public class QueueActivity extends Activity {
 		actionMap.put(Bluecone_intent.REMOVE, REMOVE);
 		actionMap.put(Bluecone_intent.DECODE, DECODE);
 		actionMap.put(Bluecone_intent.CONNECTION_LOST, LOST_CONNECTION);
+		actionMap.put(Bluecone_intent.SET_NOW_PLAYING, RESET_PROGRESS);
 
 	}
 
