@@ -180,10 +180,10 @@ public class QueueActivity extends Activity {
 			case DECODE:
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "SET_DPS");
 				stopSeekBar();
-				seconds = (float)intent.getIntExtra(Bluecone_intent.EXTRA_CURRENT_SECONDS, 0)*100;
+				seconds = (float)intent.getIntExtra(Bluecone_intent.EXTRA_CURRENT_SECONDS, 0);
 				percent = (float)intent.getIntExtra(Bluecone_intent.EXTRA_CURRENT_PERCENT, 0);
 				Log.d(Debug.TAG_QUEUE, "Second = "+seconds+"\npercent = "+percent);
-				float totalTime = seconds/percent;
+				float totalTime = (100*seconds)/percent-seconds;
 				float tickTime = totalTime/100.0f*1000.0f;
 				Log.d(Debug.TAG_QUEUE, "TotalTime = "+totalTime);
 				startSeekBar((int)tickTime);
