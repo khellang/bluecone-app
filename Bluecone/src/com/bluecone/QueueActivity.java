@@ -57,7 +57,7 @@ public class QueueActivity extends Activity {
 	private ImageButton volume_up;
 	private ImageButton volume_down;
 	private static SeekBar seekbar;
-	private static float seconds;
+	private static int seconds;
 	private static float percent;
 	private String selection;
 	private String[]selectionArgs;
@@ -180,8 +180,8 @@ public class QueueActivity extends Activity {
 			case DECODE:
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "SET_DPS");
 				stopSeekBar();
-				seconds = (float)intent.getIntExtra(Bluecone_intent.EXTRA_CURRENT_SECONDS, 0);
-				percent = (float)intent.getIntExtra(Bluecone_intent.EXTRA_CURRENT_PERCENT, 0);
+				seconds = intent.getIntExtra(Bluecone_intent.EXTRA_CURRENT_SECONDS, 0);
+				percent = intent.getFloatExtra(Bluecone_intent.EXTRA_CURRENT_PERCENT, 0);
 				Log.d(Debug.TAG_QUEUE, "Second = "+seconds+"\npercent = "+percent);
 				float totalTime = (100*seconds)/percent-seconds;
 				float tickTime = totalTime/100.0f*1000.0f;

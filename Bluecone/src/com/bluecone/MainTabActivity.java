@@ -1,5 +1,6 @@
 package com.bluecone;
 
+import java.nio.channels.OverlappingFileLockException;
 import java.util.HashMap;
 import com.bluecone.connect.DeviceConnector;
 import com.bluecone.intent.Bluecone_intent;
@@ -309,6 +310,7 @@ public class MainTabActivity extends TabActivity {
 				intent.getStringExtra(Bluecone_intent.EXTRA_NOW_PLAYING_TRACK);
 				if(Debug.D)Log.d(Debug.TAG_MAIN, "NOW PLAYING: "+textTicker);
 				stopCenterTicker();
+				centerTickHandler.sendMessage(centerTickHandler.obtainMessage(0,textTicker.substring(0, 15)));
 				inputText(textTicker);
 			}
 		}
@@ -331,35 +333,27 @@ public class MainTabActivity extends TabActivity {
 				@Override
 				public void run() {
 					Log.d(Debug.TAG_MAIN, "RUN:::");
-					boolean dir_left = true;
 					int pos = 0;
-					while(Thread.currentThread() == centerTicker){	
-						try {
-							if(dir_left)
-							{
-								if((pos+15)<track_info.length())
-									centerTickHandler.sendMessage(centerTickHandler.obtainMessage(0,track_info.substring(++pos, (pos+15))));
-								else
-								{
-									dir_left = false;
-									Thread.sleep(200);
-								}
+					String extended_string = track_info;
+			
+					
+					while(Thread.currentThread() == centerTicker){
+						if((pos+15)<extended_string.length()){
+							centerTickHandler.sendMessage(centerTickHandler.obtainMessage(0,extended_string.substring(++pos, (pos+15))));
+							
+							try {
+								Thread.sleep(280);
+							} catch (InterruptedException e) {
+								Log.d(Debug.TAG_MAIN, "Interrupted exception");
 							}
-							else{
-								if(pos>0)
-									centerTickHandler.sendMessage(centerTickHandler.obtainMessage(0,track_info.substring(--pos, (pos+15))));
-								else
-								{
-									dir_left=true;
-									Thread.sleep(200);
-								}
-							} 
-							Thread.sleep(400);
-						}catch (InterruptedException e) {
-							if(Debug.D)Log.d(Debug.TAG_MAIN, "INTERRUPTED_EXCEPTION ");	
+							
 						}
-
+						else{
+						extended_string = extended_string.subSequence(pos, pos+15)+" - "+track_info;
+						pos = 0;
+						}		
 					}
+
 				}
 			});
 			centerTicker.start();

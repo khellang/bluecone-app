@@ -243,7 +243,8 @@ public final class BlueconeHandler extends Handler {
 					String[] rate = in[1].split("\\|");
 					Intent progress_per_second = new Intent(Bluecone_intent.DECODE);
 					progress_per_second.putExtra(Bluecone_intent.EXTRA_CURRENT_SECONDS, Integer.parseInt(rate[0]));
-					progress_per_second.putExtra(Bluecone_intent.EXTRA_CURRENT_PERCENT, Integer.parseInt(rate[1]));
+					Log.d(Debug.TAG_QUEUE, "FROM HANDLER! Percent = "+rate[1]);
+					progress_per_second.putExtra(Bluecone_intent.EXTRA_CURRENT_PERCENT, Float.parseFloat(rate[1]));
 					BlueconeContext.getContext().sendBroadcast(progress_per_second);
 					break;
 				default: Log.d(Debug.TAG_HANDLER, "Default. Input fra Bluecone: "+msg.obj);
