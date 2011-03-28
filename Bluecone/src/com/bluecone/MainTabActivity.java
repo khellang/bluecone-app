@@ -310,8 +310,9 @@ public class MainTabActivity extends TabActivity {
 				intent.getStringExtra(Bluecone_intent.EXTRA_NOW_PLAYING_TRACK);
 				if(Debug.D)Log.d(Debug.TAG_MAIN, "NOW PLAYING: "+textTicker);
 				stopCenterTicker();
-				centerTickHandler.sendMessage(centerTickHandler.obtainMessage(0,textTicker.substring(0, 15)));
-				inputText(textTicker);
+				centerTickHandler.sendMessage(centerTickHandler.obtainMessage(0,textTicker.substring(0, textTicker.length())));
+				if(textTicker.length()>15)
+					inputText(textTicker);
 			}
 		}
 	};
@@ -335,24 +336,25 @@ public class MainTabActivity extends TabActivity {
 					Log.d(Debug.TAG_MAIN, "RUN:::");
 					int pos = 0;
 					String extended_string = track_info;
-			
-					
+
+
 					while(Thread.currentThread() == centerTicker){
 						if((pos+15)<extended_string.length()){
 							centerTickHandler.sendMessage(centerTickHandler.obtainMessage(0,extended_string.substring(++pos, (pos+15))));
-							
+
 							try {
-								Thread.sleep(280);
+								Thread.sleep(450);
 							} catch (InterruptedException e) {
 								Log.d(Debug.TAG_MAIN, "Interrupted exception");
 							}
-							
+
 						}
 						else{
-						extended_string = extended_string.subSequence(pos, pos+15)+" - "+track_info;
-						pos = 0;
+							extended_string = extended_string.subSequence(pos, pos+15)+" - "+track_info;
+							pos = 0;
 						}		
 					}
+
 
 				}
 			});
