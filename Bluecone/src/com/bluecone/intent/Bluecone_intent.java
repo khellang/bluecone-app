@@ -36,6 +36,7 @@ public final class Bluecone_intent {
 	public static final String EXTRA_NOW_PLAYING_ARTIST  ="com.bluecone.intent.EXTRA_NOW_PLAYING_ARTIST";
 	public static final String EXTRA_CURRENT_SECONDS="com.bluecone.intent.EXTRA_CURRENT_SECONDS";
 	public static final String EXTRA_CURRENT_PERCENT  ="com.bluecone.intent.EXTRA_CURRENT_PERCENT";
+	public static final String EXTRA_PRIORITY_ENABLED = "com.bluecone.intent.EXTRA_PRIORITY_ENABLED";
 
 	
 

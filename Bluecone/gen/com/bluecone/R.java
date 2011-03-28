@@ -78,7 +78,6 @@ public final class R {
         public static final int custom_title_left=0x7f070003;
         public static final int custom_title_right=0x7f070005;
         public static final int exit=0x7f070022;
-        public static final int imageButton1=0x7f070012;
         public static final int imageButton2=0x7f070013;
         public static final int imageButton3=0x7f070014;
         public static final int imageButton4=0x7f070015;
@@ -92,6 +91,7 @@ public final class R {
         public static final int tableLayout1=0x7f07000f;
         public static final int tableRow1=0x7f070011;
         public static final int tableRow2=0x7f070016;
+        public static final int toggleButton1=0x7f070012;
         public static final int track_album_title=0x7f07001b;
         public static final int track_artist_name=0x7f07001a;
         public static final int track_title=0x7f070019;

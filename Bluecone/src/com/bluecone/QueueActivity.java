@@ -32,6 +32,7 @@ import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 public class QueueActivity extends Activity {
 
@@ -50,7 +51,7 @@ public class QueueActivity extends Activity {
 	private QueueBaseAdapter queueBaseAdapter;
 	private Cursor cursor;
 	private ListView listView;
-	private ImageButton prev;
+	private ToggleButton pri;
 	private ImageButton stop;
 	private ImageButton play;
 	private ImageButton next;
@@ -74,7 +75,7 @@ public class QueueActivity extends Activity {
 		isMaster = false;
 		trackHolder = new ArrayList<String>();
 		pathHolder = new ArrayList<String>();
-		prev = (ImageButton)findViewById(R.id.imageButton1);
+		pri = (ToggleButton)findViewById(R.id.toggleButton1);
 		stop = (ImageButton)findViewById(R.id.imageButton2);
 		play = (ImageButton)findViewById(R.id.imageButton3);
 		next = (ImageButton)findViewById(R.id.imageButton4);
@@ -91,7 +92,7 @@ public class QueueActivity extends Activity {
 		startManagingCursor(cursor);
 		listView.setAdapter(queueBaseAdapter);
 		registerForContextMenu(listView);
-		setMaster(false);
+		setMaster(false,true);
 
 	}
 
@@ -164,7 +165,7 @@ public class QueueActivity extends Activity {
 				break;
 			case MASTER:
 				Log.d(Debug.TAG_QUEUE, "IS_MASTER= "+intent.getBooleanExtra(Bluecone_intent.EXTRA_IS_MASTER, false));
-				setMaster(intent.getBooleanExtra(Bluecone_intent.EXTRA_IS_MASTER, false));
+				setMaster(intent.getBooleanExtra(Bluecone_intent.EXTRA_IS_MASTER, false),intent.getBooleanExtra(Bluecone_intent.EXTRA_PRIORITY_ENABLED, true));
 				break;
 			case REMOVE:
 				if(Debug.D)Log.d(Debug.TAG_QUEUE, "REMOVE");
@@ -258,17 +259,18 @@ public class QueueActivity extends Activity {
 
 
 
-	private void setMaster(boolean master){
+	private void setMaster(boolean master,boolean priority){
 		isMaster = master;
 		if (!master) {
-			prev.setVisibility(Button.GONE);
+			pri.setVisibility(Button.GONE);
 			stop.setVisibility(Button.GONE);
 			play.setVisibility(Button.GONE);
 			next.setVisibility(Button.GONE);
 			volume_up.setVisibility(Button.GONE);
 			volume_down.setVisibility(Button.GONE);
 		} else {
-			prev.setVisibility(Button.VISIBLE);
+			pri.setVisibility(Button.VISIBLE);
+			pri.setChecked(priority);
 			stop.setVisibility(Button.VISIBLE);
 			play.setVisibility(Button.VISIBLE);
 			next.setVisibility(Button.VISIBLE);
@@ -348,22 +350,11 @@ public class QueueActivity extends Activity {
 				Toast.makeText(BlueconeContext.getContext(), "Master mode required", Toast.LENGTH_SHORT).show();
 				return true;
 			}
-//				Old			
-//			selection = Track.TITLE+"=? ";
-//			selectionArgs = new String[]{(String) queueBaseAdapter.getItem(info.position)};
-//			Cursor pathCursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,
-//					new String[] {BaseColumns._ID,Track.PATH},
-//					selection, selectionArgs, null);
-//			pathCursor.moveToFirst();
 			Intent removeIntent = new Intent(Bluecone_intent.REQUEST_WRITE);
 			removeIntent.putExtra(Bluecone_intent.EXTRA_COMMAND, "QUEUEREMOVE#");
-//			Old*******************
-//			removeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, pathCursor.getString(1) );
-//			New***********************
 			Log.d(Debug.TAG_QUEUE, "pos: "+info.position+" path: "+pathHolder.get(info.position));
 			removeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, pathHolder.get(info.position));
 			sendBroadcast(removeIntent);
-//			pathCursor.close();
 			return true;
 		default:
 			return super.onContextItemSelected(item);
@@ -388,9 +379,12 @@ public class QueueActivity extends Activity {
 		sendBroadcast(intent);
 
 	}
-	public void prev(View view){
+	public void pri(View view){
+		int com = 0;
+		if(pri.isChecked())
+			com=1;
 		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
-		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "PREV");
+		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "PRI#"+com);
 		sendBroadcast(intent);
 
 	}

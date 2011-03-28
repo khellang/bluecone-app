@@ -1,6 +1,4 @@
 package com.bluecone;
-
-import java.nio.channels.OverlappingFileLockException;
 import java.util.HashMap;
 import com.bluecone.connect.DeviceConnector;
 import com.bluecone.intent.Bluecone_intent;

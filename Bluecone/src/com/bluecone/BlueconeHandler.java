@@ -193,14 +193,19 @@ public final class BlueconeHandler extends Handler {
 					break;
 				case MASTER:
 					if(Debug.D)Log.d(Debug.TAG_HANDLER, "Master Mode");
-					if (in[1].equals("OK")) {
+					String[] masterInfo = in[1].split("\\|");
+					try{
+					if (masterInfo[0].equals("OK")) {
 						Intent masterIntent = new Intent(Bluecone_intent.MASTER_MODE);
 						masterIntent.putExtra(Bluecone_intent.EXTRA_IS_MASTER, true);
+						masterIntent.putExtra(Bluecone_intent.EXTRA_PRIORITY_ENABLED, Boolean.parseBoolean(masterInfo[1]));					
 						BlueconeContext.getContext().sendBroadcast(masterIntent);
 						Toast.makeText(BlueconeContext.getContext(), "Master Mode Enabled", Toast.LENGTH_LONG).show();
-					} else if (in[1].equals("ERR")) {
+					} else if (masterInfo[0].equals("ERR")) {
 						Toast.makeText(BlueconeContext.getContext(), "Wrong Password", Toast.LENGTH_LONG).show();
 					}
+					}catch(IndexOutOfBoundsException e){Log.d(Debug.TAG_HANDLER, "IndexOutOfBoundsException");
+					Toast.makeText(BlueconeContext.getContext(), "Bluecone firmware out of date", Toast.LENGTH_LONG).show();}
 					break;
 				case REMOVE:
 					if(Debug.D)Log.d(Debug.TAG_HANDLER, "REMOVE");
