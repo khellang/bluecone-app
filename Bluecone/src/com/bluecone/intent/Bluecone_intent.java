@@ -16,7 +16,7 @@ public final class Bluecone_intent {
 	public static final String REFRESH_ALBUM = "com.bluecone.intent.REFRESH_ALBUM";
 	public static final String MASTER_MODE = "com.bluecone.intent.MASTER_MODE";
 	public static final String REMOVE = "com.bluecone.intent.REMOVE";
-	public static final String START_UPDATE_QUEUE = "com.bluecone.intent.START_UPDATE_QUEUE";
+	public static final String RECONNECT = "com.bluecone.intent.RECONNECT";
 	public static final String UPDATE_QUEUE = "com.bluecone.intent.UPDATE_QUEUE";
 	public static final String DECODE = "com.bluecone.intent.DECODE";
 

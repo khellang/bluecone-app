@@ -135,6 +135,7 @@ public final class R {
         public static final int popup_menu_cancel=0x7f04000f;
         public static final int popup_menu_remove=0x7f04000e;
         public static final int popup_menu_search=0x7f04000d;
+        public static final int re_connect=0x7f040014;
         public static final int toast_connection_failed=0x7f040010;
         public static final int toast_connection_lost=0x7f040011;
         public static final int transfer=0x7f04000c;

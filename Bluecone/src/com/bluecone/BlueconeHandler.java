@@ -38,9 +38,10 @@ public final class BlueconeHandler extends Handler {
 	public static final int STATE_NONE=0;
 	public static final int STATE_CONNECTING=1;
 	public static final int STATE_CONNECTED=2;
+	public static final int STATE_RECONNECT=3;
 	//**********************************
 	public static final int FINISHED_INSERT=1;
-	public static final int INPUT_PREP=2;
+	public static final int WRITE=2;
 	public static final int INPUT=3;	
 	//***********************************
 	private static final int LISTSTART = 0;
@@ -65,8 +66,9 @@ public final class BlueconeHandler extends Handler {
 	private final	int TRACK = 3;
 
 	private boolean ready_to_release = false;
+	private boolean reconnect = false;
 	private List<Intent> queueBuffer = new ArrayList<Intent>();
-	private Intent remove_buffer;
+	private Intent remove_bufferIntent;
 	private String [] selectionArg_buffer;
 
 	private final Intent progressIntent = new Intent(Bluecone_intent.START_TRANSMITT);
@@ -100,6 +102,14 @@ public final class BlueconeHandler extends Handler {
 				Intent intent = new Intent(Bluecone_intent.DEVICE_CONNECTED);
 				BlueconeContext.getContext().sendBroadcast(intent);
 				break;
+			case STATE_RECONNECT:
+				if(Debug.D)Log.d(Debug.TAG_HANDLER, "RECONNECT");
+				reconnect = true;
+				Intent reConnectIntent = new Intent(Bluecone_intent.RECONNECT);
+				BlueconeContext.getContext().sendBroadcast(reConnectIntent);
+				DeviceConnector.getDeviceConnector().connect(DeviceConnector.getDeviceConnector().getCurrentMac());
+
+				break;
 
 			}
 			break;
@@ -108,8 +118,8 @@ public final class BlueconeHandler extends Handler {
 			for(Intent i:queueBuffer){
 				BlueconeContext.getContext().sendBroadcast(i);
 			}
-			if(remove_buffer!=null)
-			BlueconeContext.getContext().sendBroadcast(remove_buffer);
+			if(remove_bufferIntent!=null)
+				BlueconeContext.getContext().sendBroadcast(remove_bufferIntent);
 			if(selectionArg_buffer!=null){
 				String selection = Track.PATH+"=? ";
 				Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE,
@@ -124,10 +134,15 @@ public final class BlueconeHandler extends Handler {
 				}catch(CursorIndexOutOfBoundsException e){
 					Log.d(Debug.TAG_HANDLER, "PLAYING: Cursor size =  "+cur.getCount());
 				}
-				
+
 			}
 			ready_to_release = true;
 
+			break;
+		case WRITE:
+			String write = (String) msg.obj;
+			Log.d(Debug.TAG_HANDLER, "WRITE:"+write);
+			DeviceConnector.getDeviceConnector().write(write.getBytes());
 			break;
 		case INPUT:
 			try{
@@ -136,14 +151,16 @@ public final class BlueconeHandler extends Handler {
 
 				switch(map.get(in[0])){
 				case LISTSTART:
-					max = Integer.parseInt(in[1]);
-					contents[0] = new ArtistContent(max,0);
-					contents[1] = new AlbumContent(max,1);
-					contents[2] = new TrackContent(max,2);
-					BlueconeContentProvider.dropBlueconeDatabase();
-					Intent progressIntent = new Intent(Bluecone_intent.REQUEST_TRANSMITT);
-					progressIntent.putExtra(Bluecone_intent.EXTRA_PROGRESS_MAX, max);
-					BlueconeContext.getContext().sendBroadcast(progressIntent);
+					if(!reconnect){
+						max = Integer.parseInt(in[1]);
+						contents[0] = new ArtistContent(max,0);
+						contents[1] = new AlbumContent(max,1);
+						contents[2] = new TrackContent(max,2);
+						BlueconeContentProvider.dropBlueconeDatabase();
+						Intent progressIntent = new Intent(Bluecone_intent.REQUEST_TRANSMITT);
+						progressIntent.putExtra(Bluecone_intent.EXTRA_PROGRESS_MAX, max);
+						BlueconeContext.getContext().sendBroadcast(progressIntent);
+					}
 					break;
 				case QUEUE:
 					Log.d(Debug.TAG_HANDLER, "QUEUE");
@@ -161,67 +178,60 @@ public final class BlueconeHandler extends Handler {
 					break;
 				case LIST:
 					if(Debug.D)Log.d(Debug.TAG_HANDLER, "List: in[0] =  "+in[0]+"\nin[1]= "+in[1]);
-					String[] input = in[1].split("\\|");
-					try{
-						contents[0].setArtist(input[ARTIST]);
-						contents[1].setAlbum(input[ALBUM]);
-						contents[1].setArtist(input[ARTIST]);
-						contents[2].setPath(input[PATH]);
-						contents[2].setTitle(input[TRACK]);
-						contents[2].setAlbum(input[ALBUM]);
-						contents[2].setArtist(input[ARTIST]);
-						contents[2].setLenght(500);
-					}catch(NullPointerException e){
-						Log.d(Debug.TAG_HANDLER, "NullPointer");
+					if(!reconnect){
+						String[] input = in[1].split("\\|");
+						try{
+							contents[0].setArtist(input[ARTIST]);
+							contents[1].setAlbum(input[ALBUM]);
+							contents[1].setArtist(input[ARTIST]);
+							contents[2].setPath(input[PATH]);
+							contents[2].setTitle(input[TRACK]);
+							contents[2].setAlbum(input[ALBUM]);
+							contents[2].setArtist(input[ARTIST]);
+							contents[2].setLenght(500);
+						}catch(NullPointerException e){
+							Log.d(Debug.TAG_HANDLER, "NullPointer");
+						}
+						BlueconeContext.getContext().sendBroadcast(this.progressIntent);
+						if(contents[0].tryCommit()){
+							final ProgressDialog center = ProgressDialog.show(BlueconeContext.getContext(), null, "Insert to database",true,false);
+
+							new Thread(new Runnable() {
+
+								@Override
+								public void run() {
+									for(Contents c:contents)
+										c.commitContent();
+									center.dismiss();
+									BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.FINISHED_INSERT).sendToTarget();
+								}
+							}).start();
+						}
 					}
-					BlueconeContext.getContext().sendBroadcast(this.progressIntent);
-					if(contents[0].tryCommit()){
-						final ProgressDialog center = ProgressDialog.show(BlueconeContext.getContext(), null, "Insert to database",true,false);
-
-						new Thread(new Runnable() {
-
-							@Override
-							public void run() {
-								for(Contents c:contents)
-									c.commitContent();
-								center.dismiss();
-								BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.FINISHED_INSERT).sendToTarget();
-							}
-						}).start();
-					}
-
 					break;
 				case MASTER:
 					if(Debug.D)Log.d(Debug.TAG_HANDLER, "Master Mode");
 					String[] masterInfo = in[1].split("\\|");
 					try{
-					if (masterInfo[0].equals("OK")) {
-						Intent masterIntent = new Intent(Bluecone_intent.MASTER_MODE);
-						masterIntent.putExtra(Bluecone_intent.EXTRA_IS_MASTER, true);
-						masterIntent.putExtra(Bluecone_intent.EXTRA_PRIORITY_ENABLED, Boolean.parseBoolean(masterInfo[1]));					
-						BlueconeContext.getContext().sendBroadcast(masterIntent);
-						Toast.makeText(BlueconeContext.getContext(), "Master Mode Enabled", Toast.LENGTH_LONG).show();
-					} else if (masterInfo[0].equals("ERR")) {
-						Toast.makeText(BlueconeContext.getContext(), "Wrong Password", Toast.LENGTH_LONG).show();
-					}
+						if (masterInfo[0].equals("OK")) {
+							Intent masterIntent = new Intent(Bluecone_intent.MASTER_MODE);
+							masterIntent.putExtra(Bluecone_intent.EXTRA_IS_MASTER, true);
+							masterIntent.putExtra(Bluecone_intent.EXTRA_PRIORITY_ENABLED, Boolean.parseBoolean(masterInfo[1]));					
+							BlueconeContext.getContext().sendBroadcast(masterIntent);
+							Toast.makeText(BlueconeContext.getContext(), "Master Mode Enabled", Toast.LENGTH_LONG).show();
+						} else if (masterInfo[0].equals("ERR")) {
+							Toast.makeText(BlueconeContext.getContext(), "Wrong Password", Toast.LENGTH_LONG).show();
+						}
 					}catch(IndexOutOfBoundsException e){Log.d(Debug.TAG_HANDLER, "IndexOutOfBoundsException");
 					Toast.makeText(BlueconeContext.getContext(), "Bluecone firmware out of date", Toast.LENGTH_LONG).show();}
 					break;
 				case REMOVE:
 					if(Debug.D)Log.d(Debug.TAG_HANDLER, "REMOVE");
 					Intent removeIntent = new Intent(Bluecone_intent.REMOVE);
-					if(!ready_to_release){
-						Log.d(Debug.TAG_HANDLER, "Added to removebuffer");
-						remove_buffer = removeIntent;
 						try{
-							remove_buffer.putExtra(Bluecone_intent.EXTRA_REMOVE_POS, Integer.parseInt(in[1]));
-						}catch(ArrayIndexOutOfBoundsException e){}
-				
-					}else {try{
 						removeIntent.putExtra(Bluecone_intent.EXTRA_REMOVE_POS, Integer.parseInt(in[1]));
 					}catch(ArrayIndexOutOfBoundsException e){}
 					BlueconeContext.getContext().sendBroadcast(removeIntent);
-					}
 					break;
 				case PLAYING:
 					String selection = Track.PATH+"=? ";
@@ -231,17 +241,17 @@ public final class BlueconeHandler extends Handler {
 						Log.d(Debug.TAG_HANDLER, "Added to selectionArgbuffer");
 					}
 					else{
-					Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE,
-							Track.ARTIST_NAME}, selection, selectionArgs, null);
-					cur.moveToFirst();
-					try{
-						Intent currentTrackIntent = new Intent(Bluecone_intent.SET_NOW_PLAYING);
-						currentTrackIntent.putExtra(Bluecone_intent.EXTRA_NOW_PLAYING_TRACK, cur.getString(1));
-						currentTrackIntent.putExtra(Bluecone_intent.EXTRA_NOW_PLAYING_ARTIST, cur.getString(2));	
-						BlueconeContext.getContext().sendBroadcast(currentTrackIntent);
-					}catch(CursorIndexOutOfBoundsException e){
-						Log.d(Debug.TAG_HANDLER, "PLAYING: Cursor size =  "+cur.getCount());
-					}
+						Cursor cur = contentResolver.query(ArtistList.Track.CONTENT_URI, new String[] {BaseColumns._ID,Track.TITLE,
+								Track.ARTIST_NAME}, selection, selectionArgs, null);
+						cur.moveToFirst();
+						try{
+							Intent currentTrackIntent = new Intent(Bluecone_intent.SET_NOW_PLAYING);
+							currentTrackIntent.putExtra(Bluecone_intent.EXTRA_NOW_PLAYING_TRACK, cur.getString(1));
+							currentTrackIntent.putExtra(Bluecone_intent.EXTRA_NOW_PLAYING_ARTIST, cur.getString(2));	
+							BlueconeContext.getContext().sendBroadcast(currentTrackIntent);
+						}catch(CursorIndexOutOfBoundsException e){
+							Log.d(Debug.TAG_HANDLER, "PLAYING: Cursor size =  "+cur.getCount());
+						}
 					}
 					break;
 				case DECODE:

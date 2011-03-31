@@ -33,17 +33,23 @@ public class DeviceConnector {
 	public static final int STATE_NONE = 0;
 	public static final int STATE_CONNECTING = 1;
 	public static final int STATE_CONNECTED = 2;
+	public static final int STATE_RECONNECT = 3;
 	public static final String KEY_NAME = "name";
 	public static final String KEY_TOAST = "toast";
 	public static final int FLAG_NAME = 5;
 
-	
+	private String mac_adress;
 	private int state;
+	private int connection_attempts = -1;
 
-	
+	private static DeviceConnector CONNECTOR = new DeviceConnector();
 	public DeviceConnector(){
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		state = STATE_NONE;
+	}
+	
+	public static DeviceConnector getDeviceConnector(){
+		return CONNECTOR;
 	}
 	
 	private BluetoothDevice setDeviceByMAC(String mac){
@@ -51,6 +57,19 @@ public class DeviceConnector {
 		return bluetoothAdapter.getRemoteDevice(mac);
 	}
 
+	public void setCurrentMac(String mac){
+		mac_adress = mac;
+	}
+	public String getCurrentMac(){
+		return mac_adress;
+	}
+	public void reset() {
+		connection_attempts = -1;
+		
+	}
+	public int getAttempts(){
+		return connection_attempts;
+	}
 	
     public synchronized void start() {
         if (Debug.D) Log.d(Debug.TAG_CONNECTOR, "start");
@@ -84,14 +103,14 @@ public class DeviceConnector {
 		cancelThreads();//Avslutter alle tråder
 		connectedThread = new ConnectedThread(socket);
 		connectedThread.start();
-		
+		setCurrentMac(device.getAddress());
 		Message msg = BlueconeHandler.getHandler().obtainMessage(FLAG_NAME);
 		Bundle bundle = new Bundle();
 		bundle.putString(KEY_NAME, device.getName());
 		msg.setData(bundle);
-		BlueconeHandler.getHandler().sendMessage(msg);
-		
+		BlueconeHandler.getHandler().sendMessage(msg);		
 		setState(STATE_CONNECTED);
+		
 
 	}
 	public synchronized void stop(){
@@ -112,20 +131,29 @@ public class DeviceConnector {
 	
 	private void connectionFailed(){
 		if(Debug.D)Log.d(Debug.TAG_CONNECTOR, "connection failed....");
+		if((connection_attempts)>=0&&connection_attempts<200){
+			++connection_attempts;
+			setState(STATE_RECONNECT);
+		}
+		else{
 		Message msg = BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.TOAST);
 		Bundle bundle = new Bundle();
 		bundle.putString(KEY_TOAST, BlueconeContext.getContext().getResources().getString(R.string.toast_connection_failed));
 		msg.setData(bundle);
 		BlueconeHandler.getHandler().sendMessage(msg);
-		setState(STATE_NONE);		
+			setState(STATE_NONE);
+		}
 	}
 	private void connectionLost(){
+		++connection_attempts;
 		Message msg = BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.TOAST);
 		Bundle bundle = new Bundle();
 		bundle.putString(KEY_TOAST, BlueconeContext.getContext().getResources().getString(R.string.toast_connection_lost));
 		msg.setData(bundle);
 		BlueconeHandler.getHandler().sendMessage(msg);
 		setState(STATE_NONE);
+		setState(STATE_RECONNECT);
+		
 	}
 	
 	
@@ -311,5 +339,7 @@ public class DeviceConnector {
 		
 		return state;
 	}
+
+
 
 }

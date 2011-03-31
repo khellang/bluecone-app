@@ -197,10 +197,11 @@ public class AlbumListActivity extends ListActivity {
 				public void run() {
 					while(i<nbr_of_tracks){
 						Log.d(Debug.TAG_ALBUM, "path = "+paths[i]);
-						Intent writeIntent = new Intent(Bluecone_intent.REQUEST_WRITE);
-						writeIntent.putExtra(Bluecone_intent.EXTRA_COMMAND,"ADD#");
-						writeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, paths[i++]);
-						sendBroadcast(writeIntent);
+//						Intent writeIntent = new Intent(Bluecone_intent.REQUEST_WRITE);
+//						writeIntent.putExtra(Bluecone_intent.EXTRA_COMMAND,"ADD#");
+//						writeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, paths[i++]);
+//						sendBroadcast(writeIntent);
+						BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "ADD#"+paths[i++]));
 						try {
 							Thread.sleep(1000);
 						} catch (InterruptedException e) {

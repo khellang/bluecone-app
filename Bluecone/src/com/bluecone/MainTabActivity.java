@@ -32,13 +32,12 @@ public class MainTabActivity extends TabActivity {
 
 
 	/**Receiver handling*/
-	private static final int WRITE = 0;
 	private static final int CONNECTED = 1;
 	private static final int TRANSMITT = 2;
 	private static final int TRANSMITTING = 3;
 	private static final int DISCONNECTED = 4;
-	private static final int MASTER = 5;
 	private static final int NOW_PLAYING = 6;
+	private static final int RECONNECT = 7;
 
 	/**Activity result handling*/
 	private static final int REQUEST_ENABLE = 1;
@@ -53,6 +52,7 @@ public class MainTabActivity extends TabActivity {
 	private static TextView title_center;
 	private int max;
 	private int progress;
+	
 
 	/**Instances to be used by other classes in this package */
 	protected static DeviceConnector deviceConnector;
@@ -133,20 +133,18 @@ public class MainTabActivity extends TabActivity {
 	public void onStart() {
 		super.onStart();
 		Log.d(Debug.TAG_MAIN, "onStart");
-		IntentFilter writeIntent = new IntentFilter(Bluecone_intent.REQUEST_WRITE);
 		IntentFilter connectedIntent = new IntentFilter(Bluecone_intent.DEVICE_CONNECTED);
 		IntentFilter transmittIntent = new IntentFilter(Bluecone_intent.REQUEST_TRANSMITT);
 		IntentFilter startTransmittIntent = new IntentFilter(Bluecone_intent.START_TRANSMITT);
 		IntentFilter disconnectedIntent = new IntentFilter(Bluecone_intent.CONNECTION_LOST);
-		IntentFilter masterIntent = new IntentFilter(Bluecone_intent.REQUEST_MASTER);
 		IntentFilter currentTrackIntent = new IntentFilter(Bluecone_intent.SET_NOW_PLAYING);
-		this.registerReceiver(receiver, writeIntent);
+		IntentFilter reConnectIntent = new IntentFilter(Bluecone_intent.RECONNECT);
 		this.registerReceiver(receiver, connectedIntent);
 		this.registerReceiver(receiver, transmittIntent);
 		this.registerReceiver(receiver, startTransmittIntent);
 		this.registerReceiver(receiver, disconnectedIntent);
-		this.registerReceiver(receiver, masterIntent);
 		this.registerReceiver(receiver, currentTrackIntent);
+		this.registerReceiver(receiver, reConnectIntent);
 
 		if (!bluetoothAdapter.isEnabled()) {
 			Intent enableIntent = new Intent(
@@ -178,7 +176,9 @@ public class MainTabActivity extends TabActivity {
 			if (resultCode == RESULT_OK) {
 				String mac = data.getExtras().getString(
 						Bluecone_intent.EXTRA_UNIT_ADDRESS);
-				deviceConnector.connect(mac);
+				DeviceConnector.getDeviceConnector().reset();
+				DeviceConnector.getDeviceConnector().connect(mac);
+				//deviceConnector.connect(mac);
 			}
 			break;
 		}
@@ -224,12 +224,7 @@ public class MainTabActivity extends TabActivity {
 				public void onClick(DialogInterface dialog,
 						int whichButton) {
 					String value = input.getText().toString();
-					Intent writeIntent = new Intent(
-							Bluecone_intent.REQUEST_MASTER);
-					writeIntent.putExtra(
-							Bluecone_intent.EXTRA_MASTER_COMMAND, "MASTER#"
-							+ value);
-					sendBroadcast(writeIntent);
+		BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "MASTER#"+value));
 				}
 			});
 
@@ -257,12 +252,6 @@ public class MainTabActivity extends TabActivity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			switch (actionMap.get(intent.getAction())) {
-			case WRITE:
-				if(Debug.D)
-					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: WRITE");
-				String write = intent.getStringExtra(Bluecone_intent.EXTRA_COMMAND) + intent.getStringExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE);
-				deviceConnector.write(write.getBytes());
-				break;
 			case CONNECTED:
 				if(Debug.D)
 					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: CONNECTED");
@@ -297,12 +286,6 @@ public class MainTabActivity extends TabActivity {
 				title_center.setText("");
 				stopCenterTicker();
 				break;
-			case MASTER:
-				if(Debug.D)
-					Log.d(Debug.TAG_MAIN, "BroadcastReceiver: MASTER");
-				String masterCommand = intent.getStringExtra(Bluecone_intent.EXTRA_MASTER_COMMAND);
-				deviceConnector.write(masterCommand.getBytes());
-				break;
 			case NOW_PLAYING:
 				String textTicker = intent.getStringExtra(Bluecone_intent.EXTRA_NOW_PLAYING_ARTIST)+" - "+
 				intent.getStringExtra(Bluecone_intent.EXTRA_NOW_PLAYING_TRACK);
@@ -311,6 +294,12 @@ public class MainTabActivity extends TabActivity {
 				centerTickHandler.sendMessage(centerTickHandler.obtainMessage(0,textTicker.substring(0, textTicker.length())));
 				if(textTicker.length()>15)
 					inputText(textTicker);
+				break;
+			case RECONNECT:
+				Log.d(Debug.TAG_MAIN, "BroadcastReceiver: RECONNECT");
+				title_right.setText(R.string.re_connect);
+				title_center.setText("");
+
 			}
 		}
 	};
@@ -376,12 +365,11 @@ public class MainTabActivity extends TabActivity {
 	/**Fill hashmap*/
 	static {
 		actionMap = new HashMap<String, Integer>();
-		actionMap.put(Bluecone_intent.REQUEST_WRITE, WRITE);
 		actionMap.put(Bluecone_intent.DEVICE_CONNECTED, CONNECTED);
 		actionMap.put(Bluecone_intent.REQUEST_TRANSMITT, TRANSMITT);
 		actionMap.put(Bluecone_intent.START_TRANSMITT, TRANSMITTING);
 		actionMap.put(Bluecone_intent.CONNECTION_LOST, DISCONNECTED);
-		actionMap.put(Bluecone_intent.REQUEST_MASTER, MASTER);
 		actionMap.put(Bluecone_intent.SET_NOW_PLAYING, NOW_PLAYING);
+		actionMap.put(Bluecone_intent.RECONNECT, RECONNECT);
 	}
 }

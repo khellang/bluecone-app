@@ -37,7 +37,7 @@ import android.widget.ToggleButton;
 public class QueueActivity extends Activity {
 
 
-	private static final int START = 0;
+	private static final int CLEAR = 0;
 	private static final int UPDATE = 1;
 	private static final int MASTER = 2;
 	private static final int REMOVE = 3;
@@ -99,12 +99,14 @@ public class QueueActivity extends Activity {
 	@Override
 	public void onStart(){
 		super.onStart();
+		IntentFilter clearQueueIntent = new IntentFilter(Bluecone_intent.RECONNECT);
 		IntentFilter queueIntent = new IntentFilter(Bluecone_intent.UPDATE_QUEUE);
 		IntentFilter masterIntent = new IntentFilter(Bluecone_intent.MASTER_MODE);
 		IntentFilter removeIntent = new IntentFilter(Bluecone_intent.REMOVE);
 		IntentFilter progressIntent = new IntentFilter(Bluecone_intent.DECODE);
 		IntentFilter lostConnectionIntent = new IntentFilter(Bluecone_intent.CONNECTION_LOST);
 		IntentFilter resetTrack_tick = new IntentFilter(Bluecone_intent.SET_NOW_PLAYING);
+		this.registerReceiver(receiver, clearQueueIntent);
 		this.registerReceiver(receiver, queueIntent);
 		this.registerReceiver(receiver, masterIntent);
 		this.registerReceiver(receiver, removeIntent);
@@ -140,10 +142,14 @@ public class QueueActivity extends Activity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			switch(actionMap.get(intent.getAction())){
+			case CLEAR:
+				trackHolder.clear();
+				pathHolder.clear();
+				update();
+				break;
 			case UPDATE:
 				selection = Track.PATH+"=? ";
 				selectionArgs = new String[]{intent.getStringExtra(Track.PATH)};
-				if(Debug.D)Log.d(Debug.TAG_QUEUE, "input: "+selectionArgs[0]);
 
 				cursor = BlueconeContext.getContext().getContentResolver().query(Track.CONTENT_URI,
 						new String[] {BaseColumns._ID,Track.TITLE,}
@@ -151,11 +157,17 @@ public class QueueActivity extends Activity {
 				cursor.moveToFirst();
 
 				int pos = Integer.parseInt(intent.getStringExtra(Bluecone_intent.EXTRA_POS));
-				try{
+				if(Debug.D)Log.d(Debug.TAG_QUEUE, "input: "+selectionArgs[0]+" pos= "+pos+" \ntrackholder.size= "+trackHolder.size()+
+						"\npathHolder.size= "+pathHolder.size());
+				
+				if(pos<=trackHolder.size()){
 					trackHolder.add(pos, cursor.getString(1));
 					pathHolder.add(pos, selectionArgs[0]);
-				}catch(IndexOutOfBoundsException e){
-					Log.d(Debug.TAG_QUEUE, ""+e);
+					
+				}else{
+					trackHolder.add(cursor.getString(1));
+					pathHolder.add(selectionArgs[0]);
+					
 				}
 				cursor.close();
 				update();
@@ -350,11 +362,12 @@ public class QueueActivity extends Activity {
 				Toast.makeText(BlueconeContext.getContext(), "Master mode required", Toast.LENGTH_SHORT).show();
 				return true;
 			}
-			Intent removeIntent = new Intent(Bluecone_intent.REQUEST_WRITE);
-			removeIntent.putExtra(Bluecone_intent.EXTRA_COMMAND, "QUEUEREMOVE#");
-			Log.d(Debug.TAG_QUEUE, "pos: "+info.position+" path: "+pathHolder.get(info.position));
-			removeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, pathHolder.get(info.position));
-			sendBroadcast(removeIntent);
+//			Intent removeIntent = new Intent(Bluecone_intent.REQUEST_WRITE);
+//			removeIntent.putExtra(Bluecone_intent.EXTRA_COMMAND, "QUEUEREMOVE#");
+//			Log.d(Debug.TAG_QUEUE, "pos: "+info.position+" path: "+pathHolder.get(info.position));
+//			removeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, pathHolder.get(info.position));
+//			sendBroadcast(removeIntent);
+			BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "QUEUEREMOVE#"+pathHolder.get(info.position)));
 			return true;
 		default:
 			return super.onContextItemSelected(item);
@@ -363,47 +376,49 @@ public class QueueActivity extends Activity {
 
 
 	public void play(View view){
-		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
-		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "PLAY");
-		sendBroadcast(intent);
+//		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
+//		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "PLAY");
+//		sendBroadcast(intent);
+		BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "PLAY"));
 	}
 	public void stop(View view){
-		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
-		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "STOP");
-		sendBroadcast(intent);
+//		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
+//		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "STOP");
+//		sendBroadcast(intent);
 
+		BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "STOP"));
 	}
 	public void next(View view){
-		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
-		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "NEXT");
-		sendBroadcast(intent);
-
+//		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
+//		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "NEXT");
+//		sendBroadcast(intent);
+		BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "NEXT"));
 	}
 	public void pri(View view){
 		int com = 0;
 		if(pri.isChecked())
 			com=1;
-		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
-		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "PRI#"+com);
-		sendBroadcast(intent);
-
+//		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
+//		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "PRI#"+com);
+//		sendBroadcast(intent);
+		BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "PRI#"+com));
 	}
 	public void adjustVolumeUp(View view){
-		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
-		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "VOLUP");
-		sendBroadcast(intent);
-
+//		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
+//		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "VOLUP");
+//		sendBroadcast(intent);
+		BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "VOLUP"));
 	}
 	public void adjustVolumeDown(View view){
-		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
-		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "VOLDOWN");
-		sendBroadcast(intent);
-
+//		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
+//		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "VOLDOWN");
+//		sendBroadcast(intent);
+		BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "VOLDOWN"));
 	}
 
 	static{
 		actionMap = new HashMap<String, Integer>();
-		actionMap.put(Bluecone_intent.START_UPDATE_QUEUE, START);
+		actionMap.put(Bluecone_intent.RECONNECT, CLEAR);
 		actionMap.put(Bluecone_intent.UPDATE_QUEUE, UPDATE);
 		actionMap.put(Bluecone_intent.MASTER_MODE, MASTER);
 		actionMap.put(Bluecone_intent.MASTER_MODE, MASTER);

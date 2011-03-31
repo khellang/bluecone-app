@@ -138,10 +138,11 @@ public class TrackListActivity extends ListActivity {
 			Log.d(Debug.TAG_TRACK, "OnListItemClick");
 			((ViewHolder)v.getTag()).title.setEnabled(true);
 			String path = ((ViewHolder)v.getTag()).path;
-			Intent writeIntent = new Intent(Bluecone_intent.REQUEST_WRITE);
-			writeIntent.putExtra(Bluecone_intent.EXTRA_COMMAND,"ADD#");
-			writeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, path);
-			sendBroadcast(writeIntent);
+//			Intent writeIntent = new Intent(Bluecone_intent.REQUEST_WRITE);
+//			writeIntent.putExtra(Bluecone_intent.EXTRA_COMMAND,"ADD#");
+//			writeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, path);
+//			sendBroadcast(writeIntent);
+			BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "ADD#"+path));
 	}
 	
 	
