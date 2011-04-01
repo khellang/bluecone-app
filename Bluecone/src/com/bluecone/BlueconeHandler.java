@@ -101,6 +101,10 @@ public final class BlueconeHandler extends Handler {
 			case STATE_CONNECTED:
 				Intent intent = new Intent(Bluecone_intent.DEVICE_CONNECTED);
 				BlueconeContext.getContext().sendBroadcast(intent);
+				String obj = "REQ_ALL";
+				if(reconnect)
+					obj = "REQ_QUEUE";
+				this.sendMessage(this.obtainMessage(WRITE, obj));
 				break;
 			case STATE_RECONNECT:
 				if(Debug.D)Log.d(Debug.TAG_HANDLER, "RECONNECT");
@@ -188,7 +192,6 @@ public final class BlueconeHandler extends Handler {
 							contents[2].setTitle(input[TRACK]);
 							contents[2].setAlbum(input[ALBUM]);
 							contents[2].setArtist(input[ARTIST]);
-							contents[2].setLenght(500);
 						}catch(NullPointerException e){
 							Log.d(Debug.TAG_HANDLER, "NullPointer");
 						}

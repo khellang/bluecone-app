@@ -37,11 +37,5 @@ public class ArtistContent extends Contents {
 		
 	}
 
-	@Override
-	public void setLenght(int lenght) {
-		if(Debug.D)Log.d(Debug.TAG_ARTIST_CONTENTS, "setLenght not implemented");
-		
-	}
-
 
 }

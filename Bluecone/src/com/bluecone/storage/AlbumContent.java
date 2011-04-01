@@ -40,12 +40,6 @@ public class AlbumContent extends Contents {
 		
 	}
 
-	@Override
-	public void setLenght(int lenght) {
-		if(Debug.D)Log.d(Debug.TAG_ALBUM_CONTENTS, "setLenght not implemented");
-		
-	}
-
 
 
 }

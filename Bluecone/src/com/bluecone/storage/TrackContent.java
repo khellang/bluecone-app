@@ -36,12 +36,6 @@ public class TrackContent extends Contents {
 		
 	}
 
-	@SuppressWarnings("static-access")
-	@Override
-	public void setLenght(int lenght) {
-		super.value[super.index].put(Track.TRACK_LENGHT, lenght);
-		
-	}
 
 
 

@@ -202,8 +202,8 @@ public class MainTabActivity extends TabActivity {
 			Intent intent = new Intent(Bluecone_intent.REQUEST_CONNECT);
 			startActivityForResult(intent, REQUEST_DEVICE);
 			break;
-		case R.id.back:
-			Log.d(Debug.TAG_MAIN, "MenueSelected: back");
+		case R.id.list:
+			Log.d(Debug.TAG_MAIN, "MenueSelected: list");
 			Intent refreshIntent = new Intent(Bluecone_intent.REFRESH);
 			sendBroadcast(refreshIntent);
 			break;

@@ -71,7 +71,6 @@ public final class R {
         public static final int album_artist_name=0x7f070001;
         public static final int album_title=0x7f070000;
         public static final int artist_name=0x7f070002;
-        public static final int back=0x7f070020;
         public static final int cancel=0x7f070024;
         public static final int cancel_add_album=0x7f07001e;
         public static final int custom_title_center=0x7f070004;
@@ -81,6 +80,7 @@ public final class R {
         public static final int imageButton2=0x7f070013;
         public static final int imageButton3=0x7f070014;
         public static final int imageButton4=0x7f070015;
+        public static final int list=0x7f070020;
         public static final int master=0x7f070021;
         public static final int progress_horizontal=0x7f07000c;
         public static final int queue_list=0x7f07000e;
@@ -127,8 +127,8 @@ public final class R {
         public static final int device_title_new=0x7f040005;
         public static final int device_title_paired=0x7f040004;
         public static final int menu_add_album=0x7f040013;
-        public static final int menu_back=0x7f040002;
         public static final int menu_exit=0x7f040012;
+        public static final int menu_list=0x7f040002;
         public static final int menu_master=0x7f040003;
         public static final int menu_scan=0x7f040001;
         public static final int not_connected=0x7f04000a;

@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">BlueCone</string>
     <string name="menu_scan">Scan</string>
-    <string name="menu_back">List all</string>
+    <string name="menu_list">List all</string>
     <string name="menu_master">Master Mode</string>
     <string name="device_title_paired">Paired device</string>
     <string name="device_title_new">Unpaired devices</string>

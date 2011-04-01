@@ -2,7 +2,7 @@
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
 <item android:id="@+id/scan" android:title="@string/menu_scan"></item>
-<item android:title="@string/menu_back" android:id="@+id/back"></item>
+<item android:title="@string/menu_list" android:id="@+id/list"></item>
 <item android:id="@+id/master" android:title="@string/menu_master" android:icon="@drawable/ic_master"></item>
 <item android:id="@+id/exit" android:title="@string/menu_exit"></item>
 </menu>

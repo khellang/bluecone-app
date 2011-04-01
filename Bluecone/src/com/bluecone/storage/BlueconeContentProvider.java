@@ -56,7 +56,7 @@ public class BlueconeContentProvider extends ContentProvider {
 			db.execSQL("CREATE TABLE IF NOT EXISTS " + TRACK_TABLE_NAME + " (" +
 					BaseColumns._ID + " INTEGER, " + Track.PATH + " VARCHAR(255) UNIQUE, " +
 					Track.TITLE + " VARCHAR(30), " + Track.ALBUM_TITLE + " VARCHAR(30), " +
-					Track.ARTIST_NAME + " VARCHAR(30), "+Track.TRACK_LENGHT + " INTEGER, PRIMARY KEY (" + BaseColumns._ID + ", " + Track.PATH + "), " +
+					Track.ARTIST_NAME + " VARCHAR(30), PRIMARY KEY (" + BaseColumns._ID + ", " + Track.PATH + "), " +
 					"FOREIGN KEY (" + Track.ALBUM_TITLE + ") REFERENCES " + ALBUM_TABLE_NAME + "(" + Album.TITLE + "), " +
 					"FOREIGN KEY (" + Track.ARTIST_NAME + ") REFERENCES " + ARTIST_TABLE_NAME + "(" + Artist.NAME + "))");
 		}
@@ -282,7 +282,6 @@ public class BlueconeContentProvider extends ContentProvider {
 		trackProjectionMap.put(Track.TITLE, Track.TITLE);
 		trackProjectionMap.put(Track.ALBUM_TITLE, Track.ALBUM_TITLE);
 		trackProjectionMap.put(Track.ARTIST_NAME, Track.ARTIST_NAME);
-		trackProjectionMap.put(Track.TRACK_LENGHT, Track.TRACK_LENGHT);
 	}
 
 }
