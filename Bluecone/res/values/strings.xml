@@ -22,5 +22,5 @@
     <string name="toast_connection_lost">Connection lost</string>
     <string name="menu_exit">Exit</string>
     <string name="menu_add_album">Queue album</string>
-    <string name="re_connect">Reconnecting...</string>
+    <string name="re_connect">Out of range</string>
 </resources>

@@ -99,12 +99,14 @@ public final class BlueconeHandler extends Handler {
 			case STATE_CONNECTING:
 				break;
 			case STATE_CONNECTED:
+				
 				Intent intent = new Intent(Bluecone_intent.DEVICE_CONNECTED);
 				BlueconeContext.getContext().sendBroadcast(intent);
 				String obj = "REQ_ALL";
 				if(reconnect)
 					obj = "REQ_QUEUE";
 				this.sendMessage(this.obtainMessage(WRITE, obj));
+				reconnect = false;
 				break;
 			case STATE_RECONNECT:
 				if(Debug.D)Log.d(Debug.TAG_HANDLER, "RECONNECT");
@@ -146,6 +148,9 @@ public final class BlueconeHandler extends Handler {
 		case WRITE:
 			String write = (String) msg.obj;
 			Log.d(Debug.TAG_HANDLER, "WRITE:"+write);
+			if(reconnect)
+				Toast.makeText(BlueconeContext.getContext(), "Bluecone out of range", Toast.LENGTH_LONG).show();
+			else
 			DeviceConnector.getDeviceConnector().write(write.getBytes());
 			break;
 		case INPUT:
