@@ -98,8 +98,7 @@ public final class BlueconeHandler extends Handler {
 				break;
 			case STATE_CONNECTING:
 				break;
-			case STATE_CONNECTED:
-				
+			case STATE_CONNECTED:				
 				Intent intent = new Intent(Bluecone_intent.DEVICE_CONNECTED);
 				BlueconeContext.getContext().sendBroadcast(intent);
 				String obj = "REQ_ALL";
