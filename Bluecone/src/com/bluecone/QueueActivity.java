@@ -362,11 +362,6 @@ public class QueueActivity extends Activity {
 				Toast.makeText(BlueconeContext.getContext(), "Master mode required", Toast.LENGTH_SHORT).show();
 				return true;
 			}
-//			Intent removeIntent = new Intent(Bluecone_intent.REQUEST_WRITE);
-//			removeIntent.putExtra(Bluecone_intent.EXTRA_COMMAND, "QUEUEREMOVE#");
-//			Log.d(Debug.TAG_QUEUE, "pos: "+info.position+" path: "+pathHolder.get(info.position));
-//			removeIntent.putExtra(Bluecone_intent.EXTRA_BLUECONE_WRITE, pathHolder.get(info.position));
-//			sendBroadcast(removeIntent);
 			BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "QUEUEREMOVE#"+pathHolder.get(info.position)));
 			return true;
 		default:
@@ -376,43 +371,25 @@ public class QueueActivity extends Activity {
 
 
 	public void play(View view){
-//		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
-//		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "PLAY");
-//		sendBroadcast(intent);
 		BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "PLAY"));
 	}
 	public void stop(View view){
-//		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
-//		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "STOP");
-//		sendBroadcast(intent);
 
 		BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "STOP"));
 	}
 	public void next(View view){
-//		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
-//		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "NEXT");
-//		sendBroadcast(intent);
 		BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "NEXT"));
 	}
 	public void pri(View view){
 		int com = 0;
 		if(pri.isChecked())
 			com=1;
-//		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
-//		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "PRI#"+com);
-//		sendBroadcast(intent);
 		BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "PRI#"+com));
 	}
 	public void adjustVolumeUp(View view){
-//		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
-//		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "VOLUP");
-//		sendBroadcast(intent);
 		BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "VOLUP"));
 	}
 	public void adjustVolumeDown(View view){
-//		Intent intent = new Intent(Bluecone_intent.REQUEST_MASTER);
-//		intent.putExtra(Bluecone_intent.EXTRA_MASTER_COMMAND, "VOLDOWN");
-//		sendBroadcast(intent);
 		BlueconeHandler.getHandler().sendMessage(BlueconeHandler.getHandler().obtainMessage(BlueconeHandler.WRITE, "VOLDOWN"));
 	}
 

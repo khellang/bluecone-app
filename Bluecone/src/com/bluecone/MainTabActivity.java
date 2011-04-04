@@ -52,6 +52,7 @@ public class MainTabActivity extends TabActivity {
 	private static TextView title_center;
 	private int max;
 	private int progress;
+	private String textTicker;
 	
 
 	/**Instances to be used by other classes in this package */
@@ -76,6 +77,7 @@ public class MainTabActivity extends TabActivity {
 		title_center = (TextView) findViewById(R.id.custom_title_center);
 		progressHorizontal = (ProgressBar) findViewById(R.id.progress_horizontal);
 		progressHorizontal.setVisibility(View.GONE);
+		textTicker = "";
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		deviceConnector = new DeviceConnector();
 		BlueconeContext.setBlueconeContext(this);
@@ -151,6 +153,19 @@ public class MainTabActivity extends TabActivity {
 					BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			startActivityForResult(enableIntent, REQUEST_ENABLE);
 		}
+	}
+	@Override
+	public void onResume(){
+		super.onResume();
+		if(Debug.D)Log.d(Debug.TAG_MAIN, "onResume()");
+		if(textTicker.length()>15)
+			inputText(textTicker);
+	}
+	@Override
+	public void onPause(){
+		super.onPause();
+		if(Debug.D)Log.d(Debug.TAG_MAIN, "onPause()");
+		stopCenterTicker();
 	}
 
 	/**Unregister receiver */
@@ -287,7 +302,7 @@ public class MainTabActivity extends TabActivity {
 				stopCenterTicker();
 				break;
 			case NOW_PLAYING:
-				String textTicker = intent.getStringExtra(Bluecone_intent.EXTRA_NOW_PLAYING_ARTIST)+" - "+
+				 textTicker = intent.getStringExtra(Bluecone_intent.EXTRA_NOW_PLAYING_ARTIST)+" - "+
 				intent.getStringExtra(Bluecone_intent.EXTRA_NOW_PLAYING_TRACK);
 				if(Debug.D)Log.d(Debug.TAG_MAIN, "NOW PLAYING: "+textTicker);
 				stopCenterTicker();
