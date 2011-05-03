@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.bluecone.intent.Bluecone_intent;
 import com.bluecone.storage.ArtistList.Album;
+import com.bluecone.storage.ArtistList.Artist;
 import com.bluecone.storage.ArtistList.Track;
 import debug.Debug;
 import android.app.ListActivity;
@@ -31,6 +32,7 @@ public class TrackListActivity extends ListActivity {
 	private static final HashMap<String, Integer> actionMap;
 	private static final int REFRESH=0;
 	private static final int REFRESH_TRACK=1;
+	private static final int REFRESH_ARTIST_TRACKS=2;
 	private static String selection;
 	private static String[] selectionArgs;
 	private static String sortOrder;
@@ -56,8 +58,10 @@ public class TrackListActivity extends ListActivity {
 		super.onStart();
 		IntentFilter refresh_allIntent = new IntentFilter(Bluecone_intent.REFRESH);
 		IntentFilter refresh_albumIntent = new IntentFilter(Bluecone_intent.REFRESH_TRACK);
+		IntentFilter refresh_Tracks_artist = new IntentFilter(Bluecone_intent.REFRESH_ALBUM);
 		this.registerReceiver(receiver, refresh_allIntent);
 		this.registerReceiver(receiver, refresh_albumIntent);
+		this.registerReceiver(receiver, refresh_Tracks_artist);
 	}
 
 
@@ -76,6 +80,10 @@ public class TrackListActivity extends ListActivity {
 				update();
 				MainTabActivity.tabHost.setCurrentTab(2);
 				break;
+			case REFRESH_ARTIST_TRACKS:
+				selection = Track.ARTIST_NAME+" =?";
+				selectionArgs = new String[]{intent.getStringExtra(Artist.NAME)};
+				update();
 			}
 
 		}
@@ -160,6 +168,7 @@ public class TrackListActivity extends ListActivity {
 		actionMap = new HashMap<String, Integer>();
 		actionMap.put(Bluecone_intent.REFRESH, REFRESH);
 		actionMap.put(Bluecone_intent.REFRESH_TRACK, REFRESH_TRACK);
+		actionMap.put(Bluecone_intent.REFRESH_ALBUM, REFRESH_ARTIST_TRACKS);
 		
 	}
 

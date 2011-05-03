@@ -261,7 +261,7 @@ public class BlueconeContentProvider extends ContentProvider {
 		return count;
 	}
 
-	static {
+	static { 
 		sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 		sUriMatcher.addURI(ArtistList.AUTHORITY, ARTIST_TABLE_NAME, ARTIST);
 		sUriMatcher.addURI(ArtistList.AUTHORITY, ALBUM_TABLE_NAME, ALBUM);
